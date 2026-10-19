@@ -14,8 +14,8 @@ export async function searchUsers(query) {
   const currentUserId = window.VELTO_AUTH_USER?.id;
 
   let request = supabase
-    .from('profiles')
-    .select('id, username, display_name')
+    .from('public_profiles')
+    .select('id, username, display_name, avatar_url')
     .ilike('username', `%${term}%`)
     .limit(20);
 
