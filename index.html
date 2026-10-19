@@ -159,7 +159,7 @@ if("serviceWorker" in navigator && location.protocol.startsWith("http"))navigato
 // Velto profile, settings and create-chat additions (local prototype)
 (()=>{
  const modalBack=document.getElementById('modalBack'), modalTitle=document.getElementById('modalTitle'), modalContent=document.getElementById('modalContent');
- const getProfile=()=>{try{return JSON.parse(localStorage.getItem('velto.profile')||'{"name":"Мой профиль","username":"velto_user","bio":"На связи в Velto"}')}catch{return {name:'Мой профиль',username:'velto_user',bio:'На связи в Velto'}}};
+ const getProfile=()=>{const key='velto.profile.'+((window.VELTO_AUTH_USER&&window.VELTO_AUTH_USER.id)||'guest');try{return JSON.parse(localStorage.getItem(key)||'{"name":"Мой профиль","username":"velto_user","bio":"На связи в Velto"}')}catch{return {name:'Мой профиль',username:'velto_user',bio:'На связи в Velto'}}};
  let profile=getProfile();
  const openModal=(title,html)=>{modalTitle.textContent=title;modalContent.innerHTML=html;modalBack.hidden=false};
  const closeModal=()=>{modalBack.hidden=true;modalContent.innerHTML=''};
