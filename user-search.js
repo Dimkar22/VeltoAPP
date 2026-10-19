@@ -1,21 +1,32 @@
-
-import { supabase } from './supabase.js';
-
 export async function searchUsers(query) {
-  const term = query?.trim();
+  const supabase = window.veltoSupabase;
 
-  if (!term || term.length < 2) {
+  if (!supabase) {
+    throw new Error('Supabase не подключён');
+  }
+
+  const term = String(query ?? '').trim();
+
+  if (term.length < 2) {
     return [];
   }
 
-  const { data, error } = await supabase
+  const currentUserId = window.VELTO_AUTH_USER?.id;
+
+  let request = supabase
     .from('profiles')
-    .select('id, username, display_name, avatar_url')
+    .select('id, username, display_name')
     .ilike('username', `%${term}%`)
     .limit(20);
 
+  if (currentUserId) {
+    request = request.neq('id', currentUserId);
+  }
+
+  const { data, error } = await request;
+
   if (error) {
-    console.error('Ошибка поиска пользователей:', error.message);
+    console.error('Ошибка поиска Velto:', error.message);
     throw error;
   }
 
