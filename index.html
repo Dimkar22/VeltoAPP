@@ -181,8 +181,6 @@ if("serviceWorker" in navigator && location.protocol.startsWith("http"))navigato
 
  // Four-section navigation. Contacts/call history are UI prototypes until their backend is connected.
  const setActiveNav=(name)=>document.querySelectorAll('.navitem').forEach(b=>b.classList.toggle('active',b.dataset.section===name));
- if(name==='contacts'){
-  const seen=new Set();
   const contacts=chats.filter(c=>c.type==='personal'&&!seen.has(c.name)&&seen.add(c.name));
 
   list.innerHTML=`
