@@ -254,7 +254,13 @@ if("serviceWorker" in navigator && location.protocol.startsWith("http"))navigato
    currentSection=name;setActiveNav(name);document.getElementById('app').classList.remove('chat-open');
    document.getElementById('conversation').style.display='none';document.getElementById('empty').style.display='block';activeId=null;
    document.querySelector('.search').hidden=!['chats','contacts'].includes(name);document.querySelector('.tabs').hidden=name!=='chats';document.getElementById('newChat').hidden=name!=='chats';document.getElementById('chatlist').hidden=false;
-   if(name==='chats'){renderChats();document.getElementById('empty').style.display='block';document.getElementById('empty').innerHTML='<div class="big">✉</div><h2 style="color:var(--text);margin:0 0 8px">Добро пожаловать в Velto</h2><div>Выберите чат, чтобы начать общение</div><p style="font-size:12px">Простой. Быстрый. Твой.</p>';return;}
+   const topSearch=document.querySelector('.search input');
+if(topSearch){
+  topSearch.placeholder=name==='contacts'
+    ?'Поиск по @username'
+    :'Поиск по чатам';
+}
+ if(name==='chats'){renderChats();document.getElementById('empty').style.display='block';document.getElementById('empty').innerHTML='<div class="big">✉</div><h2 style="color:var(--text);margin:0 0 8px">Добро пожаловать в Velto</h2><div>Выберите чат, чтобы начать общение</div><p style="font-size:12px">Простой. Быстрый. Твой.</p>';return;}
    const list=document.getElementById('chatlist');
    if(name==='contacts'){
   const seen=new Set();
