@@ -257,7 +257,10 @@ if("serviceWorker" in navigator && location.protocol.startsWith("http"))navigato
 
   return;
  }
-   currentSection=name;setActiveNav(name);const renderSection=(name)=>{ document.getElementById('app').classList.remove('chat-open');
+ const renderSection=(name)=>{
+   currentSection=name;
+   setActiveNav(name);
+   document.getElementById('app').classList.remove('chat-open');
    document.getElementById('conversation').style.display='none';document.getElementById('empty').style.display='block';activeId=null;
    document.querySelector('.search').hidden=!['chats','contacts'].includes(name);document.querySelector('.tabs').hidden=name!=='chats';document.getElementById('newChat').hidden=name!=='chats';document.getElementById('chatlist').hidden=false;
    const topSearch=document.querySelector('.search input');
