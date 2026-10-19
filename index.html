@@ -171,7 +171,7 @@ if("serviceWorker" in navigator && location.protocol.startsWith("http"))navigato
 
  // Four-section navigation. Contacts/call history are UI prototypes until their backend is connected.
  const setActiveNav=(name)=>document.querySelectorAll('.navitem').forEach(b=>b.classList.toggle('active',b.dataset.section===name));
- const renderSection=(name)=>{
+ if(name==='contacts'){
    currentSection=name;setActiveNav(name);document.getElementById('app').classList.remove('chat-open');
    document.getElementById('conversation').style.display='none';document.getElementById('empty').style.display='block';activeId=null;
    document.querySelector('.search').hidden=name!=='chats';document.querySelector('.tabs').hidden=name!=='chats';document.getElementById('newChat').hidden=name!=='chats';document.getElementById('chatlist').hidden=false;
