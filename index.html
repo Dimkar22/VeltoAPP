@@ -3810,8 +3810,17 @@
       </div>
     </div>
     <div id="login-form-panel" class="hidden">
-      <div class="input-group"><label>Никнейм</label><input type="text" id="login-name" class="reg-input" placeholder="Ваш никнейм" maxlength="20" autocomplete="username"></div>
-      <div class="input-group"><label>Email (необязательно)</label><input type="email" id="login-email" class="reg-input" placeholder="Можно оставить пустым" autocomplete="email"></div>
+      <div class="input-group">
+  <label>Email</label>
+  <input
+    type="email"
+    id="login-email"
+    class="reg-input"
+    placeholder="Введите email"
+    autocomplete="email"
+    required
+  >
+</div>
       <div class="input-group"><label>Пароль</label><input type="password" id="login-pass" class="reg-input" placeholder="Введите пароль" autocomplete="current-password"></div>
       <div class="error-msg" id="login-error"></div>
       <button class="reg-btn" id="login-submit" type="button">Войти в аккаунт</button>
