@@ -12,6 +12,53 @@
 
   <script>
     window.veltoSupabase = window.supabase.createClient(
+      // ===== ЗАВЕРШЕНИЕ ВОССТАНОВЛЕНИЯ ПАРОЛЯ =====
+window.veltoSupabase.auth.onAuthStateChange((event) => {
+  if (event !== 'PASSWORD_RECOVERY') return;
+
+  // Не выполняем запрос Supabase непосредственно
+  // внутри callback события авторизации.
+  setTimeout(async () => {
+    const newPassword = prompt(
+      'Введи новый пароль (минимум 8 символов):'
+    );
+
+    if (newPassword === null) return;
+
+    if (newPassword.length < 8) {
+      alert('Пароль должен содержать минимум 8 символов.');
+      return;
+    }
+
+    const repeatedPassword = prompt('Повтори новый пароль:');
+
+    if (repeatedPassword === null) return;
+
+    if (newPassword !== repeatedPassword) {
+      alert('Пароли не совпадают. Запроси новую ссылку восстановления.');
+      return;
+    }
+
+    try {
+      const { error } =
+        await window.veltoSupabase.auth.updateUser({
+          password: newPassword
+        });
+
+      if (error) throw error;
+
+      alert('Пароль успешно изменён! Теперь войди в Velto с новым паролем.');
+
+      await window.veltoSupabase.auth.signOut();
+
+      window.location.href =
+        'https://dimkar22.github.io/VeltoAPP/';
+    } catch (error) {
+      console.error('Ошибка смены пароля:', error);
+      alert('Не удалось изменить пароль. Запроси новую ссылку восстановления.');
+    }
+  }, 0);
+});
       'https://avfsyhsartovotduwxww.supabase.co',
       'sb_publishable_UAhEnpOTwJC-zAu6oF0qoQ_PiaQTSyX'
     );
@@ -3824,6 +3871,13 @@
       <div class="input-group"><label>Пароль</label><input type="password" id="login-pass" class="reg-input" placeholder="Введите пароль" autocomplete="current-password"></div>
       <div class="error-msg" id="login-error"></div>
       <button class="reg-btn" id="login-submit" type="button">Войти в аккаунт</button>
+      <div style="text-align:center;margin-top:10px;">
+  <a
+    href="#"
+    id="forgot-password-link"
+    style="font-size:12px;color:#22c55e;text-decoration:none;"
+  >Забыли пароль?</a>
+</div>
       <p class="modal-note" style="margin-top:12px">Аккаунты хранятся в базе этого браузера (localStorage + IndexedDB). Если аккаунт пропал, восстанови его из файла копии.</p>
       <button class="secondary-btn" id="restore-db-btn" type="button" style="width:100%;margin-top:10px">⬆ Восстановить аккаунты из файла копии</button>
       <input type="file" id="restore-db-file" accept=".json,application/json" hidden>
@@ -4712,6 +4766,43 @@
   }
   showRegisterBtn.addEventListener('click',()=>showAuthMode('register'));
   showLoginBtn.addEventListener('click',()=>showAuthMode('login'));
+  // ===== ВОССТАНОВЛЕНИЕ ПАРОЛЯ VELTO =====
+document.getElementById('forgot-password-link')
+  .addEventListener('click', async (event) => {
+    event.preventDefault();
+
+    const emailInput = document.getElementById('login-email');
+    const email = emailInput.value.trim().toLowerCase();
+
+    if (!email) {
+      alert('Сначала введи свой email в поле выше.');
+      emailInput.focus();
+      return;
+    }
+
+    if (!window.veltoSupabase) {
+      alert('Не удалось подключиться к Supabase.');
+      return;
+    }
+
+    try {
+      const { error } =
+        await window.veltoSupabase.auth.resetPasswordForEmail(email, {
+          redirectTo: 'https://dimkar22.github.io/VeltoAPP/'
+        });
+
+      if (error) throw error;
+
+      alert(
+        'Если аккаунт с таким email существует, ' +
+        'на него придёт письмо для восстановления пароля. ' +
+        'Проверь также папку «Спам».'
+      );
+    } catch (error) {
+      console.error('Ошибка восстановления пароля:', error);
+      alert('Не удалось отправить письмо. Попробуй позже.');
+    }
+  });
   document.getElementById('login-submit').addEventListener('click', async () => {
   const emailInput = document.getElementById('login-email');
   const passInput = document.getElementById('login-pass');
