@@ -4775,11 +4775,10 @@
     await dbReady;
 
     const name =
-      cloudProfile?.username ||
-      cloudProfile?.display_name ||
-      authUser.user_metadata?.display_name ||
-      document.getElementById('login-name').value.trim() ||
-      email.split('@')[0];
+  cloudProfile?.username ||
+  cloudProfile?.display_name ||
+  authUser.user_metadata?.display_name ||
+  email.split('@')[0];
 
     userName = name;
     userAvatarUrl =
