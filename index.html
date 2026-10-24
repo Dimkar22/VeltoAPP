@@ -3767,11 +3767,11 @@
       </div>
       <div id="login-form-panel" class="hidden">
         <div class="input-group"><label>Никнейм</label><input type="text" id="login-name" class="reg-input" placeholder="Ваш никнейм" maxlength="20" autocomplete="username"></div>
-        <div class="input-group"><label>Email (необязательно)</label><input type="email" id="login-email" class="reg-input" placeholder="Можно оставить пустым" autocomplete="email"></div>
+        <div class="input-group"><label>Email</label><input type="email" id="login-email" class="reg-input" placeholder="Можно оставить пустым" autocomplete="email"></div>
         <div class="input-group"><label>Пароль</label><input type="password" id="login-pass" class="reg-input" placeholder="Введите пароль" autocomplete="current-password"></div>
         <div class="error-msg" id="login-error"></div>
         <button class="reg-btn" id="login-submit" type="button">Войти в аккаунт</button>
-        <p class="modal-note" style="margin-top:12px">Аккаунты хранятся в базе этого браузера (localStorage + IndexedDB). Если аккаунт пропал, восстанови его из файла копии.</p>
+        <p class="modal-note" style="margin-top:12px">Вход выполняется через email и пароль Velto. Профиль синхронизируется через облако; резервные копии локальной базы доступны в настройках.</p>
         <button class="secondary-btn" id="restore-db-btn" type="button" style="width:100%;margin-top:10px">⬆ Восстановить аккаунты из файла копии</button>
         <input type="file" id="restore-db-file" accept=".json,application/json" hidden>
         <p class="modal-note" id="restore-db-msg" style="margin-top:8px"></p>
@@ -4453,7 +4453,8 @@
     </div>
   </div>
 
-  <script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
     // ===== ГЕНЕРАЦИЯ ЗВЁЗД (меньше = меньше лагов) =====
     const starsLayer = document.getElementById('stars-layer');
     const STAR_COUNT = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 24;
@@ -4659,36 +4660,40 @@
     }
     showRegisterBtn.addEventListener('click',()=>showAuthMode('register'));
     showLoginBtn.addEventListener('click',()=>showAuthMode('login'));
-    document.getElementById('login-submit').addEventListener('click',async()=>{
+    document.getElementById('login-submit').addEventListener('click', async () => {
       await dbReady;
-      const name=document.getElementById('login-name').value.trim();
-      const email=document.getElementById('login-email').value.trim().toLowerCase();
-      const pass=document.getElementById('login-pass').value;
-      const error=document.getElementById('login-error');
-      const account=pass?findAccountForLogin(name,email,pass):null;
-      if(!account){
-        if(!(db.accounts&&db.accounts.length)){
-          error.textContent='Аккаунтов пока нет. Сначала нажми «Зарегистрироваться» и создай аккаунт (данные хранятся только в этом браузере).';
-        } else if(!name || !pass){
-          error.textContent='Введи никнейм и пароль.';
-        } else {
-          error.textContent='Неверный никнейм или пароль. Если забыл — зарегистрируй новый аккаунт или восстанови из файла копии.';
-        }
-        error.classList.add('show');return;
+      const name = document.getElementById('login-name').value.trim();
+      const email = document.getElementById('login-email').value.trim().toLowerCase();
+      const pass = document.getElementById('login-pass').value;
+      const error = document.getElementById('login-error');
+      if (!veltoSupabase) { error.textContent = 'Не удалось подключить сервер авторизации. Проверь интернет и обнови страницу.'; error.classList.add('show'); return; }
+      if (!email || !pass) { error.textContent = 'Введи email и пароль.'; error.classList.add('show'); return; }
+      const button = document.getElementById('login-submit');
+      button.disabled = true; button.textContent = 'Входим...';
+      try {
+        const { data, error: authError } = await veltoSupabase.auth.signInWithPassword({ email, password: pass });
+        if (authError) throw authError;
+        error.textContent = ''; error.classList.remove('show');
+        await cloudActivateSession(data.user, name);
+      } catch (e) {
+        error.textContent = cloudErrorMessage(e); error.classList.add('show');
+      } finally {
+        button.disabled = false; button.textContent = 'Войти в аккаунт';
       }
-      error.textContent='';error.classList.remove('show');
-      userName=account.name;userAvatarUrl=account.avatar||defaultAvatar(account.name);currentTheme=normalizeTheme(account.theme);
-      db.profile={name:account.name,email:account.email,avatar:userAvatarUrl,theme:currentTheme,isAdmin:account.isAdmin===true,isOwner:account.isOwner===true};
-      db.currentAccountEmail=account.email;db.isAdmin=account.isAdmin===true||account.isOwner===true;db.isOwner=account.isOwner===true;saveDB();
-      applyTheme(currentTheme,false);registerScreen.classList.add('hidden');avatarScreen.classList.add('hidden');welcomeScreen.classList.add('hidden');appScreen.classList.remove('hidden');
-      userAvatarImg.src=userAvatarUrl;userNameSpan.textContent=userName;renderAdminTag();
-      try{loadSavedContactsIntoMemory();}catch(_){}
-      try{applyPremiumChrome();}catch(_){}
-      try{ensureOwnComets();}catch(_){}
-      renderChatList();
-      setTimeout(connectWebSocket, 500);
     });
     ['login-name','login-email','login-pass'].forEach(id=>document.getElementById(id).addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('login-submit').click();}));
+    // Восстановить вход на этом устройстве, если Supabase-сессия ещё действительна.
+    (async () => {
+      try {
+        if (!veltoSupabase) return;
+        const { data } = await veltoSupabase.auth.getSession();
+        if (data && data.session && data.session.user) {
+          await dbReady;
+          await cloudActivateSession(data.session.user, '');
+        }
+      } catch (e) { console.warn('Velto session restore:', e); }
+    })();
+
     const regProgress = document.getElementById('reg-progress');
     const regProgressBar = document.getElementById('reg-progress-bar');
     const avatarOptions = document.querySelectorAll('.avatar-option'); // Готовые аватары удалены из регистрации
@@ -4706,6 +4711,118 @@
     let userAvatarUrl = '';
     let activeChatId = null;
     const DB_KEY = 'veltoMessengerFixedDB_v1';
+    // ===== VELTO CLOUD AUTH / SYNC (Supabase) =====
+    const VELTO_SUPABASE_URL = 'https://dipnrirmjuquugomartw.supabase.co';
+    const VELTO_SUPABASE_KEY = 'sb_publishable_IO5WcZdDCFscXfDb9Z5E6A_G33-B8do';
+    const veltoSupabase = (window.supabase && window.supabase.createClient)
+      ? window.supabase.createClient(VELTO_SUPABASE_URL, VELTO_SUPABASE_KEY, {
+          auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
+        }) : null;
+    let veltoCloudUser = null;
+    let veltoCloudSaveTimer = null;
+    let veltoCloudSaveBusy = false;
+    let veltoCloudSaveAgain = false;
+    function cloudErrorMessage(err) {
+      const msg = String(err && (err.message || err.error_description) || 'Неизвестная ошибка');
+      if (/Invalid login credentials/i.test(msg)) return 'Неверный email или пароль.';
+      if (/Email not confirmed/i.test(msg)) return 'Подтверди email по ссылке из письма, затем войди снова.';
+      if (/User already registered/i.test(msg)) return 'Этот email уже зарегистрирован. Переключись на «Войти».';
+      if (/Failed to fetch|NetworkError/i.test(msg)) return 'Нет соединения с сервером. Проверь интернет и повтори.';
+      return msg;
+    }
+    function cloudSafeSnapshot(source) {
+      const copy = JSON.parse(JSON.stringify(source || {}));
+      // Не отправляем список локальных аккаунтов, хеши паролей и административные права.
+      delete copy.accounts;
+      delete copy.currentAccountEmail;
+      delete copy.isAdmin;
+      delete copy.isOwner;
+      if (copy.profile) { delete copy.profile.isAdmin; delete copy.profile.isOwner; }
+      // Фото/видео в dataURL могут быть огромными. Сохраняем текстовые данные,
+      // но большие вложения должны храниться отдельно в Storage.
+      const clean = value => {
+        if (!value || typeof value !== 'object') return;
+        if (Array.isArray(value)) { value.forEach(clean); return; }
+        Object.keys(value).forEach(k => {
+          const v = value[k];
+          if (typeof v === 'string' && v.startsWith('data:') && v.length > 2000) {
+            value[k] = '';
+            if (value && typeof value === 'object') value[k + '_cloud_omitted'] = true;
+          } else if (v && typeof v === 'object') clean(v);
+        });
+      };
+      clean(copy);
+      return copy;
+    }
+    async function cloudLoadUserData(user) {
+      if (!veltoSupabase || !user) return null;
+      const { data, error } = await veltoSupabase
+        .from('velto_user_data').select('data').eq('user_id', user.id).maybeSingle();
+      if (error) throw error;
+      return data && data.data && typeof data.data === 'object' ? data.data : null;
+    }
+    async function cloudSaveUserData() {
+      if (!veltoSupabase || !veltoCloudUser || !db.profile) return;
+      if (veltoCloudSaveBusy) { veltoCloudSaveAgain = true; return; }
+      veltoCloudSaveBusy = true;
+      try {
+        const payload = cloudSafeSnapshot(db);
+        const { error } = await veltoSupabase.from('velto_user_data').upsert({
+          user_id: veltoCloudUser.id,
+          data: payload,
+          updated_at: new Date().toISOString()
+        }, { onConflict: 'user_id' });
+        if (error) console.warn('Velto cloud save failed:', error.message);
+      } catch (e) { console.warn('Velto cloud save failed:', e); }
+      finally {
+        veltoCloudSaveBusy = false;
+        if (veltoCloudSaveAgain) {
+          veltoCloudSaveAgain = false;
+          cloudScheduleSave();
+        }
+      }
+    }
+    function cloudScheduleSave() {
+      if (!veltoCloudUser) return;
+      clearTimeout(veltoCloudSaveTimer);
+      veltoCloudSaveTimer = setTimeout(cloudSaveUserData, 1800);
+    }
+    async function cloudActivateSession(user, fallbackName) {
+      veltoCloudUser = user;
+      const email = String(user.email || '').toLowerCase();
+      const meta = user.user_metadata || {};
+      const cloudName = String(meta.display_name || meta.username || fallbackName || (email.split('@')[0] || 'Velto')).trim();
+      const localMatches = db.profile && lc(db.profile.email) === lc(email);
+      let remote = await cloudLoadUserData(user);
+      if (remote) {
+        db = { ...db, ...remote };
+      } else if (!localMatches) {
+        // Не переносим локальные чаты другого аккаунта в новый аккаунт.
+        db.chatData = {}; db.groups = []; db.savedContacts = []; db.comets = {};
+        db.channels = []; db.botInbox = {}; db.botHistory = {}; db.checkmarks = [];
+      }
+      const profile = db.profile && lc(db.profile.email) === lc(email) ? db.profile : {};
+      userName = profile.name || cloudName;
+      userAvatarUrl = profile.avatar || defaultAvatar(userName);
+      currentTheme = normalizeTheme(profile.theme || currentTheme || 'velto');
+      db.profile = { name: userName, email, avatar: userAvatarUrl, theme: currentTheme };
+      db.accounts = [{ name: userName, email, avatar: userAvatarUrl, theme: currentTheme, cloudAccount: true }];
+      db.currentAccountEmail = email;
+      db.isAdmin = false; db.isOwner = false;
+      saveDB();
+      applyTheme(currentTheme, false);
+      registerScreen.classList.add('hidden'); avatarScreen.classList.add('hidden');
+      welcomeScreen.classList.add('hidden'); appScreen.classList.remove('hidden');
+      userAvatarImg.src = userAvatarUrl; userNameSpan.textContent = userName;
+      renderAdminTag();
+      try { loadSavedContactsIntoMemory(); } catch (_) {}
+      try { applyPremiumChrome(); } catch (_) {}
+      try { ensureOwnComets(); } catch (_) {}
+      renderChatList();
+      setTimeout(connectWebSocket, 500);
+      cloudScheduleSave();
+    }
+
     if (typeof CSS === 'undefined') window.CSS = {};
     if (!CSS.escape) CSS.escape = function(s){ return String(s).replace(/[^a-zA-Z0-9_-]/g, function(c){ return '\\' + c; }); };
 
@@ -4959,6 +5076,8 @@
       _saveDBWriting = true;
       try {
         const snap = buildDbSnapshot();
+        // Облачная копия текущего аккаунта; локальное сохранение продолжает работать офлайн.
+        if (veltoCloudUser) cloudScheduleSave();
         // 1) localStorage — быстрый кэш
         let lsOk = false;
         try {
@@ -6702,56 +6821,48 @@
     });
 
     // ===== РЕГИСТРАЦИЯ =====
-    regSubmit.addEventListener('click', () => {
+    regSubmit.addEventListener('click', async () => {
       let valid = true;
       const name = regName.value.trim();
-      const email = regEmail.value.trim();
+      const email = regEmail.value.trim().toLowerCase();
       const pass = regPass.value;
       const pass2 = regPass2.value;
-
       const nErr = validateName(name);
-      if (nErr) { showError(regName, nameError, nErr); valid = false; }
-      else clearError(regName, nameError);
-
+      if (nErr) { showError(regName, nameError, nErr); valid = false; } else clearError(regName, nameError);
       const eErr = validateEmail(email);
-      if (eErr) { showError(regEmail, emailError, eErr); valid = false; }
-      else clearError(regEmail, emailError);
-
+      if (eErr) { showError(regEmail, emailError, eErr); valid = false; } else clearError(regEmail, emailError);
       const pErr = validatePassword(pass);
-      if (pErr) { showError(regPass, passError, pErr); valid = false; }
-      else clearError(regPass, passError);
-
-      if (pass2 !== pass) {
-        showError(regPass2, pass2Error, 'Пароли не совпадают');
-        valid = false;
-      } else if (pass2) clearError(regPass2, pass2Error);
-
+      if (pErr) { showError(regPass, passError, pErr); valid = false; } else clearError(regPass, passError);
+      if (pass2 !== pass) { showError(regPass2, pass2Error, 'Пароли не совпадают'); valid = false; }
+      else if (pass2) clearError(regPass2, pass2Error);
       if (!valid) return;
-
-      userName = name;
-      const duplicate=(db.accounts||[]).some(a=>a.email.toLowerCase()===email.toLowerCase()||a.name.toLowerCase()===name.toLowerCase());
-      if(duplicate){ if((db.accounts||[]).some(a=>a.email.toLowerCase()===email.toLowerCase())) showError(regEmail,emailError,'Этот email уже зарегистрирован'); else showError(regName,nameError,'Этот никнейм уже занят'); return; }
-      pendingAccount={name,email:email.toLowerCase()}; setAccountPassword(pendingAccount, pass);
-      if(!Array.isArray(db.accounts)) db.accounts=[];
-      db.accounts.push({...pendingAccount,avatar:'',theme:currentTheme,isAdmin:false}); saveDB();
-      regSubmit.disabled = true;
-      regSubmit.textContent = 'Подождите...';
-      regProgress.style.display = 'block';
-      regProgressBar.style.width = '0%';
-
-      setTimeout(() => { regProgressBar.style.width = '40%'; }, 200);
-      setTimeout(() => { regProgressBar.style.width = '75%'; }, 600);
-      setTimeout(() => {
-        regProgressBar.style.width = '100%';
-        setTimeout(() => {
-          registerScreen.classList.add('hidden');
+      if (!veltoSupabase) { showError(regEmail, emailError, 'Не удалось подключить сервер авторизации. Обнови страницу и попробуй снова.'); return; }
+      regSubmit.disabled = true; regSubmit.textContent = 'Подождите...';
+      try {
+        const { data, error } = await veltoSupabase.auth.signUp({
+          email, password: pass,
+          options: { data: { username: name, display_name: name } }
+        });
+        if (error) throw error;
+        pendingAccount = { name, email };
+        userName = name;
+        if (data.session && data.user) {
+          await cloudActivateSession(data.user, name);
           avatarScreen.classList.remove('hidden');
-          regSubmit.disabled = false;
-          regSubmit.textContent = 'Создать аккаунт';
-          regProgress.style.display = 'none';
-          regProgressBar.style.width = '0%';
-        }, 400);
-      }, 1000);
+          appScreen.classList.add('hidden');
+        } else {
+          const err = document.getElementById('login-error');
+          showAuthMode('login');
+          document.getElementById('login-email').value = email;
+          if (err) { err.textContent = 'Аккаунт создан. Подтверди email по ссылке в письме, затем войди с email и паролем.'; err.classList.add('show'); }
+          alert('Аккаунт Velto создан. Проверь почту и подтверди email, затем войди в приложение.');
+        }
+      } catch (e) {
+        showError(regEmail, emailError, cloudErrorMessage(e));
+      } finally {
+        regSubmit.disabled = false; regSubmit.textContent = 'Создать аккаунт';
+        regProgress.style.display = 'none'; regProgressBar.style.width = '0%';
+      }
     });
 
     regName.addEventListener('keydown', (e) => { if (e.key === 'Enter') regSubmit.click(); });
@@ -11090,25 +11201,23 @@ const inAdminConsole = activeChatId === 'admin-console' || activeContactName.tex
 
     window.addEventListener('load', async () => {
       await dbReady;
-      ensureAccountForProfile();
-      if (db.profile && db.profile.name) {
-        userName = db.profile.name; userAvatarUrl = db.profile.avatar || defaultAvatar(db.profile.name);
-        // восстанавливаем хэллоуин из настроек
-        if (db.settings && db.settings.halloween === true) {
-          paintTheme(db.settings.themeBeforeHalloween || db.profile.theme || 'velto');
-        } else {
-          paintTheme(db.profile.theme);
+      // Не открываем локальный профиль без действующей облачной сессии:
+      // иначе на общем устройстве могли бы показать данные предыдущего аккаунта.
+      try {
+        if (veltoSupabase) {
+          const { data, error } = await veltoSupabase.auth.getSession();
+          if (!error && data && data.session && data.session.user) {
+            await cloudActivateSession(data.session.user, '');
+            return;
+          }
         }
-        if (settingsTheme) settingsTheme.value = currentTheme;
-        registerScreen.classList.add('hidden'); avatarScreen.classList.add('hidden'); welcomeScreen.classList.add('hidden'); appScreen.classList.remove('hidden');
-        userAvatarImg.src = userAvatarUrl; userNameSpan.textContent = userName; renderAdminTag();
-        try { loadSavedContactsIntoMemory(); } catch (_) {}
-        try { applyPremiumChrome(); } catch (_) {}
-        try { ensureOwnComets(); } catch (_) {}
-        renderChatList();
-        // подключаемся к WebSocket для реального общения
-        setTimeout(connectWebSocket, 600);
-      } else { showAuthMode((db.accounts && db.accounts.length) ? 'login' : 'register'); }
+      } catch (e) { console.warn('Velto auth restore:', e); }
+      veltoCloudUser = null;
+      registerScreen.classList.remove('hidden');
+      avatarScreen.classList.add('hidden');
+      welcomeScreen.classList.add('hidden');
+      appScreen.classList.add('hidden');
+      showAuthMode('login');
     });
 
     // при завершении выбора аватара тоже подключаем WS
