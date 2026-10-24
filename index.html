@@ -10,59 +10,57 @@
   <!-- Подключение Supabase для Velto -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-  <script>
-    window.veltoSupabase = window.supabase.createClient(
-      // ===== ЗАВЕРШЕНИЕ ВОССТАНОВЛЕНИЯ ПАРОЛЯ =====
-window.veltoSupabase.auth.onAuthStateChange((event) => {
-  if (event !== 'PASSWORD_RECOVERY') return;
+ <script>
+  window.veltoSupabase = window.supabase.createClient(
+    'https://avfsyhsartovotduwxww.supabase.co',
+    'sb_publishable_UAhEnpOTwJC-zAu6oF0qoQ_PiaQTSyX'
+  );
 
-  // Не выполняем запрос Supabase непосредственно
-  // внутри callback события авторизации.
-  setTimeout(async () => {
-    const newPassword = prompt(
-      'Введи новый пароль (минимум 8 символов):'
-    );
+  window.veltoSupabase.auth.onAuthStateChange((event) => {
+    if (event !== 'PASSWORD_RECOVERY') return;
 
-    if (newPassword === null) return;
+    setTimeout(async () => {
+      const newPassword = prompt(
+        'Введи новый пароль (минимум 8 символов):'
+      );
 
-    if (newPassword.length < 8) {
-      alert('Пароль должен содержать минимум 8 символов.');
-      return;
-    }
+      if (newPassword === null) return;
 
-    const repeatedPassword = prompt('Повтори новый пароль:');
+      if (newPassword.length < 8) {
+        alert('Пароль должен содержать минимум 8 символов.');
+        return;
+      }
 
-    if (repeatedPassword === null) return;
+      const repeatedPassword = prompt('Повтори новый пароль:');
 
-    if (newPassword !== repeatedPassword) {
-      alert('Пароли не совпадают. Запроси новую ссылку восстановления.');
-      return;
-    }
+      if (repeatedPassword === null) return;
 
-    try {
-      const { error } =
-        await window.veltoSupabase.auth.updateUser({
-          password: newPassword
-        });
+      if (newPassword !== repeatedPassword) {
+        alert('Пароли не совпадают. Запроси новую ссылку восстановления.');
+        return;
+      }
 
-      if (error) throw error;
+      try {
+        const { error } =
+          await window.veltoSupabase.auth.updateUser({
+            password: newPassword
+          });
 
-      alert('Пароль успешно изменён! Теперь войди в Velto с новым паролем.');
+        if (error) throw error;
 
-      await window.veltoSupabase.auth.signOut();
+        alert('Пароль успешно изменён!');
 
-      window.location.href =
-        'https://dimkar22.github.io/VeltoAPP/';
-    } catch (error) {
-      console.error('Ошибка смены пароля:', error);
-      alert('Не удалось изменить пароль. Запроси новую ссылку восстановления.');
-    }
-  }, 0);
-});
-      'https://avfsyhsartovotduwxww.supabase.co',
-      'sb_publishable_UAhEnpOTwJC-zAu6oF0qoQ_PiaQTSyX'
-    );
-  </script>
+        await window.veltoSupabase.auth.signOut();
+
+        window.location.href =
+          'https://dimkar22.github.io/VeltoAPP/';
+      } catch (error) {
+        console.error('Ошибка смены пароля:', error);
+        alert('Не удалось изменить пароль. Запроси новую ссылку восстановления.');
+      }
+    }, 0);
+  });
+</script>
 
   <style>
     /* ===== ЛУННАЯ ТЕМА (по умолчанию) ===== */
