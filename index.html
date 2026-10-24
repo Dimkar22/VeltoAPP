@@ -6875,57 +6875,121 @@ return H.map(x=>(x>>>0).toString(16).padStart(8,'0')).join('');
     strengthBar.style.background = colors[score] || '';
   });
 
-  // ===== РЕГИСТРАЦИЯ =====
-  regSubmit.addEventListener('click', () => {
+// ===== РЕГИСТРАЦИЯ VELTO ЧЕРЕЗ SUPABASE =====
+  regSubmit.addEventListener('click', async () => {
     let valid = true;
+
     const name = regName.value.trim();
-    const email = regEmail.value.trim();
+    const email = regEmail.value.trim().toLowerCase();
     const pass = regPass.value;
     const pass2 = regPass2.value;
 
     const nErr = validateName(name);
-    if (nErr) { showError(regName, nameError, nErr); valid = false; }
-    else clearError(regName, nameError);
+    if (nErr) {
+      showError(regName, nameError, nErr);
+      valid = false;
+    } else {
+      clearError(regName, nameError);
+    }
 
     const eErr = validateEmail(email);
-    if (eErr) { showError(regEmail, emailError, eErr); valid = false; }
-    else clearError(regEmail, emailError);
+    if (eErr) {
+      showError(regEmail, emailError, eErr);
+      valid = false;
+    } else {
+      clearError(regEmail, emailError);
+    }
 
     const pErr = validatePassword(pass);
-    if (pErr) { showError(regPass, passError, pErr); valid = false; }
-    else clearError(regPass, passError);
+    if (pErr) {
+      showError(regPass, passError, pErr);
+      valid = false;
+    } else {
+      clearError(regPass, passError);
+    }
 
     if (pass2 !== pass) {
       showError(regPass2, pass2Error, 'Пароли не совпадают');
       valid = false;
-    } else if (pass2) clearError(regPass2, pass2Error);
+    } else if (pass2) {
+      clearError(regPass2, pass2Error);
+    }
 
     if (!valid) return;
 
-    userName = name;
-    const duplicate=(db.accounts||[]).some(a=>a.email.toLowerCase()===email.toLowerCase()||a.name.toLowerCase()===name.toLowerCase());
-    if(duplicate){ if((db.accounts||[]).some(a=>a.email.toLowerCase()===email.toLowerCase())) showError(regEmail,emailError,'Этот email уже зарегистрирован'); else showError(regName,nameError,'Этот никнейм уже занят'); return; }
-    pendingAccount={name,email:email.toLowerCase()}; setAccountPassword(pendingAccount, pass);
-    if(!Array.isArray(db.accounts)) db.accounts=[];
-    db.accounts.push({...pendingAccount,avatar:'',theme:currentTheme,isAdmin:false}); saveDB();
-    regSubmit.disabled = true;
-    regSubmit.textContent = 'Подождите...';
-    regProgress.style.display = 'block';
-    regProgressBar.style.width = '0%';
+    if (!window.veltoSupabase) {
+      alert('Supabase не подключён. Проверь настройки подключения.');
+      return;
+    }
 
-    setTimeout(() => { regProgressBar.style.width = '40%'; }, 200);
-    setTimeout(() => { regProgressBar.style.width = '75%'; }, 600);
-    setTimeout(() => {
-      regProgressBar.style.width = '100%';
-      setTimeout(() => {
+    regSubmit.disabled = true;
+    const oldText = regSubmit.textContent;
+    regSubmit.textContent = 'Создаём аккаунт...';
+
+    if (regProgress) regProgress.style.display = 'block';
+    if (regProgressBar) regProgressBar.style.width = '40%';
+
+    try {
+      const { data, error: signUpError } =
+        await window.veltoSupabase.auth.signUp({
+          email,
+          password: pass,
+          options: {
+            data: {
+              display_name: name
+            },
+            emailRedirectTo: 'https://dimkar22.github.io/VeltoAPP/'
+          }
+        });
+
+      if (signUpError) throw signUpError;
+
+      if (!data.user) {
+        throw new Error('Supabase не вернул созданного пользователя.');
+      }
+
+      userName = name;
+      pendingAccount = {
+        name,
+        email
+      };
+
+      if (regProgressBar) regProgressBar.style.width = '100%';
+
+      if (data.session) {
+        // Подтверждение email не требуется — можно продолжить.
         registerScreen.classList.add('hidden');
         avatarScreen.classList.remove('hidden');
-        regSubmit.disabled = false;
-        regSubmit.textContent = 'Создать аккаунт';
-        regProgress.style.display = 'none';
-        regProgressBar.style.width = '0%';
-      }, 400);
-    }, 1000);
+      } else {
+        // Supabase ожидает подтверждение email.
+        alert(
+          'Аккаунт создан! Проверь почту и подтверди email. ' +
+          'После подтверждения войди в Velto со своим email и паролем.'
+        );
+
+        if (typeof showAuthMode === 'function') {
+          showAuthMode('login');
+        }
+      }
+
+    } catch (e) {
+      console.error('Ошибка регистрации Velto:', e);
+
+      let message = e.message || 'Не удалось создать аккаунт.';
+
+      if (message.toLowerCase().includes('already registered')) {
+        message = 'Этот email уже зарегистрирован.';
+      }
+
+      showError(regEmail, emailError, message);
+
+    } finally {
+      regSubmit.disabled = false;
+      regSubmit.textContent = oldText;
+
+      if (regProgress) regProgress.style.display = 'none';
+      if (regProgressBar) regProgressBar.style.width = '0%';
+    }
   });
 
   regName.addEventListener('keydown', (e) => { if (e.key === 'Enter') regSubmit.click(); });
