@@ -4703,35 +4703,165 @@
   }
   showRegisterBtn.addEventListener('click',()=>showAuthMode('register'));
   showLoginBtn.addEventListener('click',()=>showAuthMode('login'));
-  document.getElementById('login-submit').addEventListener('click',async()=>{
-    await dbReady;
-    const name=document.getElementById('login-name').value.trim();
-    const email=document.getElementById('login-email').value.trim().toLowerCase();
-    const pass=document.getElementById('login-pass').value;
-    const error=document.getElementById('login-error');
-    const account=pass?findAccountForLogin(name,email,pass):null;
-    if(!account){
-      if(!(db.accounts&&db.accounts.length)){
-        error.textContent='Аккаунтов пока нет. Сначала нажми «Зарегистрироваться» и создай аккаунт (данные хранятся только в этом браузере).';
-      } else if(!name || !pass){
-        error.textContent='Введи никнейм и пароль.';
-      } else {
-        error.textContent='Неверный никнейм или пароль. Если забыл — зарегистрируй новый аккаунт или восстанови из файла копии.';
-      }
-      error.classList.add('show');return;
+  document.getElementById('login-submit').addEventListener('click', async () => {
+  const emailInput = document.getElementById('login-email');
+  const passInput = document.getElementById('login-pass');
+  const error = document.getElementById('login-error');
+  const loginButton = document.getElementById('login-submit');
+
+  const email = emailInput.value.trim().toLowerCase();
+  const pass = passInput.value;
+
+  error.textContent = '';
+  error.classList.remove('show');
+
+  if (!email || !pass) {
+    error.textContent = 'Введи email и пароль.';
+    error.classList.add('show');
+    return;
+  }
+
+  if (!window.veltoSupabase) {
+    error.textContent = 'Не удалось подключиться к Supabase. Проверь подключение библиотеки.';
+    error.classList.add('show');
+    return;
+  }
+
+  loginButton.disabled = true;
+  const oldButtonText = loginButton.textContent;
+  loginButton.textContent = 'Входим...';
+
+  try {
+    const { data, error: authError } =
+      await window.veltoSupabase.auth.signInWithPassword({
+        email,
+        password: pass
+      });
+
+    if (authError) {
+      throw authError;
     }
-    error.textContent='';error.classList.remove('show');
-    userName=account.name;userAvatarUrl=account.avatar||defaultAvatar(account.name);currentTheme=normalizeTheme(account.theme);
-    db.profile={name:account.name,email:account.email,avatar:userAvatarUrl,theme:currentTheme,isAdmin:account.isAdmin===true,isOwner:account.isOwner===true};
-    db.currentAccountEmail=account.email;db.isAdmin=account.isAdmin===true||account.isOwner===true;db.isOwner=account.isOwner===true;saveDB();
-    applyTheme(currentTheme,false);registerScreen.classList.add('hidden');avatarScreen.classList.add('hidden');welcomeScreen.classList.add('hidden');appScreen.classList.remove('hidden');
-    userAvatarImg.src=userAvatarUrl;userNameSpan.textContent=userName;renderAdminTag();
-    try{loadSavedContactsIntoMemory();}catch(_){}
-    try{applyPremiumChrome();}catch(_){}
-    try{ensureOwnComets();}catch(_){}
+
+    if (!data.user) {
+      throw new Error('Пользователь не найден.');
+    }
+
+    const authUser = data.user;
+
+    let cloudProfile = null;
+
+    const { data: profile, error: profileError } =
+      await window.veltoSupabase
+        .from('profiles')
+        .select('username, display_name, avatar_url')
+        .eq('id', authUser.id)
+        .maybeSingle();
+
+    if (profileError) {
+      console.warn('Не удалось загрузить профиль Velto:', profileError.message);
+    } else {
+      cloudProfile = profile;
+    }
+
+    await dbReady;
+
+    const name =
+      cloudProfile?.username ||
+      cloudProfile?.display_name ||
+      authUser.user_metadata?.display_name ||
+      document.getElementById('login-name').value.trim() ||
+      email.split('@')[0];
+
+    userName = name;
+    userAvatarUrl =
+      cloudProfile?.avatar_url ||
+      defaultAvatar(name);
+
+    currentTheme = normalizeTheme(currentTheme);
+
+    db.profile = {
+      name,
+      email,
+      avatar: userAvatarUrl,
+      theme: currentTheme,
+      isAdmin: false,
+      isOwner: false
+    };
+
+    db.currentAccountEmail = email;
+    db.isAdmin = false;
+    db.isOwner = false;
+
+    if (!Array.isArray(db.accounts)) {
+      db.accounts = [];
+    }
+
+    const localAccount = db.accounts.find(
+      account => String(account.email || '').toLowerCase() === email
+    );
+
+    if (localAccount) {
+      localAccount.name = name;
+      localAccount.avatar = userAvatarUrl;
+      localAccount.theme = currentTheme;
+    }
+
+    saveDB();
+
+    applyTheme(currentTheme, false);
+
+    registerScreen.classList.add('hidden');
+    avatarScreen.classList.add('hidden');
+    welcomeScreen.classList.add('hidden');
+    appScreen.classList.remove('hidden');
+
+    userAvatarImg.src = userAvatarUrl;
+    userNameSpan.textContent = userName;
+
+    renderAdminTag();
+
+    try {
+      loadSavedContactsIntoMemory();
+    } catch (e) {
+      console.warn(e);
+    }
+
+    try {
+      applyPremiumChrome();
+    } catch (e) {
+      console.warn(e);
+    }
+
+    try {
+      ensureOwnComets();
+    } catch (e) {
+      console.warn(e);
+    }
+
     renderChatList();
     setTimeout(connectWebSocket, 500);
-  });
+
+  } catch (e) {
+    console.error('Velto login error:', e);
+
+    let message = 'Не удалось войти. Проверь email и пароль.';
+
+    if (e.message?.includes('Email not confirmed')) {
+      message = 'Подтверди email по ссылке из письма и попробуй снова.';
+    } else if (e.message?.includes('Invalid login credentials')) {
+      message = 'Неверный email или пароль.';
+    } else if (e.message?.includes('Too many requests')) {
+      message = 'Слишком много попыток. Подожди немного и попробуй снова.';
+    }
+
+    error.textContent = message;
+    error.classList.add('show');
+
+  } finally {
+    loginButton.disabled = false;
+    loginButton.textContent = oldButtonText;
+  }
+});
   ['login-name','login-email','login-pass'].forEach(id=>document.getElementById(id).addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('login-submit').click();}));
   const regProgress = document.getElementById('reg-progress');
   const regProgressBar = document.getElementById('reg-progress-bar');
