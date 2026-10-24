@@ -4758,7 +4758,7 @@ window.veltoSupabase.auth.onAuthStateChange((event) => {
     const sub = document.querySelector('.reg-subtitle');
     if (sub) sub.textContent = login ? 'Войдите в свой аккаунт velto' : 'Создайте аккаунт, чтобы начать общение';
     try {
-      if (login) document.getElementById('login-name').focus();
+      if (login) document.getElementById('login-email').focus();
       else if (typeof regName !== 'undefined' && regName) regName.focus();
     } catch (_) {}
     const error = document.getElementById('login-error');
@@ -4961,7 +4961,7 @@ document.getElementById('forgot-password-link')
     loginButton.textContent = oldButtonText;
   }
 });
-  ['login-name','login-email','login-pass'].forEach(id=>document.getElementById(id).addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('login-submit').click();}));
+ ['login-email','login-pass'].forEach(id=>document.getElementById(id).addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('login-submit').click();}));
   const regProgress = document.getElementById('reg-progress');
   const regProgressBar = document.getElementById('reg-progress-bar');
   const avatarOptions = document.querySelectorAll('.avatar-option'); // Готовые аватары удалены из регистрации
@@ -5992,7 +5992,7 @@ return H.map(x=>(x>>>0).toString(16).padStart(8,'0')).join('');
     if(!confirm('Выйти из аккаунта? Данные аккаунта останутся сохранены в этом браузере.'))return;
     settingsModal.classList.add('hidden');appScreen.classList.add('hidden');welcomeScreen.classList.add('hidden');avatarScreen.classList.add('hidden');registerScreen.classList.remove('hidden');
     db.profile=null;db.isAdmin=false;db.isOwner=false;db.currentAccountEmail='';saveDB();userName='';userAvatarUrl='';pendingAccount=null;
-    regName.value='';regEmail.value='';regPass.value='';regPass2.value='';document.getElementById('login-name').value='';document.getElementById('login-email').value='';document.getElementById('login-pass').value='';showAuthMode('login');
+    regName.value='';regEmail.value='';regPass.value='';regPass2.value='';document.getElementById('login-email').value='';document.getElementById('login-pass').value='';showAuthMode('login');
   });
 
   function botUserKey(name){ return String(name == null ? '' : name).trim().toLocaleLowerCase(); }
