@@ -1004,223 +1004,6 @@
       }
     }
 
-
-    /* ===== ХЭЛЛОУИН ===== */
-    body.theme-halloween {
-      --bg-space: #0a0508;
-      --bg-gradient-1: #0d0610;
-      --bg-gradient-2: #1a0a12;
-      --moon-glow: rgba(255, 120, 40, 0.18);
-      --moon-surface: #1c0f18;
-      --glass-base: rgba(255, 140, 60, 0.05);
-      --glass-border: rgba(255, 140, 60, 0.22);
-      --glass-strong: rgba(255, 110, 40, 0.1);
-      --primary: #ff6b1a;
-      --primary-2: #c43a0a;
-      --primary-glow: rgba(255, 107, 26, 0.45);
-      --accent: #ffd166;
-      --text-main: #fff5e8;
-      --text-muted: #c9a07a;
-      --danger: #ff4d6d;
-      --success: #7bed9f;
-      --warning: #ffd166;
-      --bubble-self: linear-gradient(135deg, #ff6b1a, #9b2226);
-      --bubble-other: rgba(255, 140, 60, 0.1);
-      --sidebar-bg: rgba(12, 6, 10, 0.9);
-      --sidebar-border: rgba(255, 140, 60, 0.14);
-      --star-color: #ffb347;
-      --star-opacity: 0.55;
-      --moon-display: none;
-      --sun-display: none;
-      --theme-name: "Смерть Хэллоуин";
-      --welcome-emoji: "💀";
-      --body-shadow: rgba(255, 107, 26, 0.35);
-      background: #0a0508 !important;
-      animation: none !important;
-    }
-    body.theme-halloween .moon-visual,
-    body.theme-halloween .sun-visual,
-    body.theme-halloween .planet-ring,
-    body.theme-halloween .jupiter-layer,
-    body.theme-halloween .andro-layer,
-    body.theme-halloween .bh-layer,
-    body.theme-halloween .sirius-layer { display: none !important; }
-    body.theme-halloween .chat-area { background: rgba(8, 3, 6, 0.35); }
-    body.theme-halloween .auth-switch-btn.active {
-      background: linear-gradient(135deg, rgba(255,107,26,.38), rgba(155,34,38,.22));
-      box-shadow: inset 0 0 0 1px rgba(255,209,102,.3);
-    }
-    body.theme-halloween .settings-tab.active,
-    body.theme-halloween .settings-card .settings-tab.active {
-      background: linear-gradient(135deg, rgba(255,107,26,.3), rgba(155,34,38,.15));
-      border-color: rgba(255,209,102,.35);
-    }
-    body.theme-halloween .reg-logo,
-    body.theme-halloween .welcome-logo {
-      background: linear-gradient(135deg, #ff6b1a, #ffd166) !important;
-      box-shadow: 0 0 50px rgba(255,107,26,.5) !important;
-    }
-    body.theme-halloween .message.self {
-      box-shadow: 0 4px 18px rgba(255,107,26,.4);
-    }
-    body.theme-halloween .sidebar {
-      box-shadow: 4px 0 30px rgba(255,80,20,.15);
-    }
-    body.theme-halloween .theme-toggle {
-      border-color: rgba(255,140,60,.4);
-    }
-
-    .halloween-layer { display: none; overflow: hidden; z-index: 0; pointer-events: none; }
-    body.theme-halloween .halloween-layer { display: block; }
-
-    /* Ночной огород — только грядки */
-    .hw-sky {
-      position: absolute; inset: 0;
-      background:
-        linear-gradient(180deg, #0a0610 0%, #120810 35%, #1a0c10 55%, #1a1208 100%),
-        radial-gradient(ellipse 60% 40% at 70% 8%, rgba(80, 30, 20, 0.35), transparent 60%),
-        radial-gradient(ellipse 50% 30% at 20% 15%, rgba(40, 20, 60, 0.25), transparent 55%);
-    }
-    .hw-stars-night {
-      position: absolute; inset: 0; opacity: 0.5; pointer-events: none;
-      background-image:
-        radial-gradient(1px 1px at 10% 12%, #fff 0%, transparent 100%),
-        radial-gradient(1px 1px at 25% 8%, rgba(255,200,180,.7) 0%, transparent 100%),
-        radial-gradient(1.5px 1.5px at 40% 18%, #fff 0%, transparent 100%),
-        radial-gradient(1px 1px at 55% 6%, rgba(255,220,200,.6) 0%, transparent 100%),
-        radial-gradient(1px 1px at 70% 14%, #fff 0%, transparent 100%),
-        radial-gradient(1px 1px at 85% 10%, rgba(255,200,180,.5) 0%, transparent 100%),
-        radial-gradient(1px 1px at 15% 28%, #fff 0%, transparent 100%),
-        radial-gradient(1px 1px at 92% 22%, rgba(255,220,200,.55) 0%, transparent 100%);
-    }
-    .hw-moon {
-      position: absolute; top: 4%; right: 10%;
-      width: min(120px, 18vw); height: min(120px, 18vw);
-      border-radius: 50%;
-      background: radial-gradient(circle at 35% 35%, #c8b090, #8a7050 45%, #4a3820 75%, #1a1008);
-      box-shadow: 0 0 40px 10px rgba(180, 140, 80, 0.2), 0 0 80px 20px rgba(100, 60, 20, 0.12);
-      opacity: 0.85;
-      animation: hwMoonFloat 18s ease-in-out infinite;
-    }
-    .hw-moon::after {
-      content: ""; position: absolute;
-      width: 22%; height: 22%; border-radius: 50%; background: rgba(40, 30, 20, 0.35);
-      top: 30%; left: 45%;
-      box-shadow: 18px 14px 0 rgba(30, 22, 12, 0.3), -10px 22px 0 rgba(35, 25, 15, 0.25);
-    }
-    .hw-ground {
-      position: absolute; left: 0; right: 0; bottom: 0; height: 48%;
-      background:
-        linear-gradient(180deg, transparent 0%, rgba(30, 18, 8, 0.5) 8%, #1a120a 22%, #14100a 100%);
-    }
-    .hw-beds {
-      position: absolute; left: 0; right: 0; bottom: 0; height: 42%;
-      background:
-        repeating-linear-gradient(
-          90deg,
-          transparent 0px,
-          transparent 28px,
-          rgba(20, 12, 6, 0.55) 28px,
-          rgba(20, 12, 6, 0.55) 36px
-        ),
-        repeating-linear-gradient(
-          0deg,
-          #1c140c 0px,
-          #1c140c 18px,
-          #15100a 18px,
-          #15100a 22px,
-          #221810 22px,
-          #221810 40px
-        );
-      opacity: 0.95;
-      mask-image: linear-gradient(to top, #000 55%, transparent 100%);
-      -webkit-mask-image: linear-gradient(to top, #000 55%, transparent 100%);
-    }
-    .hw-beds::before {
-      content: "";
-      position: absolute; inset: 0;
-      background:
-        linear-gradient(180deg, transparent 0%, transparent 35%, rgba(40, 28, 14, 0.7) 42%, rgba(25, 16, 8, 0.9) 50%, transparent 58%),
-        linear-gradient(180deg, transparent 0%, transparent 55%, rgba(38, 26, 12, 0.65) 62%, rgba(22, 14, 7, 0.85) 70%, transparent 78%),
-        linear-gradient(180deg, transparent 0%, transparent 72%, rgba(42, 30, 14, 0.6) 78%, rgba(20, 12, 6, 0.8) 86%, transparent 94%);
-      pointer-events: none;
-    }
-    .hw-beds::after {
-      content: "";
-      position: absolute; left: 0; right: 0; bottom: 0; height: 100%;
-      background:
-        radial-gradient(ellipse 3px 14px at 12% 48%, #2a1e10 0%, transparent 70%),
-        radial-gradient(ellipse 2px 10px at 28% 55%, #241a0c 0%, transparent 70%),
-        radial-gradient(ellipse 3px 12px at 45% 42%, #2c2012 0%, transparent 70%),
-        radial-gradient(ellipse 2px 9px at 62% 58%, #1e160a 0%, transparent 70%),
-        radial-gradient(ellipse 3px 11px at 78% 50%, #281c10 0%, transparent 70%),
-        radial-gradient(ellipse 2px 8px at 90% 60%, #22180c 0%, transparent 70%);
-      opacity: 0.7;
-    }
-    .hw-fog {
-      position: absolute; bottom: 0; left: 0; right: 0; height: 42%;
-      background:
-        linear-gradient(to top, rgba(20, 10, 8, 0.55), transparent 70%),
-        radial-gradient(ellipse 80% 40% at 40% 90%, rgba(40, 20, 15, 0.3), transparent 60%);
-      animation: hwFog 14s ease-in-out infinite;
-    }
-    .hw-shade {
-      position: absolute; inset: 0;
-      background:
-        radial-gradient(ellipse at 50% 35%, transparent 0%, rgba(5, 2, 4, 0.35) 50%, rgba(5, 2, 4, 0.65) 100%);
-    }
-    @keyframes hwMoonFloat { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
-    @keyframes hwFog { 0%,100%{opacity:.65} 50%{opacity:1} }
-
-    .halloween-banner {
-      position: fixed; inset: 0; z-index: 300;
-      display: flex; align-items: center; justify-content: center;
-      background: rgba(0,0,0,.75); backdrop-filter: blur(14px);
-      -webkit-backdrop-filter: blur(14px);
-      opacity: 0; pointer-events: none; transition: opacity .45s ease;
-    }
-    .halloween-banner.show { opacity: 1; pointer-events: auto; }
-    .halloween-banner-card {
-      text-align: center; padding: 40px 36px; max-width: min(440px, 92vw);
-      border-radius: 28px;
-      background: linear-gradient(145deg, rgba(42,14,22,.99), rgba(16,6,12,.99));
-      border: 1px solid rgba(255,140,60,.4);
-      box-shadow: 0 0 70px rgba(255,107,26,.4), 0 25px 90px rgba(0,0,0,.65);
-      animation: hwBannerIn .75s cubic-bezier(0.34, 1.56, 0.64, 1);
-    }
-    .halloween-banner-emoji {
-      font-size: 68px; line-height: 1; margin-bottom: 14px;
-      filter: drop-shadow(0 0 24px rgba(255,140,40,.65));
-      animation: hwBounce 1.3s ease-in-out infinite;
-    }
-    .halloween-banner-title {
-      font-size: 30px; font-weight: 800; letter-spacing: -0.6px;
-      background: linear-gradient(90deg, #ff6b1a, #ffd166, #ff6b1a);
-      background-size: 200% auto;
-      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-      background-clip: text; animation: shimmer 3s linear infinite;
-      margin-bottom: 10px;
-    }
-    .halloween-banner-sub {
-      font-size: 14px; color: #c9a07a; line-height: 1.55; margin-bottom: 24px;
-    }
-    .halloween-banner-card .primary-btn {
-      min-width: 170px; box-shadow: 0 6px 24px rgba(255,107,26,.45);
-    }
-    @keyframes hwBannerIn {
-      from { opacity: 0; transform: scale(0.72) translateY(28px); }
-      to { opacity: 1; transform: scale(1) translateY(0); }
-    }
-    @keyframes hwBounce {
-      0%,100% { transform: translateY(0) rotate(-5deg); }
-      50% { transform: translateY(-12px) rotate(5deg); }
-    }
-    @media (prefers-reduced-motion: reduce) {
-      body.theme-halloween .hw-moon,
-      body.theme-halloween .hw-fog,
-      .halloween-banner-emoji { animation: none !important; }
-    }
-
     /* ===== ГОЛОСОВЫЕ СООБЩЕНИЯ ===== */
     .voice-btn {
       flex-shrink: 0; width: 48px; height: 48px; border-radius: 50%;
@@ -2409,9 +2192,6 @@
       radial-gradient(ellipse at 50% 80%, rgba(125,211,252,.4), transparent 50%),
       radial-gradient(circle at 80% 20%, rgba(224,242,254,.25), transparent 25%),
       radial-gradient(circle at 20% 40%, rgba(56,189,248,.2), transparent 35%); }
-
-    body.theme-halloween .earth-layer,
-    body.theme-halloween .cryos-layer { display: none !important; }
 
 
     /* Premium message bubbles */
@@ -3780,15 +3560,6 @@
   <div class="cr-shade"></div>
 </div>
 
-<div class="parallax-layer halloween-layer" id="halloween-layer" aria-hidden="true">
-  <div class="hw-sky"></div>
-  <div class="hw-stars-night"></div>
-  <div class="hw-moon"></div>
-  <div class="hw-ground"></div>
-  <div class="hw-beds"></div>
-  <div class="hw-fog"></div>
-  <div class="hw-shade"></div>
-</div>
 <div class="parallax-layer stars-layer" id="stars-layer"></div>
 <div class="parallax-layer moon-layer" id="moon-layer">
   <div class="moon-visual"></div>
@@ -3797,15 +3568,6 @@
 </div>
 
 <!-- ТЕМА-ПЕРЕКЛЮЧАТЕЛЬ -->
-
-<div id="halloween-banner" class="halloween-banner" role="dialog" aria-modal="true" aria-labelledby="halloween-banner-title">
-  <div class="halloween-banner-card">
-    <div class="halloween-banner-emoji">💀</div>
-    <div class="halloween-banner-title" id="halloween-banner-title">Смерть Хэллоуин</div>
-    <p class="halloween-banner-sub">Ты включил режим, из которого не все возвращаются…<br>Луна покраснела. Тени шепчут твоё имя.<br>Выключи в настройках — если успеешь.</p>
-    <button type="button" class="primary-btn" id="halloween-banner-ok">Я не боюсь…</button>
-  </div>
-</div>
 <div class="theme-burst" id="theme-burst"></div>
 <button class="theme-toggle" id="theme-toggle" title="Сменить тему">
   <span id="theme-icon">🌙</span>
@@ -4431,10 +4193,6 @@
           <p class="settings-hint" style="margin-top:8px">Также: увеличенный лимит вложений (5 МБ), значок 👑 в чатах, расширенная история (400 сообщений).</p>
         </div>
       </div>
-      <div class="settings-section" id="halloween-secret-section">
-        <div class="settings-section-title"><span class="settings-section-icon">💀</span><div><h3>Секретная функция</h3><p>Смерть Хэллоуин — жуткий режим velto</p></div></div>
-        <label class="settings-check settings-switch-row"><span><strong>💀 Смерть Хэллоуин</strong><small>Меняет весь дизайн на жутко-праздничный. Выключи — вернётся прежняя тема.</small></span><input id="setting-halloween" type="checkbox"><i></i></label>
-      </div>
       <div class="settings-section">
         <div class="settings-section-title"><span class="settings-section-icon">↪</span><div><h3>Аккаунт</h3><p>Завершить текущий сеанс на этом устройстве</p></div></div>
         <button class="secondary-btn" id="logout-button" type="button" style="width:100%;border-color:rgba(255,105,125,.35);color:#ff9ba9">↪ Выйти из аккаунта</button>
@@ -4643,22 +4401,7 @@
   };
   const themeIcon = document.getElementById('theme-icon');
   function normalizeTheme(t) { return THEME_META[t] ? t : 'velto'; }
-  function isHalloweenOn() {
-    return !!(db && db.settings && db.settings.halloween === true);
-  }
   function paintTheme(theme) {
-    // Если Хэллоуин включён — всегда показываем halloween-оформление поверх
-    if (isHalloweenOn()) {
-      currentTheme = normalizeTheme(theme);
-      document.body.classList.remove('theme-solar', 'theme-jupiter', 'theme-andromeda', 'theme-blackhole', 'theme-sirius', 'theme-earth', 'theme-cryos');
-      document.body.classList.add('theme-halloween');
-      welcomeLogo.textContent = '💀';
-      const regLogo = document.querySelector('.reg-logo'); if (regLogo) regLogo.textContent = '💀';
-      themeIcon.textContent = '💀';
-      themeToggle.title = 'Тема: Смерть Хэллоуин (секретный режим)';
-      return;
-    }
-    document.body.classList.remove('theme-halloween');
     currentTheme = normalizeTheme(theme);
     document.body.classList.toggle('theme-solar', currentTheme === 'solar');
     document.body.classList.toggle('theme-jupiter', currentTheme === 'jupiter');
@@ -4672,39 +4415,7 @@
     themeIcon.textContent = THEME_META[currentTheme].icon;
     themeToggle.title = 'Тема: ' + THEME_META[currentTheme].name + ' (нажмите, чтобы сменить)';
   }
-  function showHalloweenBanner() {
-    const el = document.getElementById('halloween-banner');
-    if (!el) return;
-    el.classList.add('show');
-  }
-  function hideHalloweenBanner() {
-    const el = document.getElementById('halloween-banner');
-    if (el) el.classList.remove('show');
-  }
-  function setHalloweenMode(on, { showBanner = true, persist = true } = {}) {
-    if (!db.settings || typeof db.settings !== 'object') db.settings = {};
-    const was = db.settings.halloween === true;
-    if (on) {
-      // запоминаем обычную тему, чтобы вернуть при выключении
-      if (!was && currentTheme && currentTheme !== 'halloween') {
-        db.settings.themeBeforeHalloween = currentTheme;
-      }
-      db.settings.halloween = true;
-    } else {
-      db.settings.halloween = false;
-    }
-    if (persist) saveDB();
-    if (on) {
-      paintTheme(db.settings.themeBeforeHalloween || currentTheme || 'velto');
-      if (showBanner && !was) showHalloweenBanner();
-    } else {
-      const restore = db.settings.themeBeforeHalloween || currentTheme || 'velto';
-      paintTheme(restore);
-      hideHalloweenBanner();
-    }
-  }
-
-  function applyTheme(theme, persist = true) {
+function applyTheme(theme, persist = true) {
     theme = normalizeTheme(theme);
     if (PREMIUM_THEMES.includes(theme) && !isPremium(userName)) {
       try { showSystemMessage('🌍 Тема «' + THEME_META[theme].name + '» доступна только с velto Premium.'); } catch (_) {}
@@ -4723,13 +4434,6 @@
   }
 
   themeToggle.addEventListener('click', () => {
-    // В режиме Хэллоуин переключатель темы временно отключён (выключи в настройках)
-    if (isHalloweenOn()) {
-      themeBurst.classList.remove('active');
-      void themeBurst.offsetWidth;
-      themeBurst.classList.add('active');
-      return;
-    }
     themeBurst.classList.remove('active');
     void themeBurst.offsetWidth;
     themeBurst.classList.add('active');
@@ -4742,14 +4446,6 @@
     }
     applyTheme(THEME_ORDER[next]);
   });
-
-
-  // Хэллоуин-баннер
-  const halloweenBannerOk = document.getElementById('halloween-banner-ok');
-  if (halloweenBannerOk) halloweenBannerOk.addEventListener('click', hideHalloweenBanner);
-  const halloweenBannerEl = document.getElementById('halloween-banner');
-  if (halloweenBannerEl) halloweenBannerEl.addEventListener('click', e => { if (e.target === halloweenBannerEl) hideHalloweenBanner(); });
-  document.addEventListener('keydown', e => { if (e.key === 'Escape') hideHalloweenBanner(); });
 
   // ===== ДАННЫЕ =====
   // Локальные SVG-аватарки животных — работают без внешних сервисов.
@@ -5918,7 +5614,7 @@ return H.map(x=>(x>>>0).toString(16).padStart(8,'0')).join('');
   function renderContactName(parent,name,verified){parent.textContent='';const label=document.createElement('span');label.className='verified-name';label.textContent=name;parent.appendChild(label);if(verified)appendVerifiedBadge(parent);}
   if (db.profile && db.profile.isAdmin === true) db.isAdmin = true;
   if (db.profile && db.profile.isOwner === true) db.isOwner = true;
-  function openSettings(){ settingsNickname.value = userName || ''; settingsTheme.value = currentTheme; const hwEl=document.getElementById('setting-halloween'); if(hwEl) hwEl.checked = isHalloweenOn(); pendingAvatarData=''; settingsAvatar.value=''; settingsAvatarPreview.style.display='none'; const bioEl=document.getElementById('settings-bio'); if(bioEl) bioEl.value=(db.profile&&db.profile.bio)||''; document.querySelectorAll('[data-settings-tab]').forEach(b=>b.classList.toggle('active',b.dataset.settingsTab==='general')); document.querySelectorAll('[data-settings-page]').forEach(p=>p.classList.toggle('hidden',p.dataset.settingsPage!=='general')); const st=db.settings||{}; document.getElementById('setting-notifications').checked=st.notifications===true; document.getElementById('setting-online').checked=st.online!==false; document.getElementById('setting-read-receipts').checked=st.readReceipts!==false; document.getElementById('setting-sounds').checked=st.sounds!==false; document.getElementById('setting-font-size').value=st.fontSize||'medium'; document.getElementById('setting-mic-access').checked=st.micAccess!=='denied';
+  function openSettings(){ settingsNickname.value = userName || ''; settingsTheme.value = currentTheme; pendingAvatarData=''; settingsAvatar.value=''; settingsAvatarPreview.style.display='none'; const bioEl=document.getElementById('settings-bio'); if(bioEl) bioEl.value=(db.profile&&db.profile.bio)||''; document.querySelectorAll('[data-settings-tab]').forEach(b=>b.classList.toggle('active',b.dataset.settingsTab==='general')); document.querySelectorAll('[data-settings-page]').forEach(p=>p.classList.toggle('hidden',p.dataset.settingsPage!=='general')); const st=db.settings||{}; document.getElementById('setting-notifications').checked=st.notifications===true; document.getElementById('setting-online').checked=st.online!==false; document.getElementById('setting-read-receipts').checked=st.readReceipts!==false; document.getElementById('setting-sounds').checked=st.sounds!==false; document.getElementById('setting-font-size').value=st.fontSize||'medium'; document.getElementById('setting-mic-access').checked=st.micAccess!=='denied';
     const bs=document.getElementById('setting-bubble-style'); if(bs) bs.value=st.bubbleStyle||'rounded';
     const sc=document.getElementById('setting-compact'); if(sc) sc.checked=!!st.compact;
     const ma=document.getElementById('setting-msg-anim'); if(ma) ma.checked=st.msgAnim!==false;
@@ -6034,7 +5730,7 @@ return H.map(x=>(x>>>0).toString(16).padStart(8,'0')).join('');
   settingsModal.addEventListener('click',e=>{if(e.target===settingsModal)settingsModal.classList.add('hidden')});
   settingsAvatar.addEventListener('change',()=>{ const f=settingsAvatar.files&&settingsAvatar.files[0]; if(!f)return; if(!f.type.startsWith('image/')){alert('Выбери файл изображения.');settingsAvatar.value='';return;} if(f.size>5*1024*1024){alert('Изображение должно быть меньше 5 МБ.');settingsAvatar.value='';return;} const reader=new FileReader(); reader.onload=()=>{pendingAvatarData=String(reader.result);settingsAvatarPreview.src=pendingAvatarData;settingsAvatarPreview.style.display='block'};reader.readAsDataURL(f); });
   document.getElementById('setting-font-size').addEventListener('change',e=>{document.documentElement.dataset.messageSize=e.target.value;});
-  document.getElementById('save-settings').addEventListener('click',async()=>{const n=settingsNickname.value.trim();if(n.length<3||n.length>20){alert('Никнейм должен содержать от 3 до 20 символов.');return;}userName=n;userNameSpan.textContent=userName;if(pendingAvatarData){userAvatarUrl=pendingAvatarData;userAvatarImg.src=userAvatarUrl;}applyTheme(settingsTheme.value, false);const bioVal=(document.getElementById('settings-bio')||{}).value||'';const wantNotifications=document.getElementById('setting-notifications').checked; if(wantNotifications && 'Notification' in window && Notification.permission==='default'){try{await Notification.requestPermission();}catch(_){}} const wantHalloween=!!(document.getElementById('setting-halloween')&&document.getElementById('setting-halloween').checked); const prevHalloween=isHalloweenOn(); db.settings={...(db.settings||{}),
+  document.getElementById('save-settings').addEventListener('click',async()=>{const n=settingsNickname.value.trim();if(n.length<3||n.length>20){alert('Никнейм должен содержать от 3 до 20 символов.');return;}userName=n;userNameSpan.textContent=userName;if(pendingAvatarData){userAvatarUrl=pendingAvatarData;userAvatarImg.src=userAvatarUrl;}applyTheme(settingsTheme.value, false);const bioVal=(document.getElementById('settings-bio')||{}).value||'';const wantNotifications=document.getElementById('setting-notifications').checked; if(wantNotifications && 'Notification' in window && Notification.permission==='default'){try{await Notification.requestPermission();}catch(_){}} db.settings={...(db.settings||{}),
       notifications:wantNotifications,
       online:document.getElementById('setting-online').checked,
       readReceipts:document.getElementById('setting-read-receipts').checked,
@@ -6047,7 +5743,7 @@ return H.map(x=>(x>>>0).toString(16).padStart(8,'0')).join('');
       enterSend:!(document.getElementById('setting-enter-send'))||document.getElementById('setting-enter-send').checked,
       statusText:((document.getElementById('setting-status-text')||{}).value||'').trim().slice(0,40),
       showTyping:!(document.getElementById('setting-show-typing'))||document.getElementById('setting-show-typing').checked
-    }; if(wantHalloween!==prevHalloween){ setHalloweenMode(wantHalloween,{showBanner:wantHalloween,persist:false}); } else if(wantHalloween){ paintTheme(currentTheme); } applyUiSettings();db.profile={...(db.profile||{}),name:userName,avatar:userAvatarUrl,theme:currentTheme,bio:bioVal.trim().slice(0,120),statusText:db.settings.statusText};if(Array.isArray(db.accounts)){const a=db.accounts.find(a=>a.email===db.currentAccountEmail);if(a){a.name=userName;a.avatar=userAvatarUrl;a.theme=currentTheme;a.bio=bioVal.trim().slice(0,120);}}saveDB();renderAdminTag();settingsModal.classList.add('hidden');});
+    }; applyUiSettings();db.profile={...(db.profile||{}),name:userName,avatar:userAvatarUrl,theme:currentTheme,bio:bioVal.trim().slice(0,120),statusText:db.settings.statusText};if(Array.isArray(db.accounts)){const a=db.accounts.find(a=>a.email===db.currentAccountEmail);if(a){a.name=userName;a.avatar=userAvatarUrl;a.theme=currentTheme;a.bio=bioVal.trim().slice(0,120);}}saveDB();renderAdminTag();settingsModal.classList.add('hidden');});
   document.getElementById('logout-button').addEventListener('click',()=>{
     if(!confirm('Выйти из аккаунта? Данные аккаунта останутся сохранены в этом браузере.'))return;
     settingsModal.classList.add('hidden');appScreen.classList.add('hidden');welcomeScreen.classList.add('hidden');avatarScreen.classList.add('hidden');registerScreen.classList.remove('hidden');
@@ -11942,10 +11638,7 @@ async function acceptCall() {
     ensureAccountForProfile();
     if (db.profile && db.profile.name) {
       userName = db.profile.name; userAvatarUrl = db.profile.avatar || defaultAvatar(db.profile.name);
-      // восстанавливаем хэллоуин из настроек
-      if (db.settings && db.settings.halloween === true) {
-        paintTheme(db.settings.themeBeforeHalloween || db.profile.theme || 'velto');
-      } else {
+      else {
         paintTheme(db.profile.theme);
       }
       if (settingsTheme) settingsTheme.value = currentTheme;
