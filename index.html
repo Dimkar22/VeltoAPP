@@ -7119,6 +7119,85 @@ regSubmit.addEventListener('click', async () => {
   }
 });
 
+  // ===== СОХРАНЕНИЕ НИКНЕЙМА В SUPABASE =====
+usernameSubmit.addEventListener('click', async () => {
+  const username = usernameInput.value.trim().toLowerCase();
+
+  usernameError.textContent = '';
+  usernameError.classList.remove('show');
+  usernameInput.classList.remove('error');
+
+  if (!/^[a-z0-9]{3,20}$/.test(username)) {
+    usernameError.textContent =
+      'Используй 3–20 английских букв или цифр без пробелов.';
+    usernameError.classList.add('show');
+    usernameInput.classList.add('error');
+    return;
+  }
+
+  if (!window.veltoSupabase) {
+    usernameError.textContent = 'Нет подключения к Supabase.';
+    usernameError.classList.add('show');
+    return;
+  }
+
+  usernameSubmit.disabled = true;
+  const oldText = usernameSubmit.textContent;
+  usernameSubmit.textContent = 'Сохраняем...';
+
+  try {
+    const { data, error: userError } =
+      await window.veltoSupabase.auth.getUser();
+
+    if (userError) throw userError;
+    if (!data.user) {
+      throw new Error('Сначала войди в аккаунт Velto.');
+    }
+
+    const { error: saveError } = await window.veltoSupabase
+      .from('profiles')
+      .upsert(
+        {
+          id: data.user.id,
+          username: username,
+          display_name: username
+        },
+        { onConflict: 'id' }
+      );
+
+    if (saveError) {
+      if (
+        saveError.code === '23505' ||
+        saveError.message.toLowerCase().includes('duplicate key')
+      ) {
+        throw new Error('Этот никнейм уже занят. Придумай другой.');
+      }
+      throw saveError;
+    }
+
+    userName = username;
+    pendingAccount = {
+      email: data.user.email
+    };
+
+    usernameScreen.classList.add('hidden');
+    avatarScreen.classList.remove('hidden');
+
+  } catch (e) {
+    console.error('Ошибка сохранения никнейма:', e);
+    usernameError.textContent =
+      e.message || 'Не удалось сохранить никнейм. Попробуй ещё раз.';
+    usernameError.classList.add('show');
+  } finally {
+    usernameSubmit.disabled = false;
+    usernameSubmit.textContent = oldText;
+  }
+});
+
+usernameInput.addEventListener('keydown', e => {
+  if (e.key === 'Enter') usernameSubmit.click();
+});
+  
   // ===== ВЫБОР АВАТАРА =====
   avatarOptions.forEach(opt => {
     opt.addEventListener('click', () => {
