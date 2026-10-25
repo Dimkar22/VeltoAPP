@@ -4038,16 +4038,38 @@
       </div>
       <div class="rm-field">
         <label for="report-reason">Причина</label>
-<select id="report-reason" required>
-  <option value="">Выбери причину жалобы</option>
-  <option value="spam">Спам или реклама</option>
-  <option value="harassment">Оскорбления или травля</option>
-  <option value="threats">Угрозы</option>
-  <option value="fake">Фейковый аккаунт или выдача себя за другого</option>
-  <option value="inappropriate">Неприемлемый контент</option>
-  <option value="scam">Мошенничество</option>
-  <option value="other">Другое</option>
-</select>
+<div id="report-reason-picker">
+  <div id="report-category-step">
+    <label for="report-category">Категория жалобы</label>
+    <select id="report-category" required>
+      <option value="">Выбери категорию</option>
+      <option value="Спам и реклама">Спам и реклама</option>
+      <option value="Оскорбления и токсичность">Оскорбления и токсичность</option>
+      <option value="Мошенничество">Мошенничество</option>
+      <option value="Контент 18+">Контент 18+</option>
+      <option value="Насилие и опасность">Насилие и опасность</option>
+      <option value="Приватность">Приватность</option>
+      <option value="Нарушение правил чата">Нарушение правил чата</option>
+      <option value="Материалы и права">Материалы и права</option>
+      <option value="Имперсонация">Имперсонация</option>
+      <option value="Группы и каналы">Группы и каналы</option>
+      <option value="Прочее">Прочее</option>
+    </select>
+    <button type="button" id="report-category-next" class="secondary-btn">
+      Далее →
+    </button>
+  </div>
+
+  <div id="report-detail-step" class="hidden">
+    <button type="button" id="report-reason-back" class="secondary-btn">
+      ← Назад
+    </button>
+    <label for="report-reason">Конкретная причина</label>
+    <select id="report-reason" required>
+      <option value="">Выбери причину</option>
+    </select>
+  </div>
+</div>
       </div>
       <div class="rm-field">
         <label for="report-comment">Комментарий (необязательно)</label>
@@ -6216,6 +6238,69 @@ return H.map(x=>(x>>>0).toString(16).padStart(8,'0')).join('');
   document.getElementById('report-cancel').addEventListener('click', closeReportModal);
   document.getElementById('report-modal').addEventListener('click', e => { if (e.target.id === 'report-modal') closeReportModal(); });
   document.getElementById('report-submit').addEventListener('click', submitReport);
+  // Переключение категорий и конкретных причин жалобы
+  function resetReportReasonPicker() {
+    const category = document.getElementById('report-category');
+    const reason = document.getElementById('report-reason');
+    const categoryStep = document.getElementById('report-category-step');
+    const detailStep = document.getElementById('report-detail-step');
+
+    if (category) category.value = '';
+    if (reason) {
+      reason.innerHTML = '';
+      const option = document.createElement('option');
+      option.value = '';
+      option.textContent = 'Выбери причину';
+      reason.appendChild(option);
+    }
+
+    if (categoryStep) categoryStep.classList.remove('hidden');
+    if (detailStep) detailStep.classList.add('hidden');
+  }
+
+  document.getElementById('report-category-next').addEventListener('click', () => {
+    const category = document.getElementById('report-category').value;
+    const reason = document.getElementById('report-reason');
+    const categoryStep = document.getElementById('report-category-step');
+    const detailStep = document.getElementById('report-detail-step');
+
+    if (!category) {
+      alert('Сначала выбери категорию жалобы');
+      return;
+    }
+
+    reason.innerHTML = '';
+
+    const placeholder = document.createElement('option');
+    placeholder.value = '';
+    placeholder.textContent = 'Выбери причину';
+    reason.appendChild(placeholder);
+
+    const matchingReasons = REPORT_REASONS.filter(item =>
+      item.startsWith(category + ':')
+    );
+
+    matchingReasons.forEach(item => {
+      const option = document.createElement('option');
+      option.value = item;
+      option.textContent = item.substring(item.indexOf(':') + 1).trim();
+      reason.appendChild(option);
+    });
+
+    if (!matchingReasons.length) {
+      alert('Для этой категории пока нет причин');
+      return;
+    }
+
+    categoryStep.classList.add('hidden');
+    detailStep.classList.remove('hidden');
+  });
+
+  document.getElementById('report-reason-back').addEventListener('click', () => {
+    document.getElementById('report-category-step').classList.remove('hidden');
+    document.getElementById('report-detail-step').classList.add('hidden');
+    document.getElementById('report-reason').value = '';
+  });
   document.getElementById('btn-report-user').addEventListener('click', () => {
     const c = contacts.find(x => String(x.id) === String(activeChatId));
     if (!c || c.isGroup || c.isChannel || c.adminConsole || c.officialBot || c.savedMessages) {
