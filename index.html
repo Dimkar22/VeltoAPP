@@ -8245,34 +8245,14 @@ if (giftCometSendBtn && giftCometModal) {
       giftCometModal.classList.add('hidden');
     }
   });
-}.addEventListener('click', () => {
-    const amt = parseInt(document.getElementById('gift-comet-amount').value, 10) || 0;
-    if (giftComets(giftCometTargetName, amt)) {
-      document.getElementById('gift-comet-modal').classList.add('hidden');
-    }
-  });
-  const cometBalEl = document.getElementById('comet-balance');
-  if (cometBalEl) cometBalEl.addEventListener('click', (e) => {
-    e.stopPropagation();
-    // клик по балансу → магазин Comet
-    try { openCometShop(); } catch (_) {}
-  });
-  // long-press / context: подарить
-  if (cometBalEl) {
-    cometBalEl.title = 'Магазин Comet · ПКМ — подарить';
-    cometBalEl.addEventListener('contextmenu', (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      const active = contacts.find(c => String(c.id) === String(activeChatId));
-      if (active && !active.isGroup && !active.isChannel && !active.adminConsole && !active.officialBot && !active.savedMessages) {
-        openGiftCometModal(active.name);
-      } else {
-        const n = prompt('Кому подарить Comet? Введи ник:');
-        if (n && n.trim()) openGiftCometModal(n.trim());
-      }
-    });
-  }
+}
 
+const cometBalEl = document.getElementById('comet-balance');
+if (cometBalEl) cometBalEl.addEventListener('click', (e) => {
+  e.stopPropagation();
+  try { openCometShop(); } catch (_) {}
+});
+    
   // ===== РЕАКЦИИ НА СООБЩЕНИЯ =====
   const REACT_EMOJIS = ['👍', '❤️', '🔥', '😂', '😮', '😢', '👏', '🌙'];
   function toggleReaction(msgId, emoji) {
