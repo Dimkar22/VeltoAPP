@@ -10354,13 +10354,21 @@ const inAdminConsole = activeChatId === 'admin-console' || activeContactName.tex
       return;
     }
 
-    addMessage('self', text, attach ? { attachment: attach } : null);
-    messagesContainer.scrollTop = messagesContainer.scrollHeight;
-    const isveltoChat = activeChatId === 'velto-official' ||
-      (activeContact && (activeContact.officialBot || activeContact.id === 'velto-official' || /velto/i.test(activeContact.name || '')));
-    if (isveltoChat) {
-  const cmd = text.trim().toLowerCase().replace(/\s+/g, ' ');
+ addMessage('self', text, attach ? { attachment: attach } : null);
+messagesContainer.scrollTop = messagesContainer.scrollHeight;
 
+const isFavoritesChat =
+  String(activeChatId) === 'favorites' ||
+  String(activeChatId) === 'saved-messages' ||
+  /избранное|saved messages/i.test(activeContactName.textContent.trim());
+
+if (isFavoritesChat) return;
+
+const isveltoChat = activeChatId === 'velto-official' ||
+  (activeContact && (activeContact.officialBot || activeContact.id === 'velto-official' || /velto/i.test(activeContact.name || '')));
+
+if (isveltoChat) {
+  const cmd = text.trim().toLowerCase().replace(/\s+/g, ' ');
   // Скрытая команда открытия карт — оставляем рабочей.
   if (
     cmd === '/karta' || cmd === '/карта' ||
