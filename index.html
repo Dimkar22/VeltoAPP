@@ -10762,6 +10762,15 @@ const inAdminConsole = activeChatId === 'admin-console' || activeContactName.tex
     if (sent.error) throw sent.error;
     if (received.error) throw received.error;
 
+    console.log('VELTO STORY CHAT SYNC', {
+  contactId: contact.id,
+  contactName: contact.name,
+  targetId,
+  sentCount: sent.data?.length,
+  receivedCount: received.data?.length,
+  sentError: sent.error?.message,
+  receivedError: received.error?.message
+});
     const rows = [...(sent.data || []), ...(received.data || [])]
       .sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
 
@@ -12413,11 +12422,19 @@ async function acceptCall() {
       const rows = stories || [];
       const ids = [...new Set(rows.map(x => x.user_id))];
       let profiles = {};
-      if (ids.length) {
-        const p = await sb.from('profiles')
-          .select('id,username,display_name,avatar_url').in('id',ids);
-        if (!p.error) (p.data || []).forEach(x => profiles[x.id]=x);
-      }
+if (ids.length) {
+  const p = await sb.from('profiles')
+    .select('id,username,display_name,avatar_url')
+    .in('id', ids);
+
+  if (p.error) {
+    console.error('Ошибка загрузки профилей историй:', p.error);
+  } else {
+    (p.data || []).forEach(profile => {
+      profiles[profile.id] = profile;
+    });
+  }
+}
 
       const v = await sb.from('velto_story_views')
         .select('story_id').eq('viewer_id',user.id);
