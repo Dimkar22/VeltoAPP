@@ -4904,14 +4904,33 @@ document.getElementById('forgot-password-link')
       cloudProfile = profile;
     }
 
-    await dbReady;
+   await dbReady;
 
-    const name =
-  cloudProfile?.username ||
-  cloudProfile?.display_name ||
-  authUser.user_metadata?.display_name ||
-  email.split('@')[0];
+if (profileError) {
+  throw new Error(
+    'Не удалось загрузить профиль из Supabase. Попробуй войти ещё раз.'
+  );
+}
 
+if (!cloudProfile?.username) {
+  userName = '';
+  pendingAccount = { email: authUser.email };
+
+  registerScreen.classList.add('hidden');
+  avatarScreen.classList.add('hidden');
+  welcomeScreen.classList.add('hidden');
+  appScreen.classList.add('hidden');
+
+  usernameInput.value = '';
+  usernameError.textContent = '';
+  usernameError.classList.remove('show');
+  usernameScreen.classList.remove('hidden');
+
+  return;
+}
+
+const name = cloudProfile.username;
+    
     userName = name;
     userAvatarUrl =
       cloudProfile?.avatar_url ||
