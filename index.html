@@ -58,7 +58,7 @@
         console.error('Ошибка смены пароля:', error);
         alert('Не удалось изменить пароль. Запроси новую ссылку восстановления.');
       }
-    }, 0);
+    }, 0);0
   });
 </script>
 
@@ -4038,11 +4038,36 @@
       Безвозвратное удаление аккаунта и связанных с ним данных.
     </p>
   </div>
+       <button class="secondary-btn" id="delete-account-open" type="button"
+  style="width:100%;border-color:rgba(255,105,125,.45);color:#ff9ba9">
+  Удалить профиль
+</button>
 
-  <button class="secondary-btn" id="delete-account-open" type="button"
-    style="width:100%;border-color:rgba(255,105,125,.45);color:#ff9ba9">
-    Удалить профиль
-  </button>
+<div style="height:1px;background:var(--glass-border);margin:16px 0"></div>
+
+  <!-- Окно подтверждения удаления профиля -->
+<div id="delete-account-modal" class="modal-backdrop hidden"
+     role="dialog" aria-modal="true"
+     aria-labelledby="delete-account-title">
+  <div class="modal-card" style="max-width:420px;width:calc(100% - 32px);padding:24px">
+    <h3 id="delete-account-title">Удалить аккаунт?</h3>
+    <p style="color:var(--text-muted);line-height:1.5;margin:12px 0 20px">
+      Удаление аккаунта необратимо. Перед продолжением убедись,
+      что действительно хочешь удалить свой профиль Velto.
+    </p>
+
+    <div style="display:flex;gap:10px">
+      <button id="delete-account-cancel" class="secondary-btn"
+              type="button" style="flex:1">
+        Отмена
+      </button>
+      <button id="delete-account-confirm" class="secondary-btn"
+              type="button"
+              style="flex:1;border-color:#ef4444;color:#ff6b6b">
+        Удалить аккаунт
+      </button>
+    </div>
+  </div>
 </div>
     </section>
     <div class="settings-footer"><p class="modal-note">Изменения сохраняются на этом устройстве.</p><button class="primary-btn" id="save-settings">Сохранить изменения <span>→</span></button></div>
@@ -5684,11 +5709,64 @@ return H.map(x=>(x>>>0).toString(16).padStart(8,'0')).join('');
       statusText:((document.getElementById('setting-status-text')||{}).value||'').trim().slice(0,40),
       showTyping:!(document.getElementById('setting-show-typing'))||document.getElementById('setting-show-typing').checked
     }; applyUiSettings();db.profile={...(db.profile||{}),name:userName,avatar:userAvatarUrl,theme:currentTheme,bio:bioVal.trim().slice(0,120),statusText:db.settings.statusText};if(Array.isArray(db.accounts)){const a=db.accounts.find(a=>a.email===db.currentAccountEmail);if(a){a.name=userName;a.avatar=userAvatarUrl;a.theme=currentTheme;a.bio=bioVal.trim().slice(0,120);}}saveDB();renderAdminTag();settingsModal.classList.add('hidden');});
-  document.getElementById('logout-button').addEventListener('click',()=>{
-    if(!confirm('Выйти из аккаунта? Данные аккаунта останутся сохранены в этом браузере.'))return;
-    settingsModal.classList.add('hidden');appScreen.classList.add('hidden');welcomeScreen.classList.add('hidden');avatarScreen.classList.add('hidden');registerScreen.classList.remove('hidden');
-    db.profile=null;db.isAdmin=false;db.isOwner=false;db.currentAccountEmail='';saveDB();userName='';userAvatarUrl='';pendingAccount=null;
-    regName.value='';regEmail.value='';regPass.value='';regPass2.value='';document.getElementById('login-email').value='';document.getElementById('login-pass').value='';showAuthMode('login');
+  // Удаление профиля Velto — окно подтверждения
+  const deleteAccountModal = document.getElementById('delete-account-modal');
+  const deleteAccountOpen = document.getElementById('delete-account-open');
+  const deleteAccountCancel = document.getElementById('delete-account-cancel');
+  const deleteAccountConfirm = document.getElementById('delete-account-confirm');
+
+  if (deleteAccountOpen && deleteAccountModal) {
+    deleteAccountOpen.addEventListener('click', () => {
+      deleteAccountModal.classList.remove('hidden');
+    });
+  }
+
+  if (deleteAccountCancel && deleteAccountModal) {
+    deleteAccountCancel.addEventListener('click', () => {
+      deleteAccountModal.classList.add('hidden');
+    });
+  }
+
+  if (deleteAccountModal) {
+    deleteAccountModal.addEventListener('click', (event) => {
+      if (event.target === deleteAccountModal) {
+        deleteAccountModal.classList.add('hidden');
+      }
+    });
+  }
+
+  if (deleteAccountConfirm) {
+    deleteAccountConfirm.addEventListener('click', () => {
+      alert('Удаление аккаунта пока не подключено. Аккаунт не удалён.');
+    });
+  }
+
+  document.getElementById('logout-button').addEventListener('click', () => {
+    if (!confirm('Выйти из аккаунта? Данные аккаунта останутся сохранены в этом браузере.')) return;
+
+    settingsModal.classList.add('hidden');
+    appScreen.classList.add('hidden');
+    welcomeScreen.classList.add('hidden');
+    avatarScreen.classList.add('hidden');
+    registerScreen.classList.remove('hidden');
+
+    db.profile = null;
+    db.isAdmin = false;
+    db.isOwner = false;
+    db.currentAccountEmail = '';
+    saveDB();
+
+    userName = '';
+    userAvatarUrl = '';
+    pendingAccount = null;
+
+    regName.value = '';
+    regEmail.value = '';
+    regPass.value = '';
+    regPass2.value = '';
+    document.getElementById('login-email').value = '';
+    document.getElementById('login-pass').value = '';
+    showAuthMode('login');
   });
 
   function botUserKey(name){ return String(name == null ? '' : name).trim().toLocaleLowerCase(); }
