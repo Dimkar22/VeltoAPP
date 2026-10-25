@@ -12725,41 +12725,7 @@ el('vs-reply-send').onclick = async () => {
     console.error('Story reply:', err);
     alert('Не удалось отправить ответ: ' + (err.message || 'ошибка'));
   }
-};
-    const input = el('vs-reply-text');
-    const message = input.value.trim();
-    if (!message) return alert('Напиши ответ.');
-
-    try {
-      const user = await currentUser();
-      const owner = owners.find(x => x.id === currentOwner);
-
-      if (!user) return alert('Сначала войди в Velto.');
-      if (!owner) return alert('Автор истории не найден.');
-      if (owner.id === user.id) {
-        return alert('Нельзя отвечать самому себе.');
-      }
-
-      const { error } = await sb
-        .from('velto_messages')
-        .insert({
-          sender_id: user.id,
-          recipient_id: owner.id,
-          body: 'Ответ на историю: ' + message,
-          message_type: 'text',
-          is_bot: false
-        });
-
-      if (error) throw error;
-
-      input.value = '';
-      el('vs-reply-box').style.display = 'none';
-      alert('Ответ сохранён в Velto.');
-    } catch (err) {
-      console.error('Story reply:', err);
-      alert('Не удалось сохранить ответ: ' + (err.message || 'ошибка'));
-    }
-  };
+  
   async function showViews(storyId) {
     const result=await sb.from('velto_story_views')
       .select('viewer_id').eq('story_id',storyId);
