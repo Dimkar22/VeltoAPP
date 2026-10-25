@@ -58,7 +58,7 @@
         console.error('Ошибка смены пароля:', error);
         alert('Не удалось изменить пароль. Запроси новую ссылку восстановления.');
       }
-    }, 0);
+    }, 0);0
   });
 </script>
 
@@ -3522,14 +3522,59 @@
 <div id="avatar-screen" class="screen hidden">
   <h2>Выберите аватарку</h2>
   <div class="avatar-subtitle">Это фото будут видеть ваши собеседники</div>
-  <div class="avatar-upload-only" style="margin-top:22px;text-align:center;display:grid;gap:14px;justify-items:center">
-    <div id="first-avatar-preview-wrap" style="width:112px;height:112px;border-radius:50%;border:2px dashed var(--primary);display:flex;align-items:center;justify-content:center;overflow:hidden;background:var(--surface);color:var(--text-muted)">
+
+  <div style="margin-top:22px;text-align:center;display:grid;gap:14px;justify-items:center">
+
+    <div id="first-avatar-preview-wrap"
+         style="width:112px;height:112px;border-radius:50%;border:2px solid var(--primary);display:flex;align-items:center;justify-content:center;overflow:hidden;background:var(--surface);color:var(--text-muted)">
       <span id="first-avatar-placeholder" style="font-size:34px">＋</span>
-      <img id="first-avatar-preview" alt="Предпросмотр вашей аватарки" style="width:100%;height:100%;object-fit:cover;display:none">
+      <img id="first-avatar-preview"
+           alt="Предпросмотр аватарки"
+           style="width:100%;height:100%;object-fit:cover;display:none">
     </div>
-    <label for="first-avatar-upload" class="primary-btn" style="display:inline-block;cursor:pointer">📷 Загрузить своё фото</label>
-    <input id="first-avatar-upload" type="file" accept="image/*" capture="user" style="display:none">
-    <p class="modal-note">Добавьте собственное фото из галереи или сделайте снимок. Готовые аватары недоступны.</p>
+
+    <button type="button" id="first-avatar-camera" class="primary-btn">
+      📷 Фото из камеры телефона
+    </button>
+
+    <label for="first-avatar-upload" class="primary-btn"
+           style="display:inline-block;cursor:pointer">
+      🖼️ Фото из файла
+    </label>
+
+    <input id="first-avatar-upload" type="file"
+           accept="image/*" style="display:none">
+
+    <input id="first-avatar-camera-input" type="file"
+           accept="image/*" capture="user" style="display:none">
+
+    <div id="first-avatar-colors" style="display:none;width:100%">
+      <p>Выберите цвет фона для первой буквы ника</p>
+      <div style="display:flex;justify-content:center;gap:10px;flex-wrap:wrap">
+        <button type="button" class="first-avatar-color" data-color="#22c55e" aria-label="Зелёный" style="width:38px;height:38px;border-radius:50%;background:#22c55e;border:2px solid white"></button>
+        <button type="button" class="first-avatar-color" data-color="#3b82f6" aria-label="Синий" style="width:38px;height:38px;border-radius:50%;background:#3b82f6;border:2px solid white"></button>
+        <button type="button" class="first-avatar-color" data-color="#8b5cf6" aria-label="Фиолетовый" style="width:38px;height:38px;border-radius:50%;background:#8b5cf6;border:2px solid white"></button>
+        <button type="button" class="first-avatar-color" data-color="#ef4444" aria-label="Красный" style="width:38px;height:38px;border-radius:50%;background:#ef4444;border:2px solid white"></button>
+        <button type="button" class="first-avatar-color" data-color="#f59e0b" aria-label="Оранжевый" style="width:38px;height:38px;border-radius:50%;background:#f59e0b;border:2px solid white"></button>
+        <button type="button" class="first-avatar-color" data-color="#f8fafc" aria-label="Белый" style="width:38px;height:38px;border-radius:50%;background:#f8fafc;border:2px solid #64748b"></button>
+        <button type="button" class="first-avatar-color" data-color="#1f2937" aria-label="Тёмно-серый" style="width:38px;height:38px;border-radius:50%;background:#1f2937;border:2px solid white"></button>
+      </div>
+    </div>
+
+    <button type="button" id="first-avatar-skip"
+        style="background:none;border:none;padding:4px 8px;color:var(--text-muted);font-size:12px;text-decoration:underline;cursor:pointer">
+  Пропустить
+</button>
+
+    <button type="button" id="first-avatar-continue" class="primary-btn">
+      Продолжить
+    </button>
+
+    <p class="modal-note">
+      Можно загрузить фото или выбрать цвет фона для первой буквы ника.
+    </p>
+      Можно загрузить фото или пропустить этот шаг и создать аватарку с первой буквой ника.
+    </p>
   </div>
 </div>
 
@@ -3969,10 +4014,61 @@
           <p class="settings-hint" style="margin-top:8px">Также: увеличенный лимит вложений (5 МБ), значок 👑 в чатах, расширенная история (400 сообщений).</p>
         </div>
       </div>
-      <div class="settings-section">
-        <div class="settings-section-title"><span class="settings-section-icon">↪</span><div><h3>Аккаунт</h3><p>Завершить текущий сеанс на этом устройстве</p></div></div>
-        <button class="secondary-btn" id="logout-button" type="button" style="width:100%;border-color:rgba(255,105,125,.35);color:#ff9ba9">↪ Выйти из аккаунта</button>
-      </div>
+     <div class="settings-section">
+  <div class="settings-section-title">
+    <span class="settings-section-icon">↪</span>
+    <div>
+      <h3>Аккаунт</h3>
+      <p>Управление вашим аккаунтом Velto</p>
+    </div>
+  </div>
+
+  <button class="secondary-btn" id="logout-button" type="button"
+    style="width:100%;border-color:rgba(255,105,125,.35);color:#ff9ba9">
+    ↪ Выйти из аккаунта
+  </button>
+
+  <div style="height:1px;background:var(--glass-border);margin:16px 0"></div>
+
+  <div style="margin-bottom:10px">
+    <div style="font-weight:600;color:var(--text-main);font-size:14px">
+      Удаление профиля
+    </div>
+    <p class="settings-hint" style="margin-top:5px">
+      Безвозвратное удаление аккаунта и связанных с ним данных.
+    </p>
+  </div>
+       <button class="secondary-btn" id="delete-account-open" type="button"
+  style="width:100%;border-color:rgba(255,105,125,.45);color:#ff9ba9">
+  Удалить профиль
+</button>
+
+<div style="height:1px;background:var(--glass-border);margin:16px 0"></div>
+
+  <!-- Окно подтверждения удаления профиля -->
+<div id="delete-account-modal" class="modal-backdrop hidden"
+     role="dialog" aria-modal="true"
+     aria-labelledby="delete-account-title">
+  <div class="modal-card" style="max-width:420px;width:calc(100% - 32px);padding:24px">
+    <h3 id="delete-account-title">Удалить аккаунт?</h3>
+    <p style="color:var(--text-muted);line-height:1.5;margin:12px 0 20px">
+      Удаление аккаунта необратимо. Перед продолжением убедись,
+      что действительно хочешь удалить свой профиль Velto.
+    </p>
+
+    <div style="display:flex;gap:10px">
+      <button id="delete-account-cancel" class="secondary-btn"
+              type="button" style="flex:1">
+        Отмена
+      </button>
+      <button id="delete-account-confirm" class="secondary-btn"
+              type="button"
+              style="flex:1;border-color:#ef4444;color:#ff6b6b">
+        Удалить аккаунт
+      </button>
+    </div>
+  </div>
+</div>
     </section>
     <div class="settings-footer"><p class="modal-note">Изменения сохраняются на этом устройстве.</p><button class="primary-btn" id="save-settings">Сохранить изменения <span>→</span></button></div>
   </div>
@@ -4392,8 +4488,9 @@ document.getElementById('forgot-password-link')
 
     const authUser = data.user;
 
-    let cloudProfile = null;
+await activateUserStorage(authUser.id);
 
+let cloudProfile = null;
     const { data: profile, error: profileError } =
       await window.veltoSupabase
         .from('profiles')
@@ -4417,7 +4514,10 @@ if (profileError) {
 
 if (!cloudProfile?.username) {
   userName = '';
-  pendingAccount = { email: authUser.email };
+  pendingAccount = {
+    id: authUser.id,
+    email: authUser.email
+  };
 
   registerScreen.classList.add('hidden');
   avatarScreen.classList.add('hidden');
@@ -4441,14 +4541,15 @@ const name = cloudProfile.username;
 
     currentTheme = normalizeTheme(currentTheme);
 
-    db.profile = {
-      name,
-      email,
-      avatar: userAvatarUrl,
-      theme: currentTheme,
-      isAdmin: false,
-      isOwner: false
-    };
+db.profile = {
+  id: authUser.id,
+  name,
+  email,
+  avatar: userAvatarUrl,
+  theme: currentTheme,
+  isAdmin: false,
+  isOwner: false
+};
 
     db.currentAccountEmail = email;
     db.isAdmin = false;
@@ -4546,7 +4647,13 @@ const name = cloudProfile.username;
   if (!CSS.escape) CSS.escape = function(s){ return String(s).replace(/[^a-zA-Z0-9_-]/g, function(c){ return '\\' + c; }); };
 
   let db = { profile: null, accounts: [], currentAccountEmail: '', isAdmin: false, banned: [], reports: [], mutes: {}, punishments: [], maintenance: false, announcement: '', botInbox: {}, botHistory: {}, chatData: {}, groups: [], savedContacts: [], comets: {}, channels: [], settings: { online: true, readReceipts: true, sounds: true, fontSize: 'medium', compact: false, msgAnim: true, enterSend: true, bubbleStyle: 'rounded', showTyping: true, statusText: '' } };
-  try { db = { ...db, ...JSON.parse(localStorage.getItem(DB_KEY) || '{}') }; } catch (_) {}
+ let activeStorageUserId = 'guest';
+const scopedStorageKey = key => `${activeStorageUserId}::${String(key)}`;
+
+const DB_DEFAULTS = JSON.parse(JSON.stringify(db));
+
+// Не загружаем данные аккаунта до авторизации в Supabase.
+  // Данные будут загружаться после определения ID пользователя.
   if (!Array.isArray(db.checkmarks)) db.checkmarks = [];
   if (!Array.isArray(db.reports)) db.reports = [];
   if (!db.mutes || typeof db.mutes !== 'object') db.mutes = {};
@@ -4561,14 +4668,23 @@ const name = cloudProfile.username;
 
   function applyUiSettings() {
     const st = db.settings || {};
+
     document.body.classList.toggle('compact-ui', !!st.compact);
     document.body.classList.toggle('no-msg-anim', st.msgAnim === false);
+
     document.body.classList.remove('bubble-sharp', 'bubble-pill');
-    if (st.bubbleStyle === 'sharp') document.body.classList.add('bubble-sharp');
-    if (st.bubbleStyle === 'pill') document.body.classList.add('bubble-pill');
-    document.documentElement.dataset.messageSize = st.fontSize || 'medium';
+
+    if (st.bubbleStyle === 'sharp') {
+      document.body.classList.add('bubble-sharp');
+    }
+
+    if (st.bubbleStyle === 'pill') {
+      document.body.classList.add('bubble-pill');
+    }
+
+    document.documentElement.dataset.messageSize =
+      st.fontSize || 'medium';
   }
-  applyUiSettings();
 
   // ===== УСИЛЕННАЯ БАЗА: localStorage + IndexedDB (чаты отдельно) + outbox =====
   const veltoStore = (() => {
@@ -4610,33 +4726,39 @@ const name = cloudProfile.username;
     async function putMain(obj) {
       const d = await open();
       const tx = d.transaction([STORE_MAIN, STORE_META], 'readwrite');
-      tx.objectStore(STORE_MAIN).put(obj, 'db');
+      tx.objectStore(STORE_MAIN).put(obj, scopedStorageKey('db'));
       tx.objectStore(STORE_META).put({ savedAt: Date.now(), ver: IDB_VER }, 'info');
       return txDone(tx, d);
     }
 
-    async function getMain() {
-      const d = await open();
-      return new Promise((res, rej) => {
-        const tx = d.transaction(STORE_MAIN, 'readonly');
-        const q = tx.objectStore(STORE_MAIN).get('db');
-        q.onsuccess = () => { try { d.close(); } catch (_) {} res(q.result); };
-        q.onerror = () => { try { d.close(); } catch (_) {} rej(q.error); };
-      });
-    }
+async function getMain() {
+  const d = await open();
+  return new Promise((res, rej) => {
+    const tx = d.transaction(STORE_MAIN, 'readonly');
+    const q = tx.objectStore(STORE_MAIN).get(scopedStorageKey('db'));
+    q.onsuccess = () => {
+      try { d.close(); } catch (_) {}
+      res(q.result);
+    };
+    q.onerror = () => {
+      try { d.close(); } catch (_) {}
+      rej(q.error);
+    };
+  });
+}
 
     async function putChat(chatId, data) {
       if (!chatId) return;
       const d = await open();
       const tx = d.transaction(STORE_CHATS, 'readwrite');
-      tx.objectStore(STORE_CHATS).put(data, String(chatId));
+      tx.objectStore(STORE_CHATS).put(data, scopedStorageKey(chatId));
       return txDone(tx, d);
     }
 
     async function getChat(chatId) {
       const d = await open();
       return new Promise((res, rej) => {
-        const q = d.transaction(STORE_CHATS).objectStore(STORE_CHATS).get(String(chatId));
+        const q = d.transaction(STORE_CHATS).objectStore(STORE_CHATS).get(scopedStorageKey(chatId));
         q.onsuccess = () => { try { d.close(); } catch (_) {} res(q.result); };
         q.onerror = () => { try { d.close(); } catch (_) {} rej(q.error); };
       });
@@ -4653,9 +4775,15 @@ const name = cloudProfile.username;
         req.onsuccess = () => {
           const cur = req.result;
           if (cur) {
-            map[cur.key] = cur.value;
-            cur.continue();
-          } else {
+  const prefix = `${activeStorageUserId}::`;
+  const key = String(cur.key);
+
+  if (key.startsWith(prefix)) {
+    map[key.slice(prefix.length)] = cur.value;
+  }
+
+  cur.continue();
+} else {
             try { d.close(); } catch (_) {}
             res(map);
           }
@@ -4667,14 +4795,14 @@ const name = cloudProfile.username;
     async function putOutbox(list) {
       const d = await open();
       const tx = d.transaction(STORE_OUTBOX, 'readwrite');
-      tx.objectStore(STORE_OUTBOX).put(list || [], 'queue');
+      tx.objectStore(STORE_OUTBOX).put(list || [], scopedStorageKey('queue'));
       return txDone(tx, d);
     }
 
     async function getOutbox() {
       const d = await open();
       return new Promise((res, rej) => {
-        const q = d.transaction(STORE_OUTBOX).objectStore(STORE_OUTBOX).get('queue');
+        const q = d.transaction(STORE_OUTBOX).objectStore(STORE_OUTBOX).get(scopedStorageKey('queue'));
         q.onsuccess = () => { try { d.close(); } catch (_) {} res(Array.isArray(q.result) ? q.result : []); };
         q.onerror = () => { try { d.close(); } catch (_) {} rej(q.error); };
       });
@@ -4724,60 +4852,10 @@ const name = cloudProfile.username;
     if (sw) sw.classList.add('show');
   }
   try { if (navigator.storage && navigator.storage.persist) navigator.storage.persist(); } catch (_) {}
+  
 
-  // Подтянуть более свежие данные из IndexedDB (если LS обрезан / устарел)
-  (async function hydrateFromIDB() {
-    try {
-      let main = await veltoStore.getMain();
-      if (!main) {
-        const leg = await veltoStore.getLegacy();
-        if (typeof leg === 'string') {
-          try { main = JSON.parse(leg); } catch (_) { main = null; }
-        } else if (leg && typeof leg === 'object') main = leg;
-      }
-      if (main && typeof main === 'object') {
-        const lsAt = Number((db && db._savedAt) || 0);
-        const idbAt = Number(main._savedAt || 0);
-        const lsEmpty = !(db.accounts && db.accounts.length) && !(db.profile && db.profile.name);
-        // только если IDB явно новее, либо локально пусто
-        if ((idbAt > lsAt + 500) || (lsEmpty && idbAt > 0)) {
-          const keepChat = db.chatData && typeof db.chatData === 'object' ? db.chatData : {};
-          const merged = { ...main };
-          // чаты: берём более длинную историю по каждому id
-          merged.chatData = { ...(main.chatData || {}) };
-          Object.keys(keepChat).forEach(k => {
-            const a = keepChat[k];
-            const b = merged.chatData[k];
-            if (!b) merged.chatData[k] = a;
-            else if (a && Array.isArray(a.messages) && Array.isArray(b.messages) && a.messages.length > b.messages.length) {
-              merged.chatData[k] = a;
-            }
-          });
-          db = { ...db, ...merged };
-        }
-      }
-      const chats = await veltoStore.loadAllChatsMap();
-      if (chats && typeof chats === 'object') {
-        if (!db.chatData) db.chatData = {};
-        Object.keys(chats).forEach(k => {
-          const remote = chats[k];
-          const local = db.chatData[k];
-          if (!local) db.chatData[k] = remote;
-          else if (remote && Array.isArray(remote.messages)) {
-            const ln = (local.messages || []).length;
-            const rn = remote.messages.length;
-            if (rn > ln) db.chatData[k] = remote;
-          }
-        });
-      }
-      try {
-        const ob = await veltoStore.getOutbox();
-        if (ob && ob.length && typeof window.__veltoLoadOutbox === 'function') window.__veltoLoadOutbox(ob);
-        window.__veltoPendingOutbox = ob;
-      } catch (_) {}
-    } catch (e) { console.warn('IDB hydrate', e); }
-  })();
-
+  // Данные IndexedDB загружаются после входа через activateUserStorage(userId).
+  
   let _saveDBTimer = null;
   let _saveDBPending = false;
   let _saveDBWriting = false;
@@ -4789,48 +4867,115 @@ const name = cloudProfile.username;
     return db;
   }
 
+async function activateUserStorage(userId) {
+    if (!userId) {
+      throw new Error('Не удалось определить ID пользователя Supabase.');
+    }
+
+    activeStorageUserId = String(userId);
+    db = JSON.parse(JSON.stringify(DB_DEFAULTS));
+
+    try {
+      const saved = JSON.parse(
+        localStorage.getItem(scopedStorageKey(DB_KEY)) || 'null'
+      );
+      if (saved && typeof saved === 'object') {
+        db = { ...db, ...saved };
+      }
+    } catch (e) {
+      console.warn('Ошибка загрузки локальных данных Velto:', e);
+    }
+
+    try {
+      const saved = await veltoStore.getMain();
+      if (saved && typeof saved === 'object') {
+        db = { ...db, ...saved };
+      }
+
+      const chats = await veltoStore.loadAllChatsMap();
+      if (chats && typeof chats === 'object') {
+        db.chatData = { ...(db.chatData || {}), ...chats };
+      }
+    } catch (e) {
+      console.warn('Ошибка загрузки IndexedDB Velto:', e);
+    }
+
+    if (!db.chatData || typeof db.chatData !== 'object') db.chatData = {};
+    if (!Array.isArray(db.checkmarks)) db.checkmarks = [];
+    if (!Array.isArray(db.reports)) db.reports = [];
+    if (!db.mutes || typeof db.mutes !== 'object') db.mutes = {};
+    if (!Array.isArray(db.punishments)) db.punishments = [];
+    if (!Array.isArray(db.groups)) db.groups = [];
+    if (!db.botInbox || typeof db.botInbox !== 'object') db.botInbox = {};
+    if (!db.botHistory || typeof db.botHistory !== 'object') db.botHistory = {};
+    if (!Array.isArray(db.savedContacts)) db.savedContacts = [];
+    if (!db.comets || typeof db.comets !== 'object') db.comets = {};
+    if (!Array.isArray(db.channels)) db.channels = [];
+
+    currentTheme = normalizeTheme(db.profile?.theme || 'velto');
+    applyUiSettings();
+    paintTheme(currentTheme);
+  }
+
   function saveDBNow() {
+    if (!activeStorageUserId || activeStorageUserId === 'guest') {
+      return;
+    }
+
     _saveDBPending = false;
-    if (_saveDBWriting) { _saveDBPending = true; return; }
+    if (_saveDBWriting) {
+      _saveDBPending = true;
+      return;
+    }
+
     _saveDBWriting = true;
+
     try {
       const snap = buildDbSnapshot();
-      // 1) localStorage — быстрый кэш
-      let lsOk = false;
+
       try {
-        localStorage.setItem(DB_KEY, JSON.stringify(snap));
-        lsOk = true;
+        localStorage.setItem(scopedStorageKey(DB_KEY), JSON.stringify(snap));
       } catch (e) {
-        // Quota: пробуем без тяжёлых attachment dataURL в старых сообщениях
         try {
           const slim = JSON.parse(JSON.stringify(snap));
           if (slim.chatData) {
             Object.keys(slim.chatData).forEach(cid => {
-              const msgs = slim.chatData[cid] && slim.chatData[cid].messages;
+              const msgs = slim.chatData[cid]?.messages;
               if (!Array.isArray(msgs)) return;
+
               msgs.forEach((m, i) => {
-                if (i < msgs.length - 30 && m.attachment && m.attachment.dataUrl && String(m.attachment.dataUrl).length > 8000) {
-                  m.attachment = { ...m.attachment, dataUrl: '', purged: true };
+                if (
+                  i < msgs.length - 30 &&
+                  m.attachment?.dataUrl &&
+                  String(m.attachment.dataUrl).length > 8000
+                ) {
+                  m.attachment = {
+                    ...m.attachment,
+                    dataUrl: '',
+                    purged: true
+                  };
                 }
               });
             });
           }
-          localStorage.setItem(DB_KEY, JSON.stringify(slim));
-          lsOk = true;
+
+          localStorage.setItem(scopedStorageKey(DB_KEY), JSON.stringify(slim));
         } catch (e2) {
           console.warn('localStorage full', e2);
         }
       }
-      // 2) IndexedDB — полная копия + чаты по ключам
+
       const chatData = snap.chatData || {};
       const chatIds = Object.keys(chatData);
       const mainWithoutHeavy = { ...snap };
-      // чаты только в отдельном store — в main не дублируем огромные истории
       mainWithoutHeavy.chatData = {};
       mainWithoutHeavy._chatIds = chatIds;
+
       Promise.resolve()
         .then(() => veltoStore.putMain(mainWithoutHeavy))
-        .then(() => Promise.all(chatIds.map(id => veltoStore.putChat(id, chatData[id]))))
+        .then(() =>
+          Promise.all(chatIds.map(id => veltoStore.putChat(id, chatData[id])))
+        )
         .catch(err => console.warn('IDB save', err))
         .finally(() => {
           _saveDBWriting = false;
@@ -4847,12 +4992,17 @@ const name = cloudProfile.username;
 
   function saveDB(immediate) {
     if (immediate) {
-      if (_saveDBTimer) { clearTimeout(_saveDBTimer); _saveDBTimer = null; }
+      if (_saveDBTimer) {
+        clearTimeout(_saveDBTimer);
+        _saveDBTimer = null;
+      }
       saveDBNow();
       return;
     }
+
     _saveDBPending = true;
     if (_saveDBTimer) return;
+
     _saveDBTimer = setTimeout(() => {
       _saveDBTimer = null;
       if (_saveDBPending) saveDBNow();
@@ -4860,15 +5010,18 @@ const name = cloudProfile.username;
   }
 
   function forceFlushStorage() {
-    if (_saveDBTimer) { clearTimeout(_saveDBTimer); _saveDBTimer = null; }
+    if (_saveDBTimer) {
+      clearTimeout(_saveDBTimer);
+      _saveDBTimer = null;
+    }
     saveDBNow();
   }
+
   window.addEventListener('pagehide', forceFlushStorage);
   window.addEventListener('beforeunload', forceFlushStorage);
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'hidden') forceFlushStorage();
   });
-
 
   // Хеш пароля (SHA-256 с солью), чтобы пароль не лежал в базе открытым текстом
   function sha256(str){
@@ -4939,24 +5092,29 @@ return H.map(x=>(x>>>0).toString(16).padStart(8,'0')).join('');
     }
     return { added, total: incoming.length };
   }
-  // Восстановление из зеркала IndexedDB при запуске (если localStorage очистили)
-  const dbReady = Promise.race([
-    veltoStore.getMain().then(snap => {
-      if (!snap) return;
-      try {
-        const obj = (typeof snap === 'string') ? JSON.parse(snap) : snap;
-        const r = mergeDBFrom(obj);
-        if (r && r.added) saveDB();
-      } catch (_) {}
-    }).catch(() => {}),
-    new Promise(r => setTimeout(r, 1500))
-  ]);
+// Загрузка IndexedDB выполняется после авторизации пользователя.
+  const dbReady = Promise.resolve();
+
   function exportDB() {
-    const payload = { app: 'velto-messenger', version: 1, exportedAt: new Date().toISOString(), data: db };
+    const payload = {
+      app: 'velto-messenger',
+      version: 1,
+      exportedAt: new Date().toISOString(),
+      data: db
+    };
+
     const a = document.createElement('a');
-    a.href = URL.createObjectURL(new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' }));
+    a.href = URL.createObjectURL(
+      new Blob([JSON.stringify(payload, null, 2)], {
+        type: 'application/json'
+      })
+    );
+
     a.download = 'velto-messenger-database.json';
-    document.body.appendChild(a); a.click(); a.remove();
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+
     setTimeout(() => URL.revokeObjectURL(a.href), 2000);
   }
   function importDBFile(file, cb) {
@@ -5551,11 +5709,64 @@ return H.map(x=>(x>>>0).toString(16).padStart(8,'0')).join('');
       statusText:((document.getElementById('setting-status-text')||{}).value||'').trim().slice(0,40),
       showTyping:!(document.getElementById('setting-show-typing'))||document.getElementById('setting-show-typing').checked
     }; applyUiSettings();db.profile={...(db.profile||{}),name:userName,avatar:userAvatarUrl,theme:currentTheme,bio:bioVal.trim().slice(0,120),statusText:db.settings.statusText};if(Array.isArray(db.accounts)){const a=db.accounts.find(a=>a.email===db.currentAccountEmail);if(a){a.name=userName;a.avatar=userAvatarUrl;a.theme=currentTheme;a.bio=bioVal.trim().slice(0,120);}}saveDB();renderAdminTag();settingsModal.classList.add('hidden');});
-  document.getElementById('logout-button').addEventListener('click',()=>{
-    if(!confirm('Выйти из аккаунта? Данные аккаунта останутся сохранены в этом браузере.'))return;
-    settingsModal.classList.add('hidden');appScreen.classList.add('hidden');welcomeScreen.classList.add('hidden');avatarScreen.classList.add('hidden');registerScreen.classList.remove('hidden');
-    db.profile=null;db.isAdmin=false;db.isOwner=false;db.currentAccountEmail='';saveDB();userName='';userAvatarUrl='';pendingAccount=null;
-    regName.value='';regEmail.value='';regPass.value='';regPass2.value='';document.getElementById('login-email').value='';document.getElementById('login-pass').value='';showAuthMode('login');
+  // Удаление профиля Velto — окно подтверждения
+  const deleteAccountModal = document.getElementById('delete-account-modal');
+  const deleteAccountOpen = document.getElementById('delete-account-open');
+  const deleteAccountCancel = document.getElementById('delete-account-cancel');
+  const deleteAccountConfirm = document.getElementById('delete-account-confirm');
+
+  if (deleteAccountOpen && deleteAccountModal) {
+    deleteAccountOpen.addEventListener('click', () => {
+      deleteAccountModal.classList.remove('hidden');
+    });
+  }
+
+  if (deleteAccountCancel && deleteAccountModal) {
+    deleteAccountCancel.addEventListener('click', () => {
+      deleteAccountModal.classList.add('hidden');
+    });
+  }
+
+  if (deleteAccountModal) {
+    deleteAccountModal.addEventListener('click', (event) => {
+      if (event.target === deleteAccountModal) {
+        deleteAccountModal.classList.add('hidden');
+      }
+    });
+  }
+
+  if (deleteAccountConfirm) {
+    deleteAccountConfirm.addEventListener('click', () => {
+      alert('Удаление аккаунта пока не подключено. Аккаунт не удалён.');
+    });
+  }
+
+  document.getElementById('logout-button').addEventListener('click', () => {
+    if (!confirm('Выйти из аккаунта? Данные аккаунта останутся сохранены в этом браузере.')) return;
+
+    settingsModal.classList.add('hidden');
+    appScreen.classList.add('hidden');
+    welcomeScreen.classList.add('hidden');
+    avatarScreen.classList.add('hidden');
+    registerScreen.classList.remove('hidden');
+
+    db.profile = null;
+    db.isAdmin = false;
+    db.isOwner = false;
+    db.currentAccountEmail = '';
+    saveDB();
+
+    userName = '';
+    userAvatarUrl = '';
+    pendingAccount = null;
+
+    regName.value = '';
+    regEmail.value = '';
+    regPass.value = '';
+    regPass2.value = '';
+    document.getElementById('login-email').value = '';
+    document.getElementById('login-pass').value = '';
+    showAuthMode('login');
   });
 
   function botUserKey(name){ return String(name == null ? '' : name).trim().toLocaleLowerCase(); }
@@ -6788,7 +6999,10 @@ regSubmit.addEventListener('click', async () => {
       throw new Error('Supabase не вернул созданного пользователя.');
     }
 
-    pendingAccount = { email };
+    pendingAccount = {
+  id: data.user.id,
+  email: data.user.email || email
+};
 
     if (regProgressBar) regProgressBar.style.width = '100%';
 
@@ -6881,10 +7095,10 @@ usernameSubmit.addEventListener('click', async () => {
     }
 
     userName = username;
-    pendingAccount = {
-      email: data.user.email
-    };
-
+pendingAccount = {
+  id: data.user.id,
+  email: data.user.email || ''
+};
     usernameScreen.classList.add('hidden');
     avatarScreen.classList.remove('hidden');
 
@@ -6903,37 +7117,153 @@ usernameInput.addEventListener('keydown', e => {
   if (e.key === 'Enter') usernameSubmit.click();
 });
   
-  // ===== ВЫБОР АВАТАРА =====
-  avatarOptions.forEach(opt => {
-    opt.addEventListener('click', () => {
-      avatarOptions.forEach(o => o.classList.remove('selected'));
-      opt.classList.add('selected');
-      userAvatarUrl = opt.src;
-      setTimeout(() => finishAvatarSelection(), 200);
-    });
-  });
+  // ===== ВЫБОР АВАТАРА VELTO =====
+const firstAvatarUpload = document.getElementById('first-avatar-upload');
+const firstAvatarCameraInput = document.getElementById('first-avatar-camera-input');
+const firstAvatarCamera = document.getElementById('first-avatar-camera');
+const firstAvatarSkip = document.getElementById('first-avatar-skip');
+const firstAvatarContinue = document.getElementById('first-avatar-continue');
+const firstAvatarColors = document.getElementById('first-avatar-colors');
+const firstAvatarPreview = document.getElementById('first-avatar-preview');
+const firstAvatarPlaceholder = document.getElementById('first-avatar-placeholder');
 
-  // Загрузка собственной аватарки на этапе первого входа (телефон/компьютер)
-  document.getElementById('first-avatar-upload').addEventListener('change', e => {
-    const file=e.target.files && e.target.files[0]; if(!file) return;
-    if(!file.type.startsWith('image/')) { alert('Выбери файл изображения.'); e.target.value=''; return; }
-    if(file.size>5*1024*1024) { alert('Фото должно быть меньше 5 МБ.'); e.target.value=''; return; }
-    const reader=new FileReader();
-    reader.onload=()=>{
-      const img=new Image();
-      img.onload=()=>{
-        const canvas=document.createElement('canvas'); const max=320; const scale=Math.min(1,max/Math.max(img.width,img.height));
-        canvas.width=Math.max(1,Math.round(img.width*scale)); canvas.height=Math.max(1,Math.round(img.height*scale));
-        canvas.getContext('2d').drawImage(img,0,0,canvas.width,canvas.height);
-        userAvatarUrl=canvas.toDataURL('image/jpeg',0.82);
-        const preview=document.getElementById('first-avatar-preview');
-        const placeholder=document.getElementById('first-avatar-placeholder');
-        preview.src=userAvatarUrl; preview.style.display='block'; if(placeholder) placeholder.style.display='none';
-        finishAvatarSelection();
-      };
-      img.onerror=()=>{alert('Не удалось открыть это изображение.');}; img.src=String(reader.result);
-    }; reader.readAsDataURL(file);
+let firstAvatarColor = '#22c55e';
+let firstAvatarProcessing = false;
+let firstAvatarReady = false;
+
+function makeLetterAvatar(name, color) {
+  const letter = (String(name || '?').trim()[0] || '?')
+    .toUpperCase()
+    .replace(/[<>&"']/g, '?');
+
+  const svg = `
+    <svg xmlns="http://www.w3.org/2000/svg" width="320" height="320" viewBox="0 0 320 320">
+      <rect width="320" height="320" rx="160" fill="${color}"/>
+      <text x="160" y="205" text-anchor="middle"
+        font-family="Arial,sans-serif" font-weight="700" font-size="150"
+        fill="#ffffff" stroke="#334155" stroke-width="2" paint-order="stroke">${letter}</text>
+    </svg>`;
+
+  return 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(svg);
+}
+
+function showFirstAvatarPreview(url) {
+  firstAvatarPreview.src = url;
+  firstAvatarPreview.style.display = 'block';
+
+  if (firstAvatarPlaceholder) {
+    firstAvatarPlaceholder.style.display = 'none';
+  }
+
+  firstAvatarReady = true;
+}
+
+async function processFirstAvatarFile(file) {
+  if (!file || firstAvatarProcessing) return;
+
+  if (!file.type.startsWith('image/')) {
+    alert('Выбери файл изображения.');
+    return;
+  }
+
+  if (file.size > 100 * 1024 * 1024) {
+    alert('Размер фото не должен превышать 100 МБ.');
+    return;
+  }
+
+  firstAvatarProcessing = true;
+  if (firstAvatarContinue) firstAvatarContinue.disabled = true;
+
+  try {
+    const imageUrl = await new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(String(reader.result));
+      reader.onerror = () => reject(new Error('Не удалось прочитать файл.'));
+      reader.readAsDataURL(file);
+    });
+
+    const img = await new Promise((resolve, reject) => {
+      const image = new Image();
+      image.onload = () => resolve(image);
+      image.onerror = () => reject(new Error('Не удалось открыть изображение.'));
+      image.src = imageUrl;
+    });
+
+    const canvas = document.createElement('canvas');
+    const max = 640;
+    const scale = Math.min(1, max / Math.max(img.width, img.height));
+
+    canvas.width = Math.max(1, Math.round(img.width * scale));
+    canvas.height = Math.max(1, Math.round(img.height * scale));
+
+    const ctx = canvas.getContext('2d');
+    if (!ctx) throw new Error('Не удалось обработать изображение.');
+
+    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+    userAvatarUrl = canvas.toDataURL('image/jpeg', 0.82);
+    showFirstAvatarPreview(userAvatarUrl);
+    firstAvatarColors.style.display = 'none';
+  } catch (error) {
+    console.error('Ошибка выбора аватарки:', error);
+    alert(error.message || 'Не удалось обработать фотографию.');
+  } finally {
+    firstAvatarProcessing = false;
+    if (firstAvatarContinue) firstAvatarContinue.disabled = false;
+    if (firstAvatarUpload) firstAvatarUpload.value = '';
+    if (firstAvatarCameraInput) firstAvatarCameraInput.value = '';
+  }
+}
+
+firstAvatarUpload.addEventListener('change', event => {
+  processFirstAvatarFile(event.target.files && event.target.files[0]);
+});
+
+firstAvatarCamera.addEventListener('click', () => {
+  firstAvatarCameraInput.click();
+});
+
+firstAvatarCameraInput.addEventListener('change', event => {
+  processFirstAvatarFile(event.target.files && event.target.files[0]);
+});
+
+firstAvatarSkip.addEventListener('click', () => {
+  firstAvatarColors.style.display = 'block';
+  userAvatarUrl = makeLetterAvatar(userName, firstAvatarColor);
+  showFirstAvatarPreview(userAvatarUrl);
+});
+
+document.querySelectorAll('.first-avatar-color').forEach(button => {
+  button.addEventListener('click', () => {
+    firstAvatarColor = button.dataset.color || '#22c55e';
+    userAvatarUrl = makeLetterAvatar(userName, firstAvatarColor);
+    showFirstAvatarPreview(userAvatarUrl);
+
+    document.querySelectorAll('.first-avatar-color').forEach(item => {
+      item.style.outline = 'none';
+    });
+
+    button.style.outline = '3px solid var(--primary)';
   });
+});
+
+firstAvatarContinue.addEventListener('click', async () => {
+  if (firstAvatarProcessing) return;
+
+  if (!firstAvatarReady) {
+    firstAvatarColors.style.display = 'block';
+    userAvatarUrl = makeLetterAvatar(userName, firstAvatarColor);
+    showFirstAvatarPreview(userAvatarUrl);
+  }
+
+  firstAvatarContinue.disabled = true;
+
+  try {
+    await finishAvatarSelection();
+  } finally {
+    firstAvatarContinue.disabled = false;
+  }
+});
 
 async function finishAvatarSelection() {
   try {
@@ -6991,11 +7321,14 @@ async function finishAvatarSelection() {
 
       db.currentAccountEmail = data.user.email;
       db.profile = {
-        name: userName,
-        email: data.user.email,
-        avatar: userAvatarUrl,
-        theme: currentTheme
-      };
+  id: data.user.id,
+  name: userName,
+  email: data.user.email || '',
+  avatar: userAvatarUrl,
+  theme: currentTheme,
+  isAdmin: false,
+  isOwner: false
+};
 
       saveDB();
       renderAdminTag();
