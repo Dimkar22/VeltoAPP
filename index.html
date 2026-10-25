@@ -12559,11 +12559,26 @@ async function refreshStoryLikes(storyId, userId) {
       if (!owner) return alert('Автор истории не найден.');
       if (owner.id === user.id) return alert('Нельзя отвечать самому себе.');
 
-      const targetName =
-        owner.profile.display_name ||
-        (owner.profile.username ? '@' + owner.profile.username : '');
+let profile = owner.profile || {};
 
-      if (!targetName) return alert('Не удалось определить автора.');
+if (!profile.username && !profile.display_name) {
+  const result = await sb
+    .from('profiles')
+    .select('username, display_name')
+    .eq('id', owner.id)
+    .maybeSingle();
+
+  if (result.error) throw result.error;
+  profile = result.data || {};
+}
+
+const targetName = profile.username
+  ? '@' + profile.username
+  : (profile.display_name || '');
+
+if (!targetName) {
+  return alert('В профиле автора нет имени или username.');
+}
 
       const sent = window.veltoSendStoryReply(
         targetName,
