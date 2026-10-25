@@ -7556,7 +7556,7 @@ async function finishAvatarSelection() {
     wsLastPongAt = Date.now();
     wsLastMsgAt = Date.now();
     wsStableSince = Date.now();
-    setWsStatus('connected', 'онлайн · WS v' + WS_PROTO);
+    setWsStatus('connected',");
 
     socket.onmessage = (ev) => {
       if (ws !== socket) return;
