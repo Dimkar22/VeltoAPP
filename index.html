@@ -8201,24 +8201,44 @@ async function finishAvatarSelection() {
     const m = document.getElementById('comet-shop-modal');
     if (m) { m.classList.add('hidden'); m.style.display = ''; }
   }
-  (function bindCometShop() {
-    document.querySelectorAll('[data-shop-tab]').forEach(btn => {
-  btn.addEventListener('click', () => setShopTab(btn.dataset.shopTab));
-});
-    const c = document.getElementById('close-comet-shop');
-    if (c) c.addEventListener('click', closeCometShop);
-    const m = document.getElementById('comet-shop-modal');
-    if (m) m.addEventListener('click', e => { if (e.target.id === 'comet-shop-modal') closeCometShop(); });
-    document.querySelectorAll('[data-shop-tab]').forEach(btn => {
-      btn.addEventListener('click', () => setShopTab(btn.dataset.shopTab));
+(function bindCometShop() {
+  const c = document.getElementById('close-comet-shop');
+  if (c) c.addEventListener('click', closeCometShop);
+
+  const m = document.getElementById('comet-shop-modal');
+  if (m) {
+    m.addEventListener('click', e => {
+      if (e.target === m) closeCometShop();
     });
-  
-    })();
-  
-  let giftCometTargetName = '';
-  function openGiftCometModal(toName) {
-    giftCometTargetName = toName || '';
-   const closeGiftCometBtn = document.getElementById('close-gift-comet');
+  }
+
+  document.querySelectorAll('[data-shop-tab]').forEach(btn => {
+    btn.addEventListener('click', () => setShopTab(btn.dataset.shopTab));
+  });
+})();
+
+let giftCometTargetName = '';
+
+function openGiftCometModal(toName) {
+  giftCometTargetName = toName || '';
+
+  const targetEl = document.getElementById('gift-comet-target');
+  const amountEl = document.getElementById('gift-comet-amount');
+  const modal = document.getElementById('gift-comet-modal');
+
+  if (!modal || !targetEl || !amountEl) {
+    alert('Окно подарков Comet не найдено в HTML.');
+    return;
+  }
+
+  targetEl.textContent = 'Получатель: ' + (toName || '—');
+  amountEl.value = '10';
+
+  updateCometBalanceUI();
+  modal.classList.remove('hidden');
+}
+
+const closeGiftCometBtn = document.getElementById('close-gift-comet');
 const giftCometModal = document.getElementById('gift-comet-modal');
 const giftCometSendBtn = document.getElementById('gift-comet-send');
 
@@ -8248,10 +8268,42 @@ if (giftCometSendBtn && giftCometModal) {
 }
 
 const cometBalEl = document.getElementById('comet-balance');
-if (cometBalEl) cometBalEl.addEventListener('click', (e) => {
-  e.stopPropagation();
-  try { openCometShop(); } catch (_) {}
-});
+
+if (cometBalEl) {
+  cometBalEl.addEventListener('click', e => {
+    e.stopPropagation();
+    try {
+      openCometShop();
+    } catch (err) {
+      console.error('Velto Comet shop error:', err);
+    }
+  });
+
+  cometBalEl.title = 'Магазин Comet · ПКМ — подарить';
+
+  cometBalEl.addEventListener('contextmenu', e => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    const active = contacts.find(
+      c => String(c.id) === String(activeChatId)
+    );
+
+    if (
+      active &&
+      !active.isGroup &&
+      !active.isChannel &&
+      !active.adminConsole &&
+      !active.officialBot &&
+      !active.savedMessages
+    ) {
+      openGiftCometModal(active.name);
+    } else {
+      const n = prompt('Кому подарить Comet? Введи ник:');
+      if (n && n.trim()) openGiftCometModal(n.trim());
+    }
+  });
+}
     
   // ===== РЕАКЦИИ НА СООБЩЕНИЯ =====
   const REACT_EMOJIS = ['👍', '❤️', '🔥', '😂', '😮', '😢', '👏', '🌙'];
