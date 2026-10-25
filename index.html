@@ -8328,6 +8328,9 @@ async function finishAvatarSelection() {
     }
     return true;
   }
+  window.veltoSendStoryReply = function(targetName, text) {
+    return sendPrivateMessage({ name: targetName }, text);
+  };
 
   function getOnlineUsersList() {
     const list = [];
@@ -12535,6 +12538,46 @@ async function refreshStoryLikes(storyId, userId) {
     } catch (err) {
       console.error('Story like:', err);
       alert('Не удалось поставить лайк. Проверь подключение и политики Supabase.');
+    }
+  };
+  el('vs-reply-toggle').onclick = () => {
+    const box = el('vs-reply-box');
+    box.style.display = box.style.display === 'none' ? 'block' : 'none';
+    if (box.style.display === 'block') el('vs-reply-text').focus();
+  };
+
+  el('vs-reply-send').onclick = async () => {
+    const input = el('vs-reply-text');
+    const message = input.value.trim();
+    if (!message) return alert('Напиши ответ.');
+
+    try {
+      const user = await currentUser();
+      const owner = owners.find(x => x.id === currentOwner);
+
+      if (!user) return alert('Сначала войди в Velto.');
+      if (!owner) return alert('Автор истории не найден.');
+      if (owner.id === user.id) return alert('Нельзя отвечать самому себе.');
+
+      const targetName =
+        owner.profile.display_name ||
+        (owner.profile.username ? '@' + owner.profile.username : '');
+
+      if (!targetName) return alert('Не удалось определить автора.');
+
+      const sent = window.veltoSendStoryReply(
+        targetName,
+        'Ответ на историю: ' + message
+      );
+
+      if (!sent) return alert('Не удалось отправить ответ.');
+
+      input.value = '';
+      el('vs-reply-box').style.display = 'none';
+      alert('Ответ отправлен.');
+    } catch (err) {
+      console.error('Story reply:', err);
+      alert('Ошибка отправки ответа.');
     }
   };
   async function showViews(storyId) {
