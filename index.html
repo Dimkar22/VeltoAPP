@@ -2877,129 +2877,6 @@
     .profile-hero.has-custom-banner { background: #0a0c18; }
     .profile-hero.has-custom-banner > *:not(.profile-banner-img) { position: relative; z-index: 1; }
     .profile-banner-controls { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; align-items: center; }
-    .admin-comet-box {
-      margin-top: 12px; padding: 14px; border-radius: 14px;
-      background: rgba(125,211,252,.08); border: 1px solid rgba(125,211,252,.25);
-    }
-    .admin-comet-box h4 { margin: 0 0 8px; font-size: 14px; color: #7dd3fc; }
-    .admin-comet-row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
-    .admin-comet-row input { width: 100px; padding: 10px 12px; border-radius: 10px;
-      border: 1px solid rgba(160,166,255,.22); background: rgba(0,0,0,.28); color: var(--text-main); font: inherit; }
-
-
-
-
-    .comet-shop-grid {
-      display: grid; grid-template-columns: 1fr; gap: 10px; margin-top: 12px; max-height: 55vh; overflow-y: auto;
-    }
-    .comet-shop-item {
-      display: flex; align-items: center; gap: 12px; padding: 12px 14px;
-      border-radius: 14px; border: 1px solid var(--glass-border);
-      background: rgba(255,255,255,.04); cursor: pointer; text-align: left; width: 100%;
-      color: var(--text-main); font: inherit; transition: .15s;
-    }
-    .comet-shop-item:hover { border-color: var(--primary); background: var(--primary-glow); transform: translateY(-1px); }
-    .comet-shop-item .csi-ico { font-size: 26px; flex: none; width: 36px; text-align: center; }
-    .comet-shop-item .csi-body { flex: 1; min-width: 0; }
-    .comet-shop-item .csi-title { font-weight: 700; font-size: 14px; }
-    .comet-shop-item .csi-desc { font-size: 12px; color: var(--text-muted); margin-top: 2px; line-height: 1.35; }
-    .comet-shop-item .csi-price {
-      flex: none; font-weight: 800; font-size: 13px; color: #7dd3fc;
-      padding: 6px 10px; border-radius: 999px; background: rgba(125,211,252,.12);
-      border: 1px solid rgba(125,211,252,.3);
-    }
-    .comet-shop-item:disabled { opacity: .45; cursor: not-allowed; transform: none; }
-
-
-    .shop-tabs {
-      display: flex; gap: 8px; margin: 12px 0 4px; padding: 4px;
-      border: 1px solid var(--glass-border); border-radius: 12px;
-      background: rgba(255,255,255,.025);
-    }
-    .shop-tab {
-      flex: 1; padding: 10px 12px; border-radius: 9px; border: 1px solid transparent;
-      background: transparent; color: var(--text-main); font: inherit; font-size: 13px; font-weight: 700;
-      cursor: pointer; transition: .15s;
-    }
-    .shop-tab.active {
-      background: linear-gradient(135deg, rgba(34,197,94,.25), rgba(79,70,229,.12));
-      border-color: rgba(151,139,255,.28);
-      box-shadow: inset 0 1px rgba(255,255,255,.05);
-    }
-    .shop-page.hidden { display: none !important; }
-    .shop-items-grid {
-      display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;
-      margin-top: 12px; max-height: 52vh; overflow-y: auto;
-    }
-    .shop-item-card {
-      display: flex; flex-direction: column; align-items: center; gap: 6px;
-      padding: 16px 12px 14px; border-radius: 16px;
-      border: 1px solid var(--glass-border); background: rgba(255,255,255,.04);
-      cursor: pointer; text-align: center; color: var(--text-main); font: inherit;
-      transition: .15s; position: relative;
-    }
-    .shop-item-card:hover:not(:disabled) {
-      border-color: var(--primary); background: var(--primary-glow);
-      transform: translateY(-2px); box-shadow: 0 8px 24px rgba(34,197,94,.25);
-    }
-    .shop-item-card:disabled { opacity: .55; cursor: default; transform: none; }
-    .shop-item-card .sic-emoji { font-size: 40px; line-height: 1; filter: drop-shadow(0 4px 12px rgba(0,0,0,.35)); }
-    .shop-item-card .sic-name { font-weight: 800; font-size: 13px; }
-    .shop-item-card .sic-desc { font-size: 11px; color: var(--text-muted); line-height: 1.3; min-height: 28px; }
-    .shop-item-card .sic-price {
-      font-weight: 800; font-size: 12px; color: #7dd3fc;
-      padding: 5px 10px; border-radius: 999px;
-      background: rgba(125,211,252,.12); border: 1px solid rgba(125,211,252,.3);
-    }
-    .shop-item-card.owned .sic-price {
-      color: #a7f3d0; background: rgba(52,211,153,.14); border-color: rgba(52,211,153,.35);
-    }
-    .shop-item-card .sic-owned-badge {
-      position: absolute; top: 8px; right: 8px; font-size: 10px; font-weight: 800;
-      padding: 2px 7px; border-radius: 999px;
-      background: rgba(52,211,153,.2); color: #a7f3d0; border: 1px solid rgba(52,211,153,.35);
-    }
-    .profile-collection {
-      margin: 0 18px 16px; padding: 14px;
-      border-radius: 16px; border: 1px solid var(--glass-border);
-      background: rgba(255,255,255,.03);
-    }
-    .profile-collection-title {
-      font-size: 12px; font-weight: 800; letter-spacing: .6px; text-transform: uppercase;
-      color: var(--text-muted); margin-bottom: 12px; display: flex; align-items: center; gap: 8px;
-    }
-    .profile-collection-title span.cnt {
-      margin-left: auto; font-size: 11px; padding: 2px 8px; border-radius: 999px;
-      background: rgba(34,197,94,.2); color: #86efac; border: 1px solid rgba(167,139,250,.3);
-      text-transform: none; letter-spacing: 0;
-    }
-    .profile-collection-grid {
-      display: grid; grid-template-columns: repeat(auto-fill, minmax(72px, 1fr)); gap: 8px;
-    }
-    .profile-coll-item {
-      display: flex; flex-direction: column; align-items: center; gap: 4px;
-      padding: 10px 6px; border-radius: 12px;
-      background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.08);
-    }
-    .profile-coll-item .pci-emoji { font-size: 28px; line-height: 1; }
-    .profile-coll-item .pci-name { font-size: 10px; font-weight: 700; color: var(--text-main); text-align: center; line-height: 1.2; }
-    .profile-coll-item .pci-qty {
-      font-size: 9px; font-weight: 800; color: #7dd3fc;
-      background: rgba(125,211,252,.12); padding: 1px 6px; border-radius: 999px;
-    }
-    .profile-collection-empty {
-      font-size: 12px; color: var(--text-muted); text-align: center; padding: 12px 8px;
-      line-height: 1.4;
-    }
-    .icon-btn.shop-btn {
-      background: linear-gradient(135deg, rgba(125,211,252,.2), rgba(34,197,94,.15));
-      border-color: rgba(125,211,252,.35);
-    }
-    .icon-btn.shop-btn:hover {
-      box-shadow: 0 0 16px rgba(125,211,252,.35);
-    }
-
-
 
     /* ===== REPORTS & PUNISH ===== */
     .report-modal-card, .punish-modal-card {
@@ -8332,17 +8209,7 @@ async function finishAvatarSelection() {
     document.querySelectorAll('[data-shop-tab]').forEach(btn => {
       btn.addEventListener('click', () => setShopTab(btn.dataset.shopTab));
     });
-    const openShopBtn = document.getElementById('open-shop');
-    if (openShopBtn) {
-      const openShopHandler = (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        try { openCometShop('items'); } catch (err) { console.error(err); alert('Не удалось открыть магазин'); }
-      };
-      openShopBtn.addEventListener('click', openShopHandler);
-      openShopBtn.addEventListener('mousedown', (e) => e.stopPropagation());
-    }
-  })();
+  
 
   let giftCometTargetName = '';
   function openGiftCometModal(toName) {
