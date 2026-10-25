@@ -9990,7 +9990,7 @@ document.getElementById('channel-create-btn').addEventListener('click', createCh
         : (c.isGroup ? ('👥 ' + memberCount + ' участн.')
         : (isOnline ? '🟢 В сети · можно писать'
         : (c.onlineUser || c.wsId ? 'был(а) недавно'
-        : (c.registeredUser ? 'Пользователь velto' : 'Привет! Как дела?')))))));
+        : (c.registeredUser ? 'Пользователь velto' : '')
       details.append(name, last);
       if (c.isGroup) {
         if (isCustomGroupAvatar(c.avatar)) {
@@ -10354,16 +10354,16 @@ const inAdminConsole = activeChatId === 'admin-console' || activeContactName.tex
       return;
     }
 
- addMessage('self', text, attach ? { attachment: attach } : null);
+addMessage('self', text, attach ? { attachment: attach } : null);
 messagesContainer.scrollTop = messagesContainer.scrollHeight;
 
 const isFavoritesChat =
-  String(activeChatId) === 'favorites' ||
   String(activeChatId) === 'saved-messages' ||
-  /избранное|saved messages/i.test(activeContactName.textContent.trim());
+  (activeContact && activeContact.savedMessages);
 
-if (isFavoritesChat) return;
-
+if (isFavoritesChat) {
+  return;
+}
 const isveltoChat = activeChatId === 'velto-official' ||
   (activeContact && (activeContact.officialBot || activeContact.id === 'velto-official' || /velto/i.test(activeContact.name || '')));
 
@@ -10448,27 +10448,44 @@ if (isveltoChat) {
 
   return;
 }
-    const typingEl = document.createElement('div');
-    typingEl.className = 'typing-indicator';
-    typingEl.innerHTML = '<span></span><span></span><span></span>';
-    messagesContainer.appendChild(typingEl);
-    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    if (
+  String(activeChatId) === 'saved-messages' ||
+  (activeContact && activeContact.savedMessages)
+) {
+  return;
+}
 
-    setTimeout(() => {
-      typingEl.remove();
-      const replies = [
-        'О, круто! Расскажи подробнее? 😄',
-        'Звучит интересно! 👀',
-        'Согласен, тоже так думаю!',
-        'Ха, не ожидал такого 😅',
-        'Давай созвонимся вечером?',
-        'Это реально работает? 🤯',
-        'Ну ты даёшь! 🔥',
-        'velto — топ! 🌙',
-      ];
-      addMessage('other', replies[Math.floor(Math.random() * replies.length)]);
-      messagesContainer.scrollTop = messagesContainer.scrollHeight;
-    }, 1400);
+const typingEl = document.createElement('div');
+typingEl.className = 'typing-indicator';
+typingEl.innerHTML = '<span></span><span></span><span></span>';
+messagesContainer.appendChild(typingEl);
+messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+setTimeout(() => {
+  typingEl.remove();
+
+  // Не отвечаем, если пользователь уже переключился на другой чат.
+  if (
+    String(activeChatId) === 'saved-messages' ||
+    (activeContact && activeContact.savedMessages)
+  ) {
+    return;
+  }
+
+  const replies = [
+    'О, круто! Расскажи подробнее? 😄',
+    'Звучит интересно! 👀',
+    'Согласен, тоже так думаю!',
+    'Ха, не ожидал такого 😅',
+    'Давай созвонимся вечером?',
+    'Это реально работает? 🤯',
+    'Ну ты даёшь! 🔥',
+    'velto — топ! 🌙',
+  ];
+
+  addMessage('other', replies[Math.floor(Math.random() * replies.length)]);
+  messagesContainer.scrollTop = messagesContainer.scrollHeight;
+}, 1400);
   });
 
 
