@@ -6085,47 +6085,116 @@ return H.map(x=>(x>>>0).toString(16).padStart(8,'0')).join('');
 async function submitReport() {
   ensureReportsDb();
 
-  const targetName = reportTargetName;
+  const targetName = String(reportTargetName || '').trim();
   if (!targetName) return;
 
   const reason = document.getElementById('report-reason').value;
-  const comment =
-    (document.getElementById('report-comment').value || '').trim();
+  const comment = (
+    document.getElementById('report-comment').value || ''
+  ).trim();
 
   if (!reason) {
     alert('Выбери конкретную причину жалобы');
     return;
   }
 
-  const report = {
-    id: 'r' + Date.now().toString(36) +
-      Math.random().toString(36).slice(2, 6),
-    from: userName,
-    fromAvatar: userAvatarUrl || '',
-    target: targetName,
-    reason: reason,
-    comment: comment,
-    at: Date.now(),
-    status: 'pending'
-  };
-
-  db.reports.unshift(report);
-  if (db.reports.length > 200) {
-    db.reports = db.reports.slice(0, 200);
+  const button = document.getElementById('report-submit');
+  if (button) {
+    button.disabled = true;
+    button.textContent = 'Отправка…';
   }
 
-  saveDB(true);
+  try {
+    const supabase = window.veltoSupabase;
+    if (!supabase) {
+      throw new Error('Нет подключения к Supabase');
+    }
 
-  resetReportReasonPicker();
-  document.getElementById('report-comment').value = '';
+    const { data: authData, error: authError } =
+      await supabase.auth.getUser();
 
-  closeReportModal();
+    const user = authData && authData.user;
 
-  showReportToast(
-    'Жалоба на «' + targetName +
-    '» отправлена на рассмотрение администрации Velto'
-  );
-}  function rejectReport(reportId) {
+    if (authError || !user) {
+      throw new Error('Сначала войди в аккаунт Velto');
+    }
+
+    let targetUserId = null;
+
+    const { data: targetProfile, error: lookupError } =
+      await supabase
+        .from('public_profiles')
+        .select('id, username')
+        .ilike('username', targetName)
+        .limit(1)
+        .maybeSingle();
+
+    if (!lookupError && targetProfile) {
+      targetUserId = targetProfile.id;
+    }
+
+    const { data: savedReport, error: insertError } =
+      await supabase
+        .from('velto_reports')
+        .insert({
+          reporter_id: user.id,
+          reporter_username: String(
+            userName || 'Пользователь'
+          ).slice(0, 80),
+          target_user_id: targetUserId,
+          target_username: targetName.slice(0, 80),
+          reason: String(reason).slice(0, 300),
+          report_comment: comment.slice(0, 400),
+          status: 'pending'
+        })
+        .select('id, created_at, status')
+        .single();
+
+    if (insertError) throw insertError;
+
+    const report = {
+      id: savedReport.id,
+      from: String(userName || 'Пользователь'),
+      fromAvatar: userAvatarUrl || '',
+      reporterId: user.id,
+      target: targetName,
+      targetUserId,
+      reason,
+      comment,
+      at: savedReport.created_at
+        ? new Date(savedReport.created_at).getTime()
+        : Date.now(),
+      status: savedReport.status || 'pending'
+    };
+
+    db.reports.unshift(report);
+    if (db.reports.length > 200) {
+      db.reports = db.reports.slice(0, 200);
+    }
+    saveDB(true);
+
+    resetReportReasonPicker();
+    document.getElementById('report-comment').value = '';
+    closeReportModal();
+
+    showReportToast(
+      'Жалоба на «' + targetName +
+      '» отправлена на рассмотрение администрации Velto'
+    );
+  } catch (error) {
+    console.error('Ошибка отправки жалобы:', error);
+    alert(
+      'Не удалось отправить жалобу: ' +
+      (error.message || 'неизвестная ошибка')
+    );
+  } finally {
+    if (button) {
+      button.disabled = false;
+      button.textContent = 'Отправить жалобу';
+    }
+  }
+}  
+  function rejectReport(reportId) {
     ensureReportsDb();
     const r = db.reports.find(x => x.id === reportId);
     if (!r || r.status !== 'pending') return;
