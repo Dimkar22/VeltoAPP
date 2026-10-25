@@ -7107,11 +7107,12 @@ regSubmit.addEventListener('click', async () => {
 
     if (regProgressBar) regProgressBar.style.width = '100%';
 
-    if (data.session) {
-      alert('Аккаунт создан. Следующим шагом настроим выбор никнейма.');
-      registerScreen.classList.add('hidden');
-      avatarScreen.classList.remove('hidden');
-    } else {
+if (data.session) {
+  registerScreen.classList.add('hidden');
+  avatarScreen.classList.add('hidden');
+  usernameInput.value = '';
+  usernameScreen.classList.remove('hidden');
+} else {
       alert(
         'Аккаунт создан! Проверь почту и подтверди email. ' +
         'После подтверждения войди в Velto со своим email и паролем.'
