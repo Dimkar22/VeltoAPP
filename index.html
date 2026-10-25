@@ -12659,6 +12659,73 @@ async function refreshStoryLikes(storyId, userId) {
   };
 
 el('vs-reply-send').onclick = async () => {
+  const input = el('vs-reply-text');
+  const message = input.value.trim();
+  if (!message) return alert('Напиши ответ.');
+
+  try {
+    const user = await currentUser();
+    const owner = owners.find(x => x.id === currentOwner);
+
+    if (!user) return alert('Сначала войди в Velto.');
+    if (!owner) return alert('Автор истории не найден.');
+    if (owner.id === user.id) {
+      return alert('Нельзя отвечать самому себе.');
+    }
+
+    const { data, error } = await sb
+      .from('velto_messages')
+      .insert({
+        sender_id: user.id,
+        recipient_id: owner.id,
+        body: 'Ответ на историю: ' + message,
+        message_type: 'text',
+        is_bot: false
+      })
+      .select('id,sender_id,recipient_id,body,message_type,created_at')
+      .single();
+
+    if (error) throw error;
+
+    // Найти существующий личный чат с автором истории
+    const contacts = Array.isArray(db.contacts) ? db.contacts : [];
+    const contact = contacts.find(c =>
+      !c.isGroup && !c.isChannel &&
+      (c.userId === owner.id ||
+       c.user_id === owner.id ||
+       c.id === owner.id)
+    );
+
+    if (contact && typeof chatStore === 'function') {
+      const st = chatStore(contact.id);
+
+      if (st && !st.messages.some(m => m.id === 'sb-' + data.id)) {
+        st.messages.push({
+          id: 'sb-' + data.id,
+          type: 'self',
+          text: data.body,
+          at: new Date(data.created_at).getTime(),
+          supabaseId: data.id
+        });
+        saveDB(true);
+
+        if (String(activeChatId) === String(contact.id)) {
+          messagesContainer.innerHTML = '';
+          loadChatMessages(contact.id);
+          messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+      }
+    }
+
+    input.value = '';
+    el('vs-reply-box').style.display = 'none';
+    alert('Ответ отправлен.');
+
+  } catch (err) {
+    console.error('Story reply:', err);
+    alert('Не удалось отправить ответ: ' + (err.message || 'ошибка'));
+  }
+};
     const input = el('vs-reply-text');
     const message = input.value.trim();
     if (!message) return alert('Напиши ответ.');
