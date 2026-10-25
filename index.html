@@ -12721,12 +12721,13 @@ el('vs-reply-send').onclick = async () => {
     el('vs-reply-box').style.display = 'none';
     alert('Ответ отправлен.');
 
-  } catch (err) {
+} catch (err) {
     console.error('Story reply:', err);
     alert('Не удалось отправить ответ: ' + (err.message || 'ошибка'));
   }
-  
-  async function showViews(storyId) {
+};
+
+async function showViews(storyId) {
     const result=await sb.from('velto_story_views')
       .select('viewer_id').eq('story_id',storyId);
     if(result.error) return alert('Не удалось загрузить просмотры.');
