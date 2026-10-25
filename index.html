@@ -12355,10 +12355,16 @@ async function acceptCall() {
         root.appendChild(item);
       });
     } catch(e) {
-      console.error('Velto Stories:',e);
-      el('velto-stories').textContent='Истории временно недоступны';
-    }
+  console.error('Velto Stories:', e);
+  const root = el('velto-stories');
+  if (root) {
+    root.innerHTML = '';
+    const msg = document.createElement('div');
+    msg.style.cssText = 'padding:10px;color:#f87171;font-size:12px';
+    msg.textContent = 'Ошибка загрузки историй: ' + (e.message || String(e));
+    root.appendChild(msg);
   }
+}
 
   el('vs-file').addEventListener('change',async e=>{
     const file=e.target.files?.[0];
