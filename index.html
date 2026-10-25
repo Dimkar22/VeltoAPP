@@ -12270,8 +12270,23 @@ async function acceptCall() {
         <button id="vs-close">✕</button>
       </div>
       <div id="vs-media"></div>
-      <div id="vs-caption"></div>
-      <div id="vs-count" style="text-align:center;padding:10px"></div>
+<div id="vs-caption"></div>
+
+<div id="vs-actions" style="display:flex;gap:8px;align-items:center;padding:8px">
+  <button id="vs-like" type="button">❤️ 0</button>
+  <button id="vs-reply-toggle" type="button">💬 Ответить</button>
+  <button id="vs-edit" type="button" hidden>✏️</button>
+  <button id="vs-delete" type="button" hidden>🗑️</button>
+</div>
+
+<div id="vs-reply-box" style="display:none;padding:8px">
+  <input id="vs-reply-text" maxlength="1000"
+    placeholder="Ответить автору..."
+    style="width:100%;box-sizing:border-box;padding:12px;border-radius:18px">
+  <button id="vs-reply-send" type="button">Отправить</button>
+</div>
+
+<div id="vs-count" style="text-align:center;padding:10px"></div> РР
     </div>`;
   chatList.parentElement.insertBefore(wrap, chatList);
 
