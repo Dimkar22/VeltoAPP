@@ -12001,37 +12001,160 @@ async function acceptCall() {
   }, 2000);
 
 
-  window.addEventListener('load', async () => {
-    await dbReady;
-    ensureAccountForProfile();
-   if (db.profile && db.profile.name) {
-  userName = db.profile.name;
-  userAvatarUrl = db.profile.avatar || defaultAvatar(db.profile.name);
-  paintTheme(db.profile.theme);
+ window.addEventListener('load', async () => {
+  await dbReady;
 
-  if (settingsTheme) settingsTheme.value = currentTheme;
+  const hideScreens = () => {
+    registerScreen.classList.add('hidden');
+    avatarScreen.classList.add('hidden');
+    welcomeScreen.classList.add('hidden');
+    usernameScreen.classList.add('hidden');
+    appScreen.classList.add('hidden');
+  };
 
-  registerScreen.classList.add('hidden');
-  avatarScreen.classList.add('hidden');
-  welcomeScreen.classList.add('hidden');
-  appScreen.classList.remove('hidden');
+  try {
+    const supabase = window.veltoSupabase;
 
-  userAvatarImg.src = userAvatarUrl;
-  userNameSpan.textContent = userName;
-  renderAdminTag();
+    if (!supabase) {
+      showAuthMode('login');
+      return;
+    }
 
-  try { loadSavedContactsIntoMemory(); } catch (_) {}
-  try { applyPremiumChrome(); } catch (_) {}
-  try { ensureOwnComets(); } catch (_) {}
+    // Восстанавливаем сохранённую сессию
+    const { data, error } = await supabase.auth.getSession();
 
-  renderChatList();
+    if (error) throw error;
 
-  // Подключаемся к WebSocket для реального общения
-  setTimeout(connectWebSocket, 600);
-} else {
-  showAuthMode((db.accounts && db.accounts.length) ? 'login' : 'register');
-}
-  });
+    const authUser = data?.session?.user;
+
+    if (!authUser) {
+      hideScreens();
+      showAuthMode('login');
+      return;
+    }
+
+    // Загружаем данные именно текущего пользователя
+    await activateUserStorage(authUser.id);
+
+    const { data: profile, error: profileError } =
+      await supabase
+        .from('profiles')
+        .select('username, display_name, avatar_url')
+        .eq('id', authUser.id)
+        .maybeSingle();
+
+    if (profileError) throw profileError;
+
+    if (!profile?.username) {
+      pendingAccount = {
+        id: authUser.id,
+        email: authUser.email || ''
+      };
+
+      hideScreens();
+      usernameInput.value = '';
+      usernameError.textContent = '';
+      usernameError.classList.remove('show');
+      usernameScreen.classList.remove('hidden');
+      return;
+    }
+
+    userName = profile.username;
+    userAvatarUrl =
+      profile.avatar_url ||
+      db.profile?.avatar ||
+      defaultAvatar(userName);
+
+    currentTheme = normalizeTheme(
+      db.profile?.theme || currentTheme || 'velto'
+    );
+
+    db.profile = {
+      ...(db.profile || {}),
+      id: authUser.id,
+      name: userName,
+      email: authUser.email || '',
+      avatar: userAvatarUrl,
+      theme: currentTheme
+    };
+
+    db.currentAccountEmail = authUser.email || '';
+
+    if (!Array.isArray(db.accounts)) {
+      db.accounts = [];
+    }
+
+    let account = db.accounts.find(
+      a =>
+        String(a.email || '').toLowerCase() ===
+        String(authUser.email || '').toLowerCase()
+    );
+
+    if (!account) {
+      account = {
+        email: authUser.email || '',
+        isAdmin: false,
+        isOwner: false
+      };
+
+      db.accounts.push(account);
+    }
+
+    account.name = userName;
+    account.avatar = userAvatarUrl;
+    account.theme = currentTheme;
+
+    saveDB(true);
+
+    hideScreens();
+    paintTheme(currentTheme);
+
+    if (settingsTheme) {
+      settingsTheme.value = currentTheme;
+    }
+
+    appScreen.classList.remove('hidden');
+    userAvatarImg.src = userAvatarUrl;
+    userNameSpan.textContent = userName;
+
+    renderAdminTag();
+
+    try {
+      loadSavedContactsIntoMemory();
+    } catch (e) {
+      console.warn(e);
+    }
+
+    try {
+      applyPremiumChrome();
+    } catch (e) {
+      console.warn(e);
+    }
+
+    try {
+      ensureOwnComets();
+    } catch (e) {
+      console.warn(e);
+    }
+
+    renderChatList();
+    setTimeout(connectWebSocket, 600);
+
+  } catch (e) {
+    console.error('Velto session restore error:', e);
+
+    hideScreens();
+    showAuthMode('login');
+
+    const error = document.getElementById('login-error');
+
+    if (error) {
+      error.textContent =
+        'Не удалось восстановить сессию. Проверь интернет и попробуй войти снова.';
+      error.classList.add('show');
+    }
+  }
+});
 
   // при завершении выбора аватара тоже подключаем WS
   const _origFinishAvatar = typeof finishAvatarSelection === 'function' ? finishAvatarSelection : null;
