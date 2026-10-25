@@ -3314,7 +3314,53 @@
   border-radius: 50%;
   background: #101510;
 }
+/* ===== Фирменный стиль Velto ===== */
+.velto-brand-icon {
+  border-radius: 20px !important;
+  background: #080b09 !important;
+  border: 1px solid rgba(74, 222, 128, .25);
+  box-shadow: 0 0 30px rgba(34, 197, 94, .2) !important;
+}
 
+.velto-brand-icon svg {
+  width: 54px;
+  height: 54px;
+}
+
+.velto-sidebar-brand {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 14px 16px 18px;
+  color: #fff;
+  font-size: 23px;
+  font-weight: 800;
+  letter-spacing: -.6px;
+}
+
+.velto-sidebar-icon {
+  width: 42px;
+  height: 42px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 13px;
+  background: #080b09;
+  border: 1px solid rgba(74, 222, 128, .25);
+}
+
+.velto-sidebar-icon svg {
+  width: 36px;
+  height: 36px;
+}
+
+.velto-sidebar-brand span {
+  background: linear-gradient(90deg, #fff, #86efac);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
   </style>
 </head>
 <body>
@@ -3453,7 +3499,21 @@
 <!-- ЭКРАН РЕГИСТРАЦИИ -->
 <div id="register-screen" class="screen">
   <div class="reg-form">
-    <div class="reg-logo">🌙</div>
+    <div class="reg-logo velto-brand-icon">
+  <svg viewBox="0 0 64 64" aria-label="Velto">
+    <defs>
+      <linearGradient id="veltoGreen" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stop-color="#4ade80"/>
+        <stop offset="100%" stop-color="#16a34a"/>
+      </linearGradient>
+    </defs>
+    <path d="M12 14 Q12 9 18 9 H46 Q53 9 53 16 V37 Q53 44 46 44 H32 L19 54 V44 H18 Q12 44 12 37 Z"
+      fill="url(#veltoGreen)"/>
+    <circle cx="24" cy="27" r="3" fill="white"/>
+    <circle cx="32" cy="27" r="3" fill="white"/>
+    <circle cx="40" cy="27" r="3" fill="white"/>
+  </svg>
+</div>
     <div class="reg-title">Velto Messenger</div>
     <div class="reg-subtitle">Общайтесь с друзьями в Velto Messenger</div>
     <div class="error-msg" id="storage-warning" style="text-align:center;margin:-14px 0 14px">⚠ Браузер блокирует сохранение данных (возможно, файл открыт во встроенном просмотре). Открой файл напрямую в Chrome/Safari/Firefox, иначе аккаунт не сохранится.</div>
@@ -3672,7 +3732,18 @@
         <button class="icon-btn" id="open-settings" title="Настройки" aria-label="Настройки">⚙</button>
       </div>
     </div>
-    <nav class="contacts-list">
+    <div class="velto-sidebar-brand">
+  <div class="velto-sidebar-icon">
+    <svg viewBox="0 0 64 64" aria-label="Velto">
+      <path d="M12 14 Q12 9 18 9 H46 Q53 9 53 16 V37 Q53 44 46 44 H32 L19 54 V44 H18 Q12 44 12 37 Z"
+        fill="url(#veltoGreen)"/>
+      <circle cx="24" cy="27" r="3" fill="white"/>
+      <circle cx="32" cy="27" r="3" fill="white"/>
+      <circle cx="40" cy="27" r="3" fill="white"/>
+    </svg>
+  </div>
+  <span>Velto</span>
+</div>
       <div class="discover-card" id="open-discover" role="button" tabindex="0" title="Узнать возможности velto">
         <b>✨ Открыть velto</b>
         <span>Избранное · стикеры · ежедневный бонус · зачем velto всем</span>
