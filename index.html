@@ -11636,21 +11636,33 @@ async function acceptCall() {
   window.addEventListener('load', async () => {
     await dbReady;
     ensureAccountForProfile();
-    if (db.profile && db.profile.name) {
-      userName = db.profile.name; userAvatarUrl = db.profile.avatar || defaultAvatar(db.profile.name);
-      else {
-        paintTheme(db.profile.theme);
-      }
-      if (settingsTheme) settingsTheme.value = currentTheme;
-      registerScreen.classList.add('hidden'); avatarScreen.classList.add('hidden'); welcomeScreen.classList.add('hidden'); appScreen.classList.remove('hidden');
-      userAvatarImg.src = userAvatarUrl; userNameSpan.textContent = userName; renderAdminTag();
-      try { loadSavedContactsIntoMemory(); } catch (_) {}
-      try { applyPremiumChrome(); } catch (_) {}
-      try { ensureOwnComets(); } catch (_) {}
-      renderChatList();
-      // подключаемся к WebSocket для реального общения
-      setTimeout(connectWebSocket, 600);
-    } else { showAuthMode((db.accounts && db.accounts.length) ? 'login' : 'register'); }
+   if (db.profile && db.profile.name) {
+  userName = db.profile.name;
+  userAvatarUrl = db.profile.avatar || defaultAvatar(db.profile.name);
+  paintTheme(db.profile.theme);
+
+  if (settingsTheme) settingsTheme.value = currentTheme;
+
+  registerScreen.classList.add('hidden');
+  avatarScreen.classList.add('hidden');
+  welcomeScreen.classList.add('hidden');
+  appScreen.classList.remove('hidden');
+
+  userAvatarImg.src = userAvatarUrl;
+  userNameSpan.textContent = userName;
+  renderAdminTag();
+
+  try { loadSavedContactsIntoMemory(); } catch (_) {}
+  try { applyPremiumChrome(); } catch (_) {}
+  try { ensureOwnComets(); } catch (_) {}
+
+  renderChatList();
+
+  // Подключаемся к WebSocket для реального общения
+  setTimeout(connectWebSocket, 600);
+} else {
+  showAuthMode((db.accounts && db.accounts.length) ? 'login' : 'register');
+}
   });
 
   // при завершении выбора аватара тоже подключаем WS
