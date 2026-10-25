@@ -4038,7 +4038,16 @@
       </div>
       <div class="rm-field">
         <label for="report-reason">Причина</label>
-        <select id="report-reason"></select>
+<select id="report-reason" required>
+  <option value="">Выбери причину жалобы</option>
+  <option value="spam">Спам или реклама</option>
+  <option value="harassment">Оскорбления или травля</option>
+  <option value="threats">Угрозы</option>
+  <option value="fake">Фейковый аккаунт или выдача себя за другого</option>
+  <option value="inappropriate">Неприемлемый контент</option>
+  <option value="scam">Мошенничество</option>
+  <option value="other">Другое</option>
+</select>
       </div>
       <div class="rm-field">
         <label for="report-comment">Комментарий (необязательно)</label>
