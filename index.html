@@ -6051,31 +6051,81 @@ return H.map(x=>(x>>>0).toString(16).padStart(8,'0')).join('');
     document.getElementById('report-modal').classList.add('hidden');
     reportTargetName = '';
   }
-  async function submitReport() {
-    ensureReportsDb();
-    if (!reportTargetName) return;
-    const reason = document.getElementById('report-reason').value;
-    const comment = (document.getElementById('report-comment').value || '').trim();
-    const report = {
-      id: 'r' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
-      from: userName,
-      fromAvatar: userAvatarUrl || '',
-      target: reportTargetName,
-      reason: reason,
-      comment: comment,
-      at: Date.now(),
-      status: 'pending' // pending | accepted | rejected
-    };
-    db.reports.unshift(report);
-    if (db.reports.length > 200) db.reports = db.reports.slice(0, 200);
-    saveDB(true);
-    closeReportModal();
-    showSystemMessage('🚨 Жалоба на «' + reportTargetName + '» отправлена администраторам.');
-    try {
-      pushOfficialMessage(userName, '✅ velto: ваша жалоба на пользователя «' + reportTargetName + '» принята в работу. Ожидайте решения модерации.');
-    } catch (_) {}
+ function showReportToast(message) {
+  let toast = document.getElementById('velto-report-toast');
+
+  if (!toast) {
+    toast = document.createElement('div');
+    toast.id = 'velto-report-toast';
+    toast.style.cssText =
+      'position:fixed;top:18px;left:50%;transform:translateX(-50%);' +
+      'z-index:100000;max-width:92vw;padding:14px 18px;border-radius:14px;' +
+      'background:#17251d;border:1px solid #36b86b;color:#fff;' +
+      'box-shadow:0 8px 30px rgba(0,0,0,.3);font-size:14px;' +
+      'text-align:center;opacity:0;transition:opacity .2s ease;';
+    document.body.appendChild(toast);
   }
-  function rejectReport(reportId) {
+
+  clearTimeout(toast._hideTimer);
+  toast.textContent = '✓ ' + message;
+  toast.style.display = 'block';
+
+  requestAnimationFrame(() => {
+    toast.style.opacity = '1';
+  });
+
+  toast._hideTimer = setTimeout(() => {
+    toast.style.opacity = '0';
+    setTimeout(() => {
+      toast.style.display = 'none';
+    }, 250);
+  }, 4000);
+}
+
+async function submitReport() {
+  ensureReportsDb();
+
+  const targetName = reportTargetName;
+  if (!targetName) return;
+
+  const reason = document.getElementById('report-reason').value;
+  const comment =
+    (document.getElementById('report-comment').value || '').trim();
+
+  if (!reason) {
+    alert('Выбери конкретную причину жалобы');
+    return;
+  }
+
+  const report = {
+    id: 'r' + Date.now().toString(36) +
+      Math.random().toString(36).slice(2, 6),
+    from: userName,
+    fromAvatar: userAvatarUrl || '',
+    target: targetName,
+    reason: reason,
+    comment: comment,
+    at: Date.now(),
+    status: 'pending'
+  };
+
+  db.reports.unshift(report);
+  if (db.reports.length > 200) {
+    db.reports = db.reports.slice(0, 200);
+  }
+
+  saveDB(true);
+
+  resetReportReasonPicker();
+  document.getElementById('report-comment').value = '';
+
+  closeReportModal();
+
+  showReportToast(
+    'Жалоба на «' + targetName +
+    '» отправлена на рассмотрение администрации Velto'
+  );
+}  function rejectReport(reportId) {
     ensureReportsDb();
     const r = db.reports.find(x => x.id === reportId);
     if (!r || r.status !== 'pending') return;
