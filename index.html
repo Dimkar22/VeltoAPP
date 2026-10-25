@@ -12455,35 +12455,23 @@ if (ids.length) {
       const root = el('velto-stories');
       root.innerHTML = '';
 
-      const add = document.createElement('button');
-      add.className = 'vs-item';
-      add.innerHTML = '<div class="vs-ring"><div class="vs-avatar" style="color:#39ef85">+</div></div><span class="vs-name">Моя история</span>';
-      add.onclick = ()=>el('vs-file').click();
-      root.appendChild(add);
+      const add = document.createElement('div');
+add.className = 'vs-item';
+add.style.cursor = 'default';
+add.innerHTML = `
+  <div class="vs-ring">
+    <div class="vs-avatar" style="color:#39ef85">◷</div>
+  </div>
+  <span class="vs-name">В разработке</span>
+`;
+root.appendChild(add);
 
-      owners.forEach(owner=>{
-        const name = owner.profile.display_name ||
-          (owner.profile.username ? '@'+owner.profile.username : 'Пользователь');
-        const item = document.createElement('button');
-        item.className = 'vs-item';
-        const ring = document.createElement('div');
-        ring.className = 'vs-ring';
-        if (owner.seen) ring.style.background='#626862';
-        const avatar = document.createElement('div');
-        avatar.className = 'vs-avatar';
-        if (owner.profile.avatar_url) {
-          const img = document.createElement('img');
-          img.src=owner.profile.avatar_url;
-          avatar.appendChild(img);
-        } else avatar.textContent=name.slice(0,1).toUpperCase();
-        ring.appendChild(avatar);
-        const label = document.createElement('span');
-        label.className='vs-name';
-        label.textContent=owner.id===user.id?'Моя история':name;
-        item.append(ring,label);
-        item.onclick=()=>openOwner(owner);
-        root.appendChild(item);
-      });
+const notice = document.createElement('div');
+notice.style.cssText =
+  'padding:12px;color:#a7b0a9;font-size:13px;text-align:center;';
+notice.textContent = 'Истории временно недоступны. Мы работаем над обновлением.';
+root.appendChild(notice);
+      // Истории временно скрыты на время разработки.
     } catch(e) {
   console.error('Velto Stories:', e);
   const root = el('velto-stories');
