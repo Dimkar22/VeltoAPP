@@ -7249,15 +7249,83 @@ usernameInput.addEventListener('keydown', e => {
     }; reader.readAsDataURL(file);
   });
 
-  function finishAvatarSelection(){
-    avatarScreen.classList.add('hidden'); welcomeScreen.classList.remove('hidden');
-    setTimeout(()=>{welcomeScreen.classList.add('hidden');appScreen.classList.remove('hidden');userAvatarImg.src=userAvatarUrl;userNameSpan.textContent=userName;
-      if(pendingAccount){db.accounts=Array.isArray(db.accounts)?db.accounts:[];let account=db.accounts.find(a=>lc(a.email)===lc(pendingAccount.email));if(!account){account={...pendingAccount,isAdmin:false};db.accounts.push(account);}account.avatar=userAvatarUrl;account.theme=currentTheme;db.currentAccountEmail=account.email;db.profile={name:account.name,email:account.email,avatar:userAvatarUrl,theme:currentTheme};pendingAccount=null;}
-      else db.profile={...(db.profile||{}),name:userName,avatar:userAvatarUrl,theme:currentTheme};
-      saveDB();renderAdminTag();renderChatList();
+async function finishAvatarSelection() {
+  try {
+    if (!window.veltoSupabase) {
+      throw new Error('Нет подключения к Supabase.');
+    }
+
+    const { data, error: userError } =
+      await window.veltoSupabase.auth.getUser();
+
+    if (userError) throw userError;
+
+    if (!data.user) {
+      throw new Error('Войди в аккаунт Velto и попробуй снова.');
+    }
+
+    // Сохраняем никнейм и аватарку в облачный профиль
+    const { error: saveError } = await window.veltoSupabase
+      .from('profiles')
+      .update({
+        display_name: userName,
+        avatar_url: userAvatarUrl
+      })
+      .eq('id', data.user.id);
+
+    if (saveError) throw saveError;
+
+    avatarScreen.classList.add('hidden');
+    welcomeScreen.classList.remove('hidden');
+
+    setTimeout(() => {
+      welcomeScreen.classList.add('hidden');
+      appScreen.classList.remove('hidden');
+
+      userAvatarImg.src = userAvatarUrl;
+      userNameSpan.textContent = userName;
+
+      db.accounts = Array.isArray(db.accounts) ? db.accounts : [];
+
+      let account = db.accounts.find(
+        a => lc(a.email) === lc(data.user.email)
+      );
+
+      if (!account) {
+        account = {
+          email: data.user.email,
+          isAdmin: false
+        };
+        db.accounts.push(account);
+      }
+
+      account.name = userName;
+      account.avatar = userAvatarUrl;
+      account.theme = currentTheme;
+
+      db.currentAccountEmail = data.user.email;
+      db.profile = {
+        name: userName,
+        email: data.user.email,
+        avatar: userAvatarUrl,
+        theme: currentTheme
+      };
+
+      saveDB();
+      renderAdminTag();
+      renderChatList();
       setTimeout(connectWebSocket, 400);
-    },900);
+    }, 900);
+
+  } catch (e) {
+    console.error('Ошибка сохранения профиля Velto:', e);
+    alert(
+      'Не удалось сохранить профиль в Supabase: ' +
+      (e.message || 'неизвестная ошибка') +
+      '\nПопробуй ещё раз.'
+    );
   }
+}
 
   // ===== WEBSOCKET: РЕАЛЬНОЕ ОБЩЕНИЕ ОНЛАЙН =====
   // Публичный relay ittysockets.io (без ключей). Broadcast по каналу.
