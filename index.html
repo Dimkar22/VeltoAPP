@@ -3745,7 +3745,6 @@
       <img id="user-avatar" src="" alt="" class="user-avatar">
       <span id="user-name">Вы</span><span id="profile-admin-tag"></span><span class="comet-balance" id="comet-balance" title="Баланс Comet">☄ <b id="comet-balance-num">0</b></span>
       <div class="profile-actions">
-        <button class="icon-btn shop-btn" id="open-shop" title="Магазин" aria-label="Магазин">👜</button>
         <button class="icon-btn" id="open-create-group" title="Создать группу" aria-label="Создать группу">👥</button>
         <button class="icon-btn" id="open-create-channel" title="Создать канал" aria-label="Создать канал">📢</button>
         <button class="icon-btn" id="open-settings" title="Настройки" aria-label="Настройки">⚙</button>
@@ -3931,106 +3930,6 @@
     </div>
   </div>
 </div>
-
-
-<!-- Comet Shop / Магазин -->
-<div id="comet-shop-modal" class="modal-backdrop hidden" role="dialog" aria-modal="true">
-  <div class="settings-card" style="max-width:480px">
-    <div class="settings-header">
-      <div><p class="settings-eyebrow">velto SHOP</p><h2>👜 Магазин</h2></div>
-      <button type="button" class="icon-btn" id="close-comet-shop" aria-label="Закрыть">✕</button>
-    </div>
-    <p class="settings-hint">Баланс: <b id="comet-shop-bal">0</b> ☄ Comet · Покупки сохраняются в коллекции</p>
-    <div class="shop-tabs" role="tablist">
-      <button type="button" class="shop-tab active" data-shop-tab="premium">👑 Premium</button>
-      <button type="button" class="shop-tab" data-shop-tab="items">🎁 Предметы</button>
-      <button type="button" class="shop-tab" data-shop-tab="boosts">⚡ Бусты</button>
-    </div>
-    <div class="shop-page" data-shop-page="premium">
-      <div class="premium-shop-card" style="margin-top:12px">
-        <h4>Купить Premium (₽) — демо</h4>
-        <p>Имитация оплаты рублями. Реальные деньги не списываются. После покупки появится значок 👑 PREMIUM.</p>
-        <div class="shop-rub-row premium-price-row">
-          <button type="button" class="premium-buy-btn" data-premium-days="30" data-premium-price="299"><b>299 ₽</b>1 месяц</button>
-          <button type="button" class="premium-buy-btn" data-premium-days="90" data-premium-price="699"><b>699 ₽</b>3 месяца</button>
-          <button type="button" class="premium-buy-btn" data-premium-days="365" data-premium-price="1990"><b>1990 ₽</b>1 год</button>
-        </div>
-      </div>
-      <div class="premium-shop-card" style="margin-top:12px">
-        <h4>velto Premium за Comet</h4>
-        <p>Баннер профиля, золотая рамка, Premium-обои, увеличенные вложения и другие бонусы.</p>
-      </div>
-      <div class="comet-shop-grid" id="comet-shop-premium-grid"></div>
-    </div>
-    <div class="shop-page hidden" data-shop-page="items">
-      <p class="settings-hint" style="margin-top:10px">Коллекционные предметы за Comet. После покупки появятся в профиле → Коллекция.</p>
-      <div class="shop-items-grid" id="comet-shop-items-grid"></div>
-    </div>
-    <div class="shop-page hidden" data-shop-page="boosts">
-      <div class="comet-shop-grid" id="comet-shop-grid"></div>
-    </div>
-    <p class="modal-note" style="margin-top:12px">Comet можно дарить, ставить ☄-лайки в каналах и тратить здесь. Ежедневный бонус — в Discover.</p>
-  </div>
-</div>
-
-
-<!-- Premium confirm (демо-покупка) -->
-<div id="premium-confirm-modal" class="modal-backdrop hidden" role="dialog" aria-modal="true">
-  <div class="premium-confirm-card">
-    <div style="font-size:42px;margin-bottom:6px">👑</div>
-    <h2>Купить velto Premium?</h2>
-    <div class="pc-price" id="pc-price">299 ₽</div>
-    <div class="pc-days" id="pc-days">на 30 дней</div>
-    <div class="pc-demo">Это демо-покупка: реальные деньги не списываются. После подтверждения Premium сразу активируется на этом аккаунте.</div>
-    <div class="premium-confirm-actions">
-      <button type="button" class="secondary-btn" id="pc-cancel">Отмена</button>
-      <button type="button" class="primary-btn" id="pc-confirm">✓ Да, купить</button>
-    </div>
-  </div>
-</div>
-
-<!-- Premium info -->
-<div id="premium-info-modal" class="modal-backdrop hidden" role="dialog" aria-modal="true">
-  <div class="premium-info-card">
-    <div class="premium-info-hero">
-      <button type="button" class="icon-btn" id="close-premium-info" aria-label="Закрыть" style="position:absolute;top:14px;right:14px">✕</button>
-      <div class="pi-crown">👑</div>
-      <h2>velto Premium</h2>
-      <p>Расширенные возможности мессенджера</p>
-    </div>
-    <div class="premium-info-body">
-      <div class="premium-info-status off" id="premium-info-status">Статус: обычный аккаунт</div>
-      <ul class="premium-info-list">
-        <li><span>🖼</span><div><b>Баннер профиля</b><br>Своя картинка в шапке профиля</div></li>
-        <li><span>✨</span><div><b>Золотая рамка и ник</b><br>Рамка аватарки и анимированное имя</div></li>
-        <li><span>🎨</span><div><b>Premium-обои</b><br>Эксклюзивные фоны чата</div></li>
-        <li><span>💬</span><div><b>Премиум-пузыри</b><br>Золотистый стиль ваших сообщений</div></li>
-        <li><span>📎</span><div><b>Вложения до 5 МБ</b><br>Больше места для файлов и фото</div></li>
-        <li><span>📜</span><div><b>Расширенная история</b><br>До 800 сообщений в чате</div></li>
-        <li><span>🃏</span><div><b>+7 открытий карт</b><br>Бонус к /karta при покупке</div></li>
-        <li><span>👁</span><div><b>Скрытие онлайна</b><br>Можно не показывать статус «в сети»</div></li>
-      </ul>
-      <p class="modal-note" style="margin:0 0 12px">Купить можно в 👜 Магазине или в Настройках (демо-оплата в ₽ или за Comet).</p>
-      <button type="button" class="primary-btn" id="premium-info-shop-btn" style="width:100%">👜 Открыть магазин Premium</button>
-    </div>
-  </div>
-</div>
-
-<div id="gift-comet-modal" class="modal-backdrop hidden" role="dialog" aria-modal="true">
-  <div class="modal-card settings-card" style="max-width:380px">
-    <div class="modal-head">
-      <div><p class="settings-eyebrow">COMET</p><h2>Подарить ☄ Comet</h2></div>
-      <button class="icon-btn" id="close-gift-comet" aria-label="Закрыть">✕</button>
-    </div>
-    <p class="settings-hint" id="gift-comet-target">Получатель: —</p>
-    <div class="gift-comet-row">
-      <input id="gift-comet-amount" type="number" min="1" max="9999" value="10" class="reg-input" style="width:100px">
-      <button type="button" class="primary-btn" id="gift-comet-send">Отправить ☄</button>
-    </div>
-    <p class="settings-hint" style="margin-top:10px">Ваш баланс: <b id="gift-comet-bal">0</b> Comet</p>
-  </div>
-</div>
-
 
 <!-- Профиль / редактирование группы и канала -->
 <div id="entity-modal" class="modal-backdrop hidden" role="dialog" aria-modal="true">
