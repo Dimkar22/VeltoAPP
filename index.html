@@ -3823,11 +3823,6 @@
       <button type="button" class="auth-switch-btn" id="show-login">Войти</button>
     </div>
     <div id="register-form-panel">
-      <div class="input-group">
-        <label>Имя</label>
-        <input type="text" id="reg-name" class="reg-input" placeholder="Минимум 3 символа" maxlength="20" autocomplete="off">
-        <div class="error-msg" id="name-error"></div>
-      </div>
 
       <div class="input-group">
         <label>Email</label>
@@ -3885,6 +3880,52 @@
 </div>
 
 <!-- ЭКРАН ВЫБОРА АВАТАРА -->
+<div id="avatar-screen" class="screen hidden">
+  <h2>Выберите аватарку</h2>
+  <div class="avatar-subtitle">Это фото будут видеть ваши собеседники</div>
+  <div class="avatar-upload-only" style="margin-top:22px;text-align:center;display:grid;gap:14px;justify-items:center">
+    <div id="first-avatar-preview-wrap" style="width:112px;height:112px;border-radius:50%;border:2px dashed var(--primary);display:flex;align-items:center;justify-content:center;overflow:hidden;background:var(--surface);color:var(--text-muted)">
+      <span id="first-avatar-placeholder" style="font-size:34px">＋</span>
+      <img id="first-avatar-preview" alt="Предпросмотр вашей аватарки" style="width:100%;height:100%;object-fit:cover;display:none">
+    </div>
+    <label for="first-avatar-upload" class="primary-btn" style="display:inline-block;cursor:pointer">📷 Загрузить своё фото</label>
+    <input id="first-avatar-upload" type="file" accept="image/*" capture="user" style="display:none">
+    <p class="modal-note">Добавьте собственное фото из галереи или сделайте снимок. Готовые аватары недоступны.</p>
+  </div>
+</div>
+
+  <!-- ЭКРАН СОЗДАНИЯ НИКНЕЙМА -->
+<div id="username-screen" class="screen hidden">
+  <h2>Придумайте никнейм</h2>
+  <div class="avatar-subtitle">
+    По нему другие пользователи смогут найти вас в Velto
+  </div>
+
+  <div class="input-group" style="margin-top:22px">
+    <label for="velto-username">Никнейм</label>
+    <input
+      type="text"
+      id="velto-username"
+      class="reg-input"
+      placeholder="Например, Velto2026"
+      minlength="3"
+      maxlength="20"
+      autocomplete="off"
+      autocapitalize="none"
+      spellcheck="false"
+    >
+    <div class="error-msg" id="username-error"></div>
+    <div class="modal-note">
+      Только английские буквы и цифры, без пробелов. От 3 до 20 символов.
+    </div>
+  </div>
+
+  <button class="reg-btn" id="username-submit">
+    Продолжить
+  </button>
+</div>
+  
+  <!-- ЭКРАН ВЫБОРА АВАТАРА -->
 <div id="avatar-screen" class="screen hidden">
   <h2>Выберите аватарку</h2>
   <div class="avatar-subtitle">Это фото будут видеть ваши собеседники</div>
@@ -4731,11 +4772,9 @@
   const avatarScreen = document.getElementById('avatar-screen');
   const welcomeScreen = document.getElementById('welcome-screen');
   const appScreen = document.getElementById('app-screen');
-  const regName = document.getElementById('reg-name');
   const regEmail = document.getElementById('reg-email');
   const regPass = document.getElementById('reg-pass');
   const regPass2 = document.getElementById('reg-pass2');
-  const nameError = document.getElementById('name-error');
   const emailError = document.getElementById('email-error');
   const passError = document.getElementById('pass-error');
   const pass2Error = document.getElementById('pass2-error');
@@ -4757,7 +4796,7 @@
     if (sub) sub.textContent = login ? 'Войдите в свой аккаунт velto' : 'Создайте аккаунт, чтобы начать общение';
     try {
       if (login) document.getElementById('login-email').focus();
-      else if (typeof regName !== 'undefined' && regName) regName.focus();
+      else if (typeof regName !== 'undefined' && regName) regEmail.focus();
     } catch (_) {}
     const error = document.getElementById('login-error');
     if (error) { error.textContent=''; error.classList.remove('show'); }
@@ -6917,179 +6956,164 @@ return H.map(x=>(x>>>0).toString(16).padStart(8,'0')).join('');
   function escapeHTML(value){return String(value).replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));}
   document.addEventListener('keydown',e=>{if(e.key==='Escape'){settingsModal.classList.add('hidden');adminModal.classList.add('hidden');}});
 
-  // ===== ВАЛИДАЦИЯ =====
-  function validateName(name) {
-    if (!name) return 'Введите имя';
-    if (name.length < 3) return 'Минимум 3 символа';
-    if (name.length > 20) return 'Максимум 20 символов';
-    if (!/^[a-zA-Zа-яА-ЯёЁ\s]+$/.test(name)) return 'Только буквы и пробелы';
-    return null;
+ // ===== ВАЛИДАЦИЯ РЕГИСТРАЦИИ VELTO =====
+function validateEmail(email) {
+  if (!email) return 'Введите email';
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    return 'Некорректный email';
   }
-  function validateEmail(email) {
-    if (!email) return 'Введите email';
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return 'Некорректный email';
-    return null;
-  }
-  function validatePassword(pass) {
-    if (!pass) return 'Введите пароль';
-    if (pass.length < 6) return 'Минимум 6 символов';
-    return null;
-  }
+  return null;
+}
 
-  function showError(input, errorEl, msg) {
-    input.classList.add('error');
+function validatePassword(pass) {
+  if (!pass) return 'Введите пароль';
+  if (pass.length < 6) return 'Минимум 6 символов';
+  return null;
+}
+
+function showError(input, errorEl, msg) {
+  if (input) input.classList.add('error');
+  if (errorEl) {
     errorEl.textContent = msg;
     errorEl.classList.add('show');
   }
-  function clearError(input, errorEl) {
-    input.classList.remove('error');
-    errorEl.classList.remove('show');
+}
+
+function clearError(input, errorEl) {
+  if (input) input.classList.remove('error');
+  if (errorEl) errorEl.classList.remove('show');
+}
+
+regEmail.addEventListener('input', () =>
+  clearError(regEmail, emailError)
+);
+
+regPass.addEventListener('input', () => {
+  const pass = regPass.value;
+  const strengthBar = document.getElementById('strength-bar');
+  const strengthLabel = document.getElementById('strength-label');
+
+  let strength = 0;
+  if (pass.length >= 6) strength++;
+  if (/[A-ZА-Я]/.test(pass)) strength++;
+  if (/[0-9]/.test(pass)) strength++;
+  if (/[^a-zA-Zа-яА-Я0-9]/.test(pass)) strength++;
+
+  if (strengthBar) {
+    strengthBar.style.width = (strength * 25) + '%';
   }
 
-  // Очистка ошибок при вводе
-  regName.addEventListener('input', () => clearError(regName, nameError));
-  regEmail.addEventListener('input', () => clearError(regEmail, emailError));
-  regPass2.addEventListener('input', () => clearError(regPass2, pass2Error));
+  if (strengthLabel) {
+    strengthLabel.textContent = pass
+      ? (strength <= 1 ? 'Слабый пароль'
+        : strength === 2 ? 'Средний пароль'
+        : 'Надёжный пароль')
+      : '';
+  }
+});
 
-  // Индикатор силы пароля
-  regPass.addEventListener('input', () => {
-    clearError(regPass, passError);
-    const v = regPass.value;
-    let score = 0;
-    if (v.length >= 6) score++;
-    if (v.length >= 10) score++;
-    if (/[A-Z]/.test(v) && /[a-z]/.test(v)) score++;
-    if (/[0-9]/.test(v)) score++;
-    if (/[^A-Za-z0-9]/.test(v)) score++;
-
-    const labels = ['', 'Очень слабый', 'Слабый', 'Средний', 'Хороший', 'Надёжный'];
-    const colors = ['', '#ff5e5e', '#ff5e5e', '#fbbf24', '#84cc16', '#4ade80'];
-    const widths = ['', '20%', '40%', '60%', '80%', '100%'];
-
-    strengthLabel.textContent = v ? labels[score] : '';
-    strengthLabel.style.color = colors[score] || '';
-    strengthBar.style.width = v ? widths[score] : '0%';
-    strengthBar.style.background = colors[score] || '';
-  });
+regPass2.addEventListener('input', () =>
+  clearError(regPass2, pass2Error)
+);
 
 // ===== РЕГИСТРАЦИЯ VELTO ЧЕРЕЗ SUPABASE =====
-  regSubmit.addEventListener('click', async () => {
-    let valid = true;
+regSubmit.addEventListener('click', async () => {
+  let valid = true;
 
-    const name = regName.value.trim();
-    const email = regEmail.value.trim().toLowerCase();
-    const pass = regPass.value;
-    const pass2 = regPass2.value;
+  const email = regEmail.value.trim().toLowerCase();
+  const pass = regPass.value;
+  const pass2 = regPass2.value;
 
-    const nErr = validateName(name);
-    if (nErr) {
-      showError(regName, nameError, nErr);
-      valid = false;
-    } else {
-      clearError(regName, nameError);
-    }
+  const eErr = validateEmail(email);
+  if (eErr) {
+    showError(regEmail, emailError, eErr);
+    valid = false;
+  } else {
+    clearError(regEmail, emailError);
+  }
 
-    const eErr = validateEmail(email);
-    if (eErr) {
-      showError(regEmail, emailError, eErr);
-      valid = false;
-    } else {
-      clearError(regEmail, emailError);
-    }
+  const pErr = validatePassword(pass);
+  if (pErr) {
+    showError(regPass, passError, pErr);
+    valid = false;
+  } else {
+    clearError(regPass, passError);
+  }
 
-    const pErr = validatePassword(pass);
-    if (pErr) {
-      showError(regPass, passError, pErr);
-      valid = false;
-    } else {
-      clearError(regPass, passError);
-    }
+  if (!pass2 || pass2 !== pass) {
+    showError(
+      regPass2,
+      pass2Error,
+      pass2 ? 'Пароли не совпадают' : 'Повторите пароль'
+    );
+    valid = false;
+  } else {
+    clearError(regPass2, pass2Error);
+  }
 
-    if (pass2 !== pass) {
-      showError(regPass2, pass2Error, 'Пароли не совпадают');
-      valid = false;
-    } else if (pass2) {
-      clearError(regPass2, pass2Error);
-    }
+  if (!valid) return;
 
-    if (!valid) return;
+  if (!window.veltoSupabase) {
+    alert('Supabase не подключён. Проверь настройки подключения.');
+    return;
+  }
 
-    if (!window.veltoSupabase) {
-      alert('Supabase не подключён. Проверь настройки подключения.');
-      return;
-    }
+  regSubmit.disabled = true;
+  const oldText = regSubmit.textContent;
+  regSubmit.textContent = 'Создаём аккаунт...';
 
-    regSubmit.disabled = true;
-    const oldText = regSubmit.textContent;
-    regSubmit.textContent = 'Создаём аккаунт...';
+  if (regProgress) regProgress.style.display = 'block';
+  if (regProgressBar) regProgressBar.style.width = '40%';
 
-    if (regProgress) regProgress.style.display = 'block';
-    if (regProgressBar) regProgressBar.style.width = '40%';
-
-    try {
-      const { data, error: signUpError } =
-        await window.veltoSupabase.auth.signUp({
-          email,
-          password: pass,
-          options: {
-            data: {
-              display_name: name
-            },
-            emailRedirectTo: 'https://dimkar22.github.io/VeltoAPP/'
-          }
-        });
-
-      if (signUpError) throw signUpError;
-
-      if (!data.user) {
-        throw new Error('Supabase не вернул созданного пользователя.');
-      }
-
-      userName = name;
-      pendingAccount = {
-        name,
-        email
-      };
-
-      if (regProgressBar) regProgressBar.style.width = '100%';
-
-      if (data.session) {
-        // Подтверждение email не требуется — можно продолжить.
-        registerScreen.classList.add('hidden');
-        avatarScreen.classList.remove('hidden');
-      } else {
-        // Supabase ожидает подтверждение email.
-        alert(
-          'Аккаунт создан! Проверь почту и подтверди email. ' +
-          'После подтверждения войди в Velto со своим email и паролем.'
-        );
-
-        if (typeof showAuthMode === 'function') {
-          showAuthMode('login');
+  try {
+    const { data, error: signUpError } =
+      await window.veltoSupabase.auth.signUp({
+        email,
+        password: pass,
+        options: {
+          emailRedirectTo: 'https://dimkar22.github.io/VeltoAPP/'
         }
-      }
+      });
 
-    } catch (e) {
-      console.error('Ошибка регистрации Velto:', e);
-
-      let message = e.message || 'Не удалось создать аккаунт.';
-
-      if (message.toLowerCase().includes('already registered')) {
-        message = 'Этот email уже зарегистрирован.';
-      }
-
-      showError(regEmail, emailError, message);
-
-    } finally {
-      regSubmit.disabled = false;
-      regSubmit.textContent = oldText;
-
-      if (regProgress) regProgress.style.display = 'none';
-      if (regProgressBar) regProgressBar.style.width = '0%';
+    if (signUpError) throw signUpError;
+    if (!data.user) {
+      throw new Error('Supabase не вернул созданного пользователя.');
     }
-  });
 
-  regName.addEventListener('keydown', (e) => { if (e.key === 'Enter') regSubmit.click(); });
+    pendingAccount = { email };
+
+    if (regProgressBar) regProgressBar.style.width = '100%';
+
+    if (data.session) {
+      alert('Аккаунт создан. Следующим шагом настроим выбор никнейма.');
+      registerScreen.classList.add('hidden');
+      avatarScreen.classList.remove('hidden');
+    } else {
+      alert(
+        'Аккаунт создан! Проверь почту и подтверди email. ' +
+        'После подтверждения войди в Velto со своим email и паролем.'
+      );
+
+      if (typeof showAuthMode === 'function') {
+        showAuthMode('login');
+      }
+    }
+  } catch (e) {
+    console.error('Ошибка регистрации Velto:', e);
+
+    let message = e.message || 'Не удалось создать аккаунт.';
+    if (message.toLowerCase().includes('already registered')) {
+      message = 'Этот email уже зарегистрирован.';
+    }
+
+    showError(regEmail, emailError, message);
+  } finally {
+    regSubmit.disabled = false;
+    regSubmit.textContent = oldText;
+    if (regProgress) regProgress.style.display = 'none';
+    if (regProgressBar) regProgressBar.style.width = '0%';
+  }
+});
 
   // ===== ВЫБОР АВАТАРА =====
   avatarOptions.forEach(opt => {
