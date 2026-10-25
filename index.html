@@ -10739,7 +10739,14 @@ const inAdminConsole = activeChatId === 'admin-console' || activeContactName.tex
       if (byName.data) targetId = byName.data.id;
     }
 
-    if (!targetId || targetId === user.id) return;
+    if (!targetId || targetId === user.id) {
+  console.log('Velto sync: не определён ID собеседника', {
+    contactId: contact.id,
+    contactName: contact.name,
+    targetId
+  });
+  return;
+}
 
     const [sent, received] = await Promise.all([
       client.from('velto_messages')
