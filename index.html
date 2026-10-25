@@ -12158,6 +12158,276 @@ async function acceptCall() {
 
   // при завершении выбора аватара тоже подключаем WS
   const _origFinishAvatar = typeof finishAvatarSelection === 'function' ? finishAvatarSelection : null;
-</script>
+/* ===== VELTO STORIES: фото и видео на 24 часа ===== */
+(() => {
+  const sb = window.veltoSupabase;
+  if (!sb || document.getElementById('velto-stories')) return;
+
+  const style = document.createElement('style');
+  style.textContent = `
+    #velto-stories{display:flex;gap:12px;overflow-x:auto;padding:12px 4px}
+    .vs-item{flex:0 0 66px;border:0;background:none;color:inherit;text-align:center;font:inherit;cursor:pointer}
+    .vs-ring{width:58px;height:58px;padding:3px;margin:auto auto 5px;border-radius:50%;background:linear-gradient(135deg,#39ef85,#07965a)}
+    .vs-avatar{width:100%;height:100%;border-radius:50%;border:2px solid #111;background:#17231b;display:grid;place-items:center;overflow:hidden;font-size:25px}
+    .vs-avatar img{width:100%;height:100%;object-fit:cover}
+    .vs-name{display:block;font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    #vs-viewer{display:none;position:fixed;inset:0;z-index:999999;background:#050705;color:white;flex-direction:column;padding:env(safe-area-inset-top) 12px env(safe-area-inset-bottom)}
+    #vs-viewer.open{display:flex}
+    #vs-head{display:flex;align-items:center;gap:10px;padding:12px 0}
+    #vs-owner-avatar{width:36px;height:36px;border-radius:50%;object-fit:cover}
+    #vs-owner{flex:1;font-weight:600}
+    #vs-media{flex:1;min-height:0;display:grid;place-items:center}
+    #vs-media img,#vs-media video{width:100%;height:100%;max-height:100%;object-fit:contain}
+    #vs-caption{text-align:center;padding:12px}
+    #vs-viewer button{background:#222;color:white;border:0;border-radius:18px;padding:9px}
+  `;
+  document.head.appendChild(style);
+
+  const chatList = document.getElementById('chat-list');
+  if (!chatList) return;
+
+  const wrap = document.createElement('div');
+  wrap.innerHTML = `
+    <div style="font-size:12px;opacity:.7">Истории</div>
+    <div id="velto-stories"></div>
+    <input id="vs-file" type="file" accept="image/*,video/*" hidden>
+    <div id="vs-viewer">
+      <div id="vs-head">
+        <img id="vs-owner-avatar" alt="">
+        <span id="vs-owner">История</span>
+        <button id="vs-views" hidden>Просмотры</button>
+        <button id="vs-close">✕</button>
+      </div>
+      <div id="vs-media"></div>
+      <div id="vs-caption"></div>
+      <div id="vs-count" style="text-align:center;padding:10px"></div>
+    </div>`;
+  chatList.parentElement.insertBefore(wrap, chatList);
+
+  const el = id => document.getElementById(id);
+  const bucket = 'velto-stories';
+  let owners = [], currentOwner = null, currentIndex = 0, timer;
+
+  async function currentUser() {
+    const {data,error} = await sb.auth.getUser();
+    if (error) throw error;
+    return data.user;
+  }
+
+  async function refresh() {
+    try {
+      const user = await currentUser();
+      if (!user) return;
+
+      const {data:stories,error} = await sb.from('velto_stories')
+        .select('id,user_id,media_path,media_type,caption,created_at,expires_at')
+        .gt('expires_at',new Date().toISOString())
+        .order('created_at',{ascending:true});
+
+      if (error) throw error;
+
+      const rows = stories || [];
+      const ids = [...new Set(rows.map(x => x.user_id))];
+      let profiles = {};
+      if (ids.length) {
+        const p = await sb.from('profiles')
+          .select('id,username,display_name,avatar_url').in('id',ids);
+        if (!p.error) (p.data || []).forEach(x => profiles[x.id]=x);
+      }
+
+      const v = await sb.from('velto_story_views')
+        .select('story_id').eq('viewer_id',user.id);
+      const seen = new Set((v.data || []).map(x=>x.story_id));
+      const groups = new Map();
+
+      rows.forEach(row=>{
+        if (!groups.has(row.user_id)) groups.set(row.user_id,[]);
+        groups.get(row.user_id).push(row);
+      });
+
+      owners = [...groups.entries()].map(([id,items])=>({
+        id,items,profile:profiles[id] || {},
+        seen:items.every(x=>seen.has(x.id))
+      }));
+
+      owners.sort((a,b)=>a.id===user.id?-1:b.id===user.id?1:0);
+      const root = el('velto-stories');
+      root.innerHTML = '';
+
+      const add = document.createElement('button');
+      add.className = 'vs-item';
+      add.innerHTML = '<div class="vs-ring"><div class="vs-avatar" style="color:#39ef85">+</div></div><span class="vs-name">Моя история</span>';
+      add.onclick = ()=>el('vs-file').click();
+      root.appendChild(add);
+
+      owners.forEach(owner=>{
+        const name = owner.profile.display_name ||
+          (owner.profile.username ? '@'+owner.profile.username : 'Пользователь');
+        const item = document.createElement('button');
+        item.className = 'vs-item';
+        const ring = document.createElement('div');
+        ring.className = 'vs-ring';
+        if (owner.seen) ring.style.background='#626862';
+        const avatar = document.createElement('div');
+        avatar.className = 'vs-avatar';
+        if (owner.profile.avatar_url) {
+          const img = document.createElement('img');
+          img.src=owner.profile.avatar_url;
+          avatar.appendChild(img);
+        } else avatar.textContent=name.slice(0,1).toUpperCase();
+        ring.appendChild(avatar);
+        const label = document.createElement('span');
+        label.className='vs-name';
+        label.textContent=owner.id===user.id?'Моя история':name;
+        item.append(ring,label);
+        item.onclick=()=>openOwner(owner);
+        root.appendChild(item);
+      });
+    } catch(e) {
+      console.error('Velto Stories:',e);
+      el('velto-stories').textContent='Истории временно недоступны';
+    }
+  }
+
+  el('vs-file').addEventListener('change',async e=>{
+    const file=e.target.files?.[0];
+    e.target.value='';
+    if(!file) return;
+
+    try {
+      const user=await currentUser();
+      if(!user) return alert('Сначала войди в Velto.');
+      if(!file.type.startsWith('image/')&&!file.type.startsWith('video/'))
+        return alert('Выбери фото или видео.');
+      if(file.size>50*1024*1024)
+        return alert('Максимальный размер — 50 МБ.');
+
+      const ext=(file.name.split('.').pop()||'jpg').replace(/[^a-z0-9]/gi,'');
+      const path=user.id+'/'+Date.now()+'.'+ext;
+      const upload=await sb.storage.from(bucket).upload(path,file,{contentType:file.type});
+      if(upload.error) throw upload.error;
+
+      const result=await sb.from('velto_stories').insert({
+        user_id:user.id,
+        media_path:path,
+        media_type:file.type.startsWith('video/')?'video':'image',
+        expires_at:new Date(Date.now()+86400000).toISOString()
+      }).select('id').single();
+
+      if(result.error) {
+        await sb.storage.from(bucket).remove([path]);
+        throw result.error;
+      }
+
+      await refresh();
+      const owner=owners.find(x=>x.id===user.id);
+      if(owner) openOwner(owner,result.data.id);
+      else alert('История добавлена!');
+    } catch(err) {
+      console.error(err);
+      alert('Не удалось добавить историю. Проверь Storage и RLS-политики Supabase.');
+    }
+  });
+
+  async function openOwner(owner,storyId) {
+    clearTimeout(timer);
+    currentOwner=owner.id;
+    currentIndex=storyId?Math.max(0,owner.items.findIndex(x=>x.id===storyId)):0;
+    el('vs-viewer').classList.add('open');
+    document.body.style.overflow='hidden';
+    await showStory();
+  }
+
+  async function showStory() {
+    clearTimeout(timer);
+    const owner=owners.find(x=>x.id===currentOwner);
+    if(!owner||currentIndex>=owner.items.length) return closeViewer();
+
+    const row=owner.items[currentIndex];
+    const user=await currentUser();
+    const name=owner.profile.display_name||
+      (owner.profile.username?'@'+owner.profile.username:'Пользователь');
+
+    el('vs-owner').textContent=name;
+    el('vs-owner-avatar').src=owner.profile.avatar_url||'';
+    el('vs-count').textContent=(currentIndex+1)+' / '+owner.items.length;
+    el('vs-caption').textContent=row.caption||'';
+    el('vs-views').hidden=owner.id!==user?.id;
+    el('vs-views').onclick=()=>showViews(row.id);
+    el('vs-media').innerHTML='Загрузка…';
+
+    try {
+      const signed=await sb.storage.from(bucket).createSignedUrl(row.media_path,3600);
+      if(signed.error) throw signed.error;
+      if(!el('vs-viewer').classList.contains('open')) return;
+
+      const media=document.createElement(row.media_type==='video'?'video':'img');
+      media.src=signed.data.signedUrl;
+      if(row.media_type==='video') {
+        media.controls=true;media.autoplay=true;media.playsInline=true;
+        media.onended=nextStory;
+      } else {
+        media.alt='История Velto';
+      }
+      el('vs-media').replaceChildren(media);
+
+      if(owner.id!==user?.id && user) {
+        const viewed=await sb.from('velto_story_views').upsert(
+          {story_id:row.id,viewer_id:user.id},
+          {onConflict:'story_id,viewer_id'}
+        );
+        if(viewed.error) console.warn('Story view:',viewed.error);
+      }
+      timer=setTimeout(nextStory,row.media_type==='video'?60000:5000);
+    } catch(err) {
+      console.error(err);
+      el('vs-media').textContent='Не удалось открыть историю.';
+    }
+  }
+
+  async function showViews(storyId) {
+    const result=await sb.from('velto_story_views')
+      .select('viewer_id').eq('story_id',storyId);
+    if(result.error) return alert('Не удалось загрузить просмотры.');
+
+    const ids=[...new Set((result.data||[]).map(x=>x.viewer_id))];
+    if(!ids.length) return alert('Пока нет просмотров.');
+
+    const p=await sb.from('profiles').select('id,username,display_name').in('id',ids);
+    const names={};
+    if(!p.error) (p.data||[]).forEach(x=>{
+      names[x.id]=x.display_name||(x.username?'@'+x.username:'Пользователь');
+    });
+    alert('Просмотры: '+ids.length+'\\n'+ids.map(id=>names[id]||'Пользователь').join('\\n'));
+  }
+
+  function nextStory() {
+    if(currentOwner===null) return;
+    const owner=owners.find(x=>x.id===currentOwner);
+    if(owner&&currentIndex<owner.items.length-1) {
+      currentIndex++;showStory();
+    } else closeViewer();
+  }
+
+  function closeViewer() {
+    clearTimeout(timer);
+    el('vs-viewer').classList.remove('open');
+    el('vs-media').innerHTML='';
+    document.body.style.overflow='';
+    currentOwner=null;
+    refresh();
+  }
+
+  el('vs-close').onclick=closeViewer;
+  el('vs-media').addEventListener('click',e=>{
+    if(e.target.closest('video')) return;
+    nextStory();
+  });
+
+  sb.auth.onAuthStateChange(()=>setTimeout(refresh,500));
+  window.addEventListener('load',()=>setTimeout(refresh,1500));
+  window.veltoRefreshStories=refresh;
+})();
+/script>
 </body>
 </html>
