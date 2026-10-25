@@ -8202,6 +8202,9 @@ async function finishAvatarSelection() {
     if (m) { m.classList.add('hidden'); m.style.display = ''; }
   }
   (function bindCometShop() {
+    document.querySelectorAll('[data-shop-tab]').forEach(btn => {
+  btn.addEventListener('click', () => setShopTab(btn.dataset.shopTab));
+});
     const c = document.getElementById('close-comet-shop');
     if (c) c.addEventListener('click', closeCometShop);
     const m = document.getElementById('comet-shop-modal');
@@ -8210,18 +8213,39 @@ async function finishAvatarSelection() {
       btn.addEventListener('click', () => setShopTab(btn.dataset.shopTab));
     });
   
-
+    })();
+  
   let giftCometTargetName = '';
   function openGiftCometModal(toName) {
     giftCometTargetName = toName || '';
-    document.getElementById('gift-comet-target').textContent = 'Получатель: ' + (toName || '—');
-    document.getElementById('gift-comet-amount').value = '10';
-    updateCometBalanceUI();
-    document.getElementById('gift-comet-modal').classList.remove('hidden');
-  }
-  document.getElementById('close-gift-comet').addEventListener('click', () => document.getElementById('gift-comet-modal').classList.add('hidden'));
-  document.getElementById('gift-comet-modal').addEventListener('click', e => { if (e.target.id === 'gift-comet-modal') document.getElementById('gift-comet-modal').classList.add('hidden'); });
-  document.getElementById('gift-comet-send').addEventListener('click', () => {
+   const closeGiftCometBtn = document.getElementById('close-gift-comet');
+const giftCometModal = document.getElementById('gift-comet-modal');
+const giftCometSendBtn = document.getElementById('gift-comet-send');
+
+if (closeGiftCometBtn && giftCometModal) {
+  closeGiftCometBtn.addEventListener('click', () => {
+    giftCometModal.classList.add('hidden');
+  });
+}
+
+if (giftCometModal) {
+  giftCometModal.addEventListener('click', e => {
+    if (e.target === giftCometModal) {
+      giftCometModal.classList.add('hidden');
+    }
+  });
+}
+
+if (giftCometSendBtn && giftCometModal) {
+  giftCometSendBtn.addEventListener('click', () => {
+    const amountEl = document.getElementById('gift-comet-amount');
+    const amount = parseInt(amountEl?.value || '0', 10) || 0;
+
+    if (amount > 0 && giftComets(giftCometTargetName, amount)) {
+      giftCometModal.classList.add('hidden');
+    }
+  });
+}.addEventListener('click', () => {
     const amt = parseInt(document.getElementById('gift-comet-amount').value, 10) || 0;
     if (giftComets(giftCometTargetName, amt)) {
       document.getElementById('gift-comet-modal').classList.add('hidden');
