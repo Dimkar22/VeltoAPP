@@ -10776,13 +10776,15 @@ const inAdminConsole = activeChatId === 'admin-console' || activeContactName.tex
       changed = true;
     }
 
-    if (changed) {
-      saveDB(true);
-      if (String(activeChatId) === String(contact.id)) {
-        loadChatMessages(contact.id);
-        messagesContainer.scrollTop = messagesContainer.scrollHeight;
-      }
-    }
+   if (changed) {
+  saveDB(true);
+
+  if (String(activeChatId) === String(contact.id)) {
+    messagesContainer.innerHTML = '';
+    loadChatMessages(contact.id);
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+  }
+}
   } catch (err) {
     console.error('Velto message sync:', err);
   }
