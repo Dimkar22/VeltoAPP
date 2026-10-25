@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+!DOCTYPE html>
 <html lang="ru">
 <head>
   <meta charset="UTF-8" />
@@ -12444,6 +12444,12 @@ async function acceptCall() {
     el('vs-owner-avatar').src=owner.profile.avatar_url||'';
     el('vs-count').textContent=(currentIndex+1)+' / '+owner.items.length;
     el('vs-caption').textContent=row.caption||'';
+    try {
+      await refreshStoryLikes(row.id, user?.id);
+    } catch (err) {
+      console.error('Story likes:', err);
+      el('vs-like').textContent = '❤️';
+    }
     el('vs-views').hidden=owner.id!==user?.id;
     el('vs-views').onclick=()=>showViews(row.id);
     el('vs-media').innerHTML='Загрузка…';
@@ -12476,7 +12482,61 @@ async function acceptCall() {
       el('vs-media').textContent='Не удалось открыть историю.';
     }
   }
+async function refreshStoryLikes(storyId, userId) {
+    const btn = el('vs-like');
+    const result = await sb.from('velto_story_likes')
+      .select('user_id')
+      .eq('story_id', storyId);
 
+    if (result.error) throw result.error;
+
+    const likes = result.data || [];
+    btn.textContent = '❤️ ' + likes.length;
+    btn.style.background = likes.some(x => x.user_id === userId)
+      ? '#176b43'
+      : '#222';
+  }
+
+  el('vs-like').onclick = async () => {
+    try {
+      const user = await currentUser();
+      if (!user) return alert('Сначала войди в Velto.');
+
+      const owner = owners.find(x => x.id === currentOwner);
+      const story = owner?.items[currentIndex];
+      if (!story) return;
+
+      const existing = await sb.from('velto_story_likes')
+        .select('user_id')
+        .eq('story_id', story.id)
+        .eq('user_id', user.id)
+        .maybeSingle();
+
+      if (existing.error) throw existing.error;
+
+      if (existing.data) {
+        const removed = await sb.from('velto_story_likes')
+          .delete()
+          .eq('story_id', story.id)
+          .eq('user_id', user.id);
+
+        if (removed.error) throw removed.error;
+      } else {
+        const added = await sb.from('velto_story_likes').insert({
+          story_id: story.id,
+          user_id: user.id,
+          emoji: '❤️'
+        });
+
+        if (added.error) throw added.error;
+      }
+
+      await refreshStoryLikes(story.id, user.id);
+    } catch (err) {
+      console.error('Story like:', err);
+      alert('Не удалось поставить лайк. Проверь подключение и политики Supabase.');
+    }
+  };
   async function showViews(storyId) {
     const result=await sb.from('velto_story_views')
       .select('viewer_id').eq('story_id',storyId);
