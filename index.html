@@ -4392,8 +4392,9 @@ document.getElementById('forgot-password-link')
 
     const authUser = data.user;
 
-    let cloudProfile = null;
+await activateUserStorage(authUser.id);
 
+let cloudProfile = null;
     const { data: profile, error: profileError } =
       await window.veltoSupabase
         .from('profiles')
@@ -4417,7 +4418,10 @@ if (profileError) {
 
 if (!cloudProfile?.username) {
   userName = '';
-  pendingAccount = { email: authUser.email };
+  pendingAccount = {
+    id: authUser.id,
+    email: authUser.email
+  };
 
   registerScreen.classList.add('hidden');
   avatarScreen.classList.add('hidden');
@@ -4441,14 +4445,15 @@ const name = cloudProfile.username;
 
     currentTheme = normalizeTheme(currentTheme);
 
-    db.profile = {
-      name,
-      email,
-      avatar: userAvatarUrl,
-      theme: currentTheme,
-      isAdmin: false,
-      isOwner: false
-    };
+db.profile = {
+  id: authUser.id,
+  name,
+  email,
+  avatar: userAvatarUrl,
+  theme: currentTheme,
+  isAdmin: false,
+  isOwner: false
+};
 
     db.currentAccountEmail = email;
     db.isAdmin = false;
@@ -4546,7 +4551,13 @@ const name = cloudProfile.username;
   if (!CSS.escape) CSS.escape = function(s){ return String(s).replace(/[^a-zA-Z0-9_-]/g, function(c){ return '\\' + c; }); };
 
   let db = { profile: null, accounts: [], currentAccountEmail: '', isAdmin: false, banned: [], reports: [], mutes: {}, punishments: [], maintenance: false, announcement: '', botInbox: {}, botHistory: {}, chatData: {}, groups: [], savedContacts: [], comets: {}, channels: [], settings: { online: true, readReceipts: true, sounds: true, fontSize: 'medium', compact: false, msgAnim: true, enterSend: true, bubbleStyle: 'rounded', showTyping: true, statusText: '' } };
-  try { db = { ...db, ...JSON.parse(localStorage.getItem(DB_KEY) || '{}') }; } catch (_) {}
+ let activeStorageUserId = 'guest';
+const scopedStorageKey = key => `${activeStorageUserId}::${String(key)}`;
+
+const DB_DEFAULTS = JSON.parse(JSON.stringify(db));
+
+// Не загружаем данные аккаунта до авторизации в Supabase.
+  // Данные будут загружаться после определения ID пользователя.
   if (!Array.isArray(db.checkmarks)) db.checkmarks = [];
   if (!Array.isArray(db.reports)) db.reports = [];
   if (!db.mutes || typeof db.mutes !== 'object') db.mutes = {};
@@ -4561,14 +4572,23 @@ const name = cloudProfile.username;
 
   function applyUiSettings() {
     const st = db.settings || {};
+
     document.body.classList.toggle('compact-ui', !!st.compact);
     document.body.classList.toggle('no-msg-anim', st.msgAnim === false);
+
     document.body.classList.remove('bubble-sharp', 'bubble-pill');
-    if (st.bubbleStyle === 'sharp') document.body.classList.add('bubble-sharp');
-    if (st.bubbleStyle === 'pill') document.body.classList.add('bubble-pill');
-    document.documentElement.dataset.messageSize = st.fontSize || 'medium';
+
+    if (st.bubbleStyle === 'sharp') {
+      document.body.classList.add('bubble-sharp');
+    }
+
+    if (st.bubbleStyle === 'pill') {
+      document.body.classList.add('bubble-pill');
+    }
+
+    document.documentElement.dataset.messageSize =
+      st.fontSize || 'medium';
   }
-  applyUiSettings();
 
   // ===== УСИЛЕННАЯ БАЗА: localStorage + IndexedDB (чаты отдельно) + outbox =====
   const veltoStore = (() => {
@@ -4610,33 +4630,39 @@ const name = cloudProfile.username;
     async function putMain(obj) {
       const d = await open();
       const tx = d.transaction([STORE_MAIN, STORE_META], 'readwrite');
-      tx.objectStore(STORE_MAIN).put(obj, 'db');
+      tx.objectStore(STORE_MAIN).put(obj, scopedStorageKey('db'));
       tx.objectStore(STORE_META).put({ savedAt: Date.now(), ver: IDB_VER }, 'info');
       return txDone(tx, d);
     }
 
-    async function getMain() {
-      const d = await open();
-      return new Promise((res, rej) => {
-        const tx = d.transaction(STORE_MAIN, 'readonly');
-        const q = tx.objectStore(STORE_MAIN).get('db');
-        q.onsuccess = () => { try { d.close(); } catch (_) {} res(q.result); };
-        q.onerror = () => { try { d.close(); } catch (_) {} rej(q.error); };
-      });
-    }
+async function getMain() {
+  const d = await open();
+  return new Promise((res, rej) => {
+    const tx = d.transaction(STORE_MAIN, 'readonly');
+    const q = tx.objectStore(STORE_MAIN).get(scopedStorageKey('db'));
+    q.onsuccess = () => {
+      try { d.close(); } catch (_) {}
+      res(q.result);
+    };
+    q.onerror = () => {
+      try { d.close(); } catch (_) {}
+      rej(q.error);
+    };
+  });
+}
 
     async function putChat(chatId, data) {
       if (!chatId) return;
       const d = await open();
       const tx = d.transaction(STORE_CHATS, 'readwrite');
-      tx.objectStore(STORE_CHATS).put(data, String(chatId));
+      tx.objectStore(STORE_CHATS).put(data, scopedStorageKey(chatId));
       return txDone(tx, d);
     }
 
     async function getChat(chatId) {
       const d = await open();
       return new Promise((res, rej) => {
-        const q = d.transaction(STORE_CHATS).objectStore(STORE_CHATS).get(String(chatId));
+        const q = d.transaction(STORE_CHATS).objectStore(STORE_CHATS).get(scopedStorageKey(chatId));
         q.onsuccess = () => { try { d.close(); } catch (_) {} res(q.result); };
         q.onerror = () => { try { d.close(); } catch (_) {} rej(q.error); };
       });
@@ -4653,9 +4679,15 @@ const name = cloudProfile.username;
         req.onsuccess = () => {
           const cur = req.result;
           if (cur) {
-            map[cur.key] = cur.value;
-            cur.continue();
-          } else {
+  const prefix = `${activeStorageUserId}::`;
+  const key = String(cur.key);
+
+  if (key.startsWith(prefix)) {
+    map[key.slice(prefix.length)] = cur.value;
+  }
+
+  cur.continue();
+} else {
             try { d.close(); } catch (_) {}
             res(map);
           }
@@ -4667,14 +4699,14 @@ const name = cloudProfile.username;
     async function putOutbox(list) {
       const d = await open();
       const tx = d.transaction(STORE_OUTBOX, 'readwrite');
-      tx.objectStore(STORE_OUTBOX).put(list || [], 'queue');
+      tx.objectStore(STORE_OUTBOX).put(list || [], scopedStorageKey('queue'));
       return txDone(tx, d);
     }
 
     async function getOutbox() {
       const d = await open();
       return new Promise((res, rej) => {
-        const q = d.transaction(STORE_OUTBOX).objectStore(STORE_OUTBOX).get('queue');
+        const q = d.transaction(STORE_OUTBOX).objectStore(STORE_OUTBOX).get(scopedStorageKey('queue'));
         q.onsuccess = () => { try { d.close(); } catch (_) {} res(Array.isArray(q.result) ? q.result : []); };
         q.onerror = () => { try { d.close(); } catch (_) {} rej(q.error); };
       });
@@ -4724,60 +4756,10 @@ const name = cloudProfile.username;
     if (sw) sw.classList.add('show');
   }
   try { if (navigator.storage && navigator.storage.persist) navigator.storage.persist(); } catch (_) {}
+  
 
-  // Подтянуть более свежие данные из IndexedDB (если LS обрезан / устарел)
-  (async function hydrateFromIDB() {
-    try {
-      let main = await veltoStore.getMain();
-      if (!main) {
-        const leg = await veltoStore.getLegacy();
-        if (typeof leg === 'string') {
-          try { main = JSON.parse(leg); } catch (_) { main = null; }
-        } else if (leg && typeof leg === 'object') main = leg;
-      }
-      if (main && typeof main === 'object') {
-        const lsAt = Number((db && db._savedAt) || 0);
-        const idbAt = Number(main._savedAt || 0);
-        const lsEmpty = !(db.accounts && db.accounts.length) && !(db.profile && db.profile.name);
-        // только если IDB явно новее, либо локально пусто
-        if ((idbAt > lsAt + 500) || (lsEmpty && idbAt > 0)) {
-          const keepChat = db.chatData && typeof db.chatData === 'object' ? db.chatData : {};
-          const merged = { ...main };
-          // чаты: берём более длинную историю по каждому id
-          merged.chatData = { ...(main.chatData || {}) };
-          Object.keys(keepChat).forEach(k => {
-            const a = keepChat[k];
-            const b = merged.chatData[k];
-            if (!b) merged.chatData[k] = a;
-            else if (a && Array.isArray(a.messages) && Array.isArray(b.messages) && a.messages.length > b.messages.length) {
-              merged.chatData[k] = a;
-            }
-          });
-          db = { ...db, ...merged };
-        }
-      }
-      const chats = await veltoStore.loadAllChatsMap();
-      if (chats && typeof chats === 'object') {
-        if (!db.chatData) db.chatData = {};
-        Object.keys(chats).forEach(k => {
-          const remote = chats[k];
-          const local = db.chatData[k];
-          if (!local) db.chatData[k] = remote;
-          else if (remote && Array.isArray(remote.messages)) {
-            const ln = (local.messages || []).length;
-            const rn = remote.messages.length;
-            if (rn > ln) db.chatData[k] = remote;
-          }
-        });
-      }
-      try {
-        const ob = await veltoStore.getOutbox();
-        if (ob && ob.length && typeof window.__veltoLoadOutbox === 'function') window.__veltoLoadOutbox(ob);
-        window.__veltoPendingOutbox = ob;
-      } catch (_) {}
-    } catch (e) { console.warn('IDB hydrate', e); }
-  })();
-
+  // Данные IndexedDB загружаются после входа через activateUserStorage(userId).
+  
   let _saveDBTimer = null;
   let _saveDBPending = false;
   let _saveDBWriting = false;
@@ -4789,48 +4771,115 @@ const name = cloudProfile.username;
     return db;
   }
 
+async function activateUserStorage(userId) {
+    if (!userId) {
+      throw new Error('Не удалось определить ID пользователя Supabase.');
+    }
+
+    activeStorageUserId = String(userId);
+    db = JSON.parse(JSON.stringify(DB_DEFAULTS));
+
+    try {
+      const saved = JSON.parse(
+        localStorage.getItem(scopedStorageKey(DB_KEY)) || 'null'
+      );
+      if (saved && typeof saved === 'object') {
+        db = { ...db, ...saved };
+      }
+    } catch (e) {
+      console.warn('Ошибка загрузки локальных данных Velto:', e);
+    }
+
+    try {
+      const saved = await veltoStore.getMain();
+      if (saved && typeof saved === 'object') {
+        db = { ...db, ...saved };
+      }
+
+      const chats = await veltoStore.loadAllChatsMap();
+      if (chats && typeof chats === 'object') {
+        db.chatData = { ...(db.chatData || {}), ...chats };
+      }
+    } catch (e) {
+      console.warn('Ошибка загрузки IndexedDB Velto:', e);
+    }
+
+    if (!db.chatData || typeof db.chatData !== 'object') db.chatData = {};
+    if (!Array.isArray(db.checkmarks)) db.checkmarks = [];
+    if (!Array.isArray(db.reports)) db.reports = [];
+    if (!db.mutes || typeof db.mutes !== 'object') db.mutes = {};
+    if (!Array.isArray(db.punishments)) db.punishments = [];
+    if (!Array.isArray(db.groups)) db.groups = [];
+    if (!db.botInbox || typeof db.botInbox !== 'object') db.botInbox = {};
+    if (!db.botHistory || typeof db.botHistory !== 'object') db.botHistory = {};
+    if (!Array.isArray(db.savedContacts)) db.savedContacts = [];
+    if (!db.comets || typeof db.comets !== 'object') db.comets = {};
+    if (!Array.isArray(db.channels)) db.channels = [];
+
+    currentTheme = normalizeTheme(db.profile?.theme || 'velto');
+    applyUiSettings();
+    paintTheme(currentTheme);
+  }
+
   function saveDBNow() {
+    if (!activeStorageUserId || activeStorageUserId === 'guest') {
+      return;
+    }
+
     _saveDBPending = false;
-    if (_saveDBWriting) { _saveDBPending = true; return; }
+    if (_saveDBWriting) {
+      _saveDBPending = true;
+      return;
+    }
+
     _saveDBWriting = true;
+
     try {
       const snap = buildDbSnapshot();
-      // 1) localStorage — быстрый кэш
-      let lsOk = false;
+
       try {
-        localStorage.setItem(DB_KEY, JSON.stringify(snap));
-        lsOk = true;
+        localStorage.setItem(scopedStorageKey(DB_KEY), JSON.stringify(snap));
       } catch (e) {
-        // Quota: пробуем без тяжёлых attachment dataURL в старых сообщениях
         try {
           const slim = JSON.parse(JSON.stringify(snap));
           if (slim.chatData) {
             Object.keys(slim.chatData).forEach(cid => {
-              const msgs = slim.chatData[cid] && slim.chatData[cid].messages;
+              const msgs = slim.chatData[cid]?.messages;
               if (!Array.isArray(msgs)) return;
+
               msgs.forEach((m, i) => {
-                if (i < msgs.length - 30 && m.attachment && m.attachment.dataUrl && String(m.attachment.dataUrl).length > 8000) {
-                  m.attachment = { ...m.attachment, dataUrl: '', purged: true };
+                if (
+                  i < msgs.length - 30 &&
+                  m.attachment?.dataUrl &&
+                  String(m.attachment.dataUrl).length > 8000
+                ) {
+                  m.attachment = {
+                    ...m.attachment,
+                    dataUrl: '',
+                    purged: true
+                  };
                 }
               });
             });
           }
-          localStorage.setItem(DB_KEY, JSON.stringify(slim));
-          lsOk = true;
+
+          localStorage.setItem(scopedStorageKey(DB_KEY), JSON.stringify(slim));
         } catch (e2) {
           console.warn('localStorage full', e2);
         }
       }
-      // 2) IndexedDB — полная копия + чаты по ключам
+
       const chatData = snap.chatData || {};
       const chatIds = Object.keys(chatData);
       const mainWithoutHeavy = { ...snap };
-      // чаты только в отдельном store — в main не дублируем огромные истории
       mainWithoutHeavy.chatData = {};
       mainWithoutHeavy._chatIds = chatIds;
+
       Promise.resolve()
         .then(() => veltoStore.putMain(mainWithoutHeavy))
-        .then(() => Promise.all(chatIds.map(id => veltoStore.putChat(id, chatData[id]))))
+        .then(() =>
+          Promise.all(chatIds.map(id => veltoStore.putChat(id, chatData[id])))
+        )
         .catch(err => console.warn('IDB save', err))
         .finally(() => {
           _saveDBWriting = false;
@@ -4847,12 +4896,17 @@ const name = cloudProfile.username;
 
   function saveDB(immediate) {
     if (immediate) {
-      if (_saveDBTimer) { clearTimeout(_saveDBTimer); _saveDBTimer = null; }
+      if (_saveDBTimer) {
+        clearTimeout(_saveDBTimer);
+        _saveDBTimer = null;
+      }
       saveDBNow();
       return;
     }
+
     _saveDBPending = true;
     if (_saveDBTimer) return;
+
     _saveDBTimer = setTimeout(() => {
       _saveDBTimer = null;
       if (_saveDBPending) saveDBNow();
@@ -4860,15 +4914,18 @@ const name = cloudProfile.username;
   }
 
   function forceFlushStorage() {
-    if (_saveDBTimer) { clearTimeout(_saveDBTimer); _saveDBTimer = null; }
+    if (_saveDBTimer) {
+      clearTimeout(_saveDBTimer);
+      _saveDBTimer = null;
+    }
     saveDBNow();
   }
+
   window.addEventListener('pagehide', forceFlushStorage);
   window.addEventListener('beforeunload', forceFlushStorage);
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'hidden') forceFlushStorage();
   });
-
 
   // Хеш пароля (SHA-256 с солью), чтобы пароль не лежал в базе открытым текстом
   function sha256(str){
@@ -4939,24 +4996,29 @@ return H.map(x=>(x>>>0).toString(16).padStart(8,'0')).join('');
     }
     return { added, total: incoming.length };
   }
-  // Восстановление из зеркала IndexedDB при запуске (если localStorage очистили)
-  const dbReady = Promise.race([
-    veltoStore.getMain().then(snap => {
-      if (!snap) return;
-      try {
-        const obj = (typeof snap === 'string') ? JSON.parse(snap) : snap;
-        const r = mergeDBFrom(obj);
-        if (r && r.added) saveDB();
-      } catch (_) {}
-    }).catch(() => {}),
-    new Promise(r => setTimeout(r, 1500))
-  ]);
+// Загрузка IndexedDB выполняется после авторизации пользователя.
+  const dbReady = Promise.resolve();
+
   function exportDB() {
-    const payload = { app: 'velto-messenger', version: 1, exportedAt: new Date().toISOString(), data: db };
+    const payload = {
+      app: 'velto-messenger',
+      version: 1,
+      exportedAt: new Date().toISOString(),
+      data: db
+    };
+
     const a = document.createElement('a');
-    a.href = URL.createObjectURL(new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' }));
+    a.href = URL.createObjectURL(
+      new Blob([JSON.stringify(payload, null, 2)], {
+        type: 'application/json'
+      })
+    );
+
     a.download = 'velto-messenger-database.json';
-    document.body.appendChild(a); a.click(); a.remove();
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+
     setTimeout(() => URL.revokeObjectURL(a.href), 2000);
   }
   function importDBFile(file, cb) {
@@ -6788,7 +6850,10 @@ regSubmit.addEventListener('click', async () => {
       throw new Error('Supabase не вернул созданного пользователя.');
     }
 
-    pendingAccount = { email };
+    pendingAccount = {
+  id: data.user.id,
+  email: data.user.email || email
+};
 
     if (regProgressBar) regProgressBar.style.width = '100%';
 
@@ -6881,10 +6946,10 @@ usernameSubmit.addEventListener('click', async () => {
     }
 
     userName = username;
-    pendingAccount = {
-      email: data.user.email
-    };
-
+pendingAccount = {
+  id: data.user.id,
+  email: data.user.email || ''
+};
     usernameScreen.classList.add('hidden');
     avatarScreen.classList.remove('hidden');
 
@@ -6991,11 +7056,14 @@ async function finishAvatarSelection() {
 
       db.currentAccountEmail = data.user.email;
       db.profile = {
-        name: userName,
-        email: data.user.email,
-        avatar: userAvatarUrl,
-        theme: currentTheme
-      };
+  id: data.user.id,
+  name: userName,
+  email: data.user.email || '',
+  avatar: userAvatarUrl,
+  theme: currentTheme,
+  isAdmin: false,
+  isOwner: false
+};
 
       saveDB();
       renderAdminTag();
