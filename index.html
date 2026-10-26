@@ -8275,267 +8275,107 @@ async function finishAvatarSelection() {
     } catch (e) { console.warn('ws post-open', e); }
   }
 
-  // телефон / вкладка / сеть — быстрый reconnect
-  document.addEventListener('visibilitychange', () => {
-    if (document.visibilityState === 'visible' && userName) {
-      if (!ws || ws.readyState !== WebSocket.OPEN) connectWebSocket();
-      else {
-        announceJoin();
-        flushWsQueue();
-        retryPendingAcks();
-      }
-    }
-  });
-  window.addEventListener('online', () => {
-    if (!userName) return;
-    wsReconnectAttempt = 0;
-    wsFailStreak = 0;
-    clearTimeout(wsReconnectTimer);
-    connectWebSocket();
-  });
-  window.addEventListener('offline', () => {
-    setWsStatus('', 'нет сети');
-    try { if (ws) ws.close(); } catch (_) {}
-  });
-  document.addEventListener('touchstart', () => {
-    if (userName && (!ws || ws.readyState !== WebSocket.OPEN)) connectWebSocket();
-  }, { passive: true });
-  // фокус окна
-  window.addEventListener('focus', () => {
-    if (userName && (!ws || ws.readyState !== WebSocket.OPEN)) connectWebSocket();
-  });
 
-  let wsOutQueue = []; // надёжная исходящая очередь (память + IndexedDB)
-  const WS_OUTBOX_MAX = 120;
-
-  function persistOutbox() {
-    try { veltoStore.putOutbox(wsOutQueue.slice(-WS_OUTBOX_MAX)).catch(() => {}); } catch (_) {}
-  }
-
-  function enqueueWs(payload) {
-    if (!payload || typeof payload !== 'object') return;
-    const env = payload.mid ? payload : wsEnvelope(payload);
-    // не дублируем тот же mid
-    if (env.mid && wsOutQueue.some(x => x && x.mid === env.mid)) return;
-    env._qAt = Date.now();
-    env._tries = (env._tries || 0);
-    wsOutQueue.push(env);
-    if (wsOutQueue.length > WS_OUTBOX_MAX) wsOutQueue = wsOutQueue.slice(-WS_OUTBOX_MAX);
-    persistOutbox();
-    if (ws && ws.readyState === WebSocket.OPEN) flushWsQueue();
-    else if (userName) connectWebSocket();
-  }
-
-  function flushWsQueue() {
-    if (!ws || ws.readyState !== WebSocket.OPEN) return;
-    if (isPremium(userName) && !(db.settings && db.settings.premiumPriority === false)) {
-      wsOutQueue.sort((a, b) => {
-        const pa = (a && (a.t === 'pm' || a.t === 'gm' || a.t === 'group-msg' || a.t === 'channel-msg')) ? 0 : 1;
-        const pb = (b && (b.t === 'pm' || b.t === 'gm' || b.t === 'group-msg' || b.t === 'channel-msg')) ? 0 : 1;
-        return pa - pb;
-      });
-    }
-    const kept = [];
-    while (wsOutQueue.length) {
-      const item = wsOutQueue.shift();
-      if (!item) continue;
-      // join не копим долго
-      if (item.t === 'join' && item._qAt && Date.now() - item._qAt > 20000) continue;
-      try {
-        ws.send(JSON.stringify(item));
-        wsLastSendAt = Date.now();
-      } catch (_) {
-        item._tries = (item._tries || 0) + 1;
-        if (item._tries < 8) kept.push(item);
-        break;
-      }
-    }
-    if (kept.length) wsOutQueue = kept.concat(wsOutQueue);
-    persistOutbox();
-  }
-
-  // восстановить outbox из IDB
-  window.__veltoLoadOutbox = function(list) {
-    if (!Array.isArray(list) || !list.length) return;
-    list.forEach(item => {
-      if (!item || !item.mid) return;
-      if (wsOutQueue.some(x => x.mid === item.mid)) return;
-      wsOutQueue.push(item);
-    });
-    if (wsOutQueue.length > WS_OUTBOX_MAX) wsOutQueue = wsOutQueue.slice(-WS_OUTBOX_MAX);
-  };
-  if (window.__veltoPendingOutbox) {
-    window.__veltoLoadOutbox(window.__veltoPendingOutbox);
-    window.__veltoPendingOutbox = null;
-  }
-
-  function sendPrivateMessage(target, text) {
+function sendPrivateMessage(target, text) {
     if (!text || !target) return false;
+
     myWsId = myWsId || genWsId();
+
     const targetName = String(target.name || '').trim();
-    // Сначала актуальный id по нику (стабильная адресация), потом сохранённый wsId
     let targetId = resolveOnlineWsIdByName(targetName);
+
     if (!targetId) targetId = target.wsId || '';
+
     if (!targetId && target.id && String(target.id).startsWith('ws-')) {
-      targetId = String(target.id).slice(3);
-    }
-    if (!targetId) targetId = targetName; // fallback: адресация только по нику
-    // запомним контакт (чат сохранится после перезахода)
-    try { persistContact(target); } catch (_) {}
-    const msgId = 'm' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
-    const payload = {
-      t: 'pm',
-      msgId,
-      from: myWsId,
-      fromName: userName,
-      fromAvatar: userAvatarUrl || '',
-      to: targetId,
-      toName: targetName,
-      text: text,
-      at: Date.now()
-    };
-
-    // всегда через wsSend → envelope + outbox при офлайне
-    const ok = wsSend(payload);
-    if (!ok) {
-      try { showSystemMessage('⏳ Соединение восстанавливается, сообщение уйдёт автоматически…'); } catch (_) {}
-      connectWebSocket();
-    }
-    return true;
-  }
-  window.veltoSendStoryReply = function(targetName, text) {
-    return sendPrivateMessage({ name: targetName }, text);
-  };
-
-  function getOnlineUsersList() {
-    const list = [];
-    const myNameLc = String(userName || '').toLocaleLowerCase();
-    for (const u of onlineUsers.values()) {
-      if (u.id === myWsId) continue;
-      if (String(u.name || '').toLocaleLowerCase() === myNameLc) continue;
-      list.push(u);
-    }
-    return list;
-  }
-
-  // ===== ИНДИКАТОР «ПЕЧАТАЕТ…» =====
-  let typingHideTimer = null;
-  let typingSendTimer = null;
-  let lastTypingSent = 0;
-  const remoteTypingUntil = new Map(); // fromId -> timestamp
-
-  function getTypingStatusEl() {
-    return document.getElementById('typing-status');
-  }
-
-  function showTypingBubble(fromName, fromAvatar, fromId) {
-    if (!messagesContainer) return;
-    let el = messagesContainer.querySelector('.typing-indicator[data-from="' + CSS.escape(fromId) + '"]');
-    if (!el) {
-      // убрать чужие typing, оставить один
-      messagesContainer.querySelectorAll('.typing-indicator').forEach(n => n.remove());
-      el = document.createElement('div');
-      el.className = 'typing-indicator';
-      el.dataset.from = fromId;
-      const av = document.createElement('img');
-      av.className = 'typing-avatar';
-      av.alt = '';
-      av.src = fromAvatar || defaultAvatar(fromName || 'User');
-      const body = document.createElement('div');
-      body.className = 'typing-body';
-      const label = document.createElement('div');
-      label.className = 'typing-label';
-      label.textContent = (fromName || 'Кто-то') + ' печатает';
-      const dots = document.createElement('div');
-      dots.className = 'typing-dots';
-      dots.innerHTML = '<span></span><span></span><span></span>';
-      body.append(label, dots);
-      el.append(av, body);
-      messagesContainer.appendChild(el);
-    }
-    messagesContainer.scrollTop = messagesContainer.scrollHeight;
-    const status = getTypingStatusEl();
-    if (status) status.textContent = (fromName || 'Кто-то') + ' печатает…';
-  }
-
-  function hideTypingBubble(fromId) {
-    if (!messagesContainer) return;
-    if (fromId) {
-      messagesContainer.querySelectorAll('.typing-indicator[data-from="' + CSS.escape(fromId) + '"]').forEach(n => n.remove());
-    } else {
-      messagesContainer.querySelectorAll('.typing-indicator').forEach(n => n.remove());
-    }
-    const status = getTypingStatusEl();
-    if (status) status.textContent = '';
-  }
-
-  function handleRemoteTyping(data) {
-    if (!data || !data.from || data.from === myWsId) return;
-    const myNameLc = String(userName || '').trim().toLocaleLowerCase();
-    const toRaw = String(data.to || '').trim();
-    const toNameRaw = String(data.toName || '').trim();
-    const toMe = (myWsId && (toRaw === myWsId || toRaw === 'ws-' + myWsId)) ||
-      (myNameLc && (toNameRaw.toLocaleLowerCase() === myNameLc || toRaw.toLocaleLowerCase() === myNameLc));
-    if (!toMe && toRaw && toNameRaw) return;
-
-    const fromId = data.from;
-    const fromName = data.fromName || 'Пользователь';
-    const fromAvatar = data.fromAvatar || '';
-    const chatId = 'ws-' + fromId;
-    const active = String(activeChatId) === String(chatId);
-
-    if (data.state === false) {
-      remoteTypingUntil.delete(fromId);
-      if (active) hideTypingBubble(fromId);
-      return;
+        targetId = String(target.id).slice(3);
     }
 
-    remoteTypingUntil.set(fromId, Date.now() + 3000);
-    if (active) showTypingBubble(fromName, fromAvatar, fromId);
+    if (!targetId) targetId = targetName;
 
-    clearTimeout(typingHideTimer);
-    typingHideTimer = setTimeout(() => {
-      const until = remoteTypingUntil.get(fromId) || 0;
-      if (Date.now() >= until) {
-        remoteTypingUntil.delete(fromId);
-        hideTypingBubble(fromId);
-      }
-    }, 3200);
-  }
-
-  function sendTypingSignal(isTyping) {
-    if (!userName || !activeChatId) return;
-    if (db.settings && db.settings.showTyping === false) return;
-    const contact = contacts.find(c => String(c.id) === String(activeChatId));
-    if (!contact || contact.isGroup) return;
-    if (!(contact.onlineUser || contact.wsId || String(activeChatId).startsWith('ws-'))) return;
-    if (!ws || ws.readyState !== WebSocket.OPEN) return;
-
-    let targetId = contact.wsId || '';
-    if (!targetId && String(contact.id).startsWith('ws-')) targetId = String(contact.id).slice(3);
-    const targetName = String(contact.name || '').trim();
-    if (targetName) {
-      for (const u of onlineUsers.values()) {
-        if (String(u.name || '').trim().toLocaleLowerCase() === targetName.toLocaleLowerCase()) {
-          targetId = u.id;
-          break;
-        }
-      }
-    }
-    myWsId = myWsId || genWsId();
     try {
-      ws.send(JSON.stringify({
-        t: 'typing',
-        state: !!isTyping,
+        persistContact(target);
+    } catch (_) {}
+
+    const msgId = 'm' + Date.now().toString(36) +
+        Math.random().toString(36).slice(2, 7);
+
+    const payload = {
+        t: 'pm',
+        msgId: msgId,
         from: myWsId,
         fromName: userName,
         fromAvatar: userAvatarUrl || '',
-        to: targetId || targetName,
+        to: targetId,
         toName: targetName,
+        text: String(text),
         at: Date.now()
-      }));
-    } catch (_) {}
-  }
+    };
+
+    // Сохраняем сообщение в Supabase, не блокируя WebSocket.
+    const saveToSupabase = async function () {
+        try {
+            const client = window.veltoSupabase;
+            if (!client) return;
+
+            const { data: authData, error: authError } =
+                await client.auth.getUser();
+
+            if (authError) throw authError;
+
+            const user = authData.user;
+            if (!user) return;
+
+            const recipientId = await getVeltoRecipientId(target);
+
+            if (!recipientId || recipientId === user.id) {
+                console.warn(
+                    'Velto: не удалось определить получателя:',
+                    targetName
+                );
+                return;
+            }
+
+            const { error } = await client
+                .from('velto_messages')
+                .insert({
+                    sender_id: user.id,
+                    recipient_id: recipientId,
+                    body: String(text),
+                    message_type: 'text',
+                    is_bot: false
+                });
+
+            if (error) throw error;
+        } catch (error) {
+            console.error(
+                'Velto: ошибка сохранения сообщения в Supabase:',
+                error
+            );
+        }
+    };
+
+    saveToSupabase();
+
+    // Сохраняем существующую отправку через WebSocket и outbox.
+    const ok = wsSend(payload);
+
+    if (!ok) {
+        try {
+            showSystemMessage(
+                '⏳ Соединение восстанавливается, сообщение уйдёт автоматически…'
+            );
+        } catch (_) {}
+
+        connectWebSocket();
+    }
+
+    return true;
+}
+
+window.veltoSendStoryReply = function(targetName, text) {
+    return sendPrivateMessage({ name: targetName }, text);
+};
+
 
   // локальная подсветка поля ввода + сигнал собеседнику
   if (typeof messageInput !== 'undefined' && messageInput) {
@@ -10878,7 +10718,76 @@ setTimeout(() => {
     return el;
   }
 
-  async function loadVeltoPrivateMessages(contact) {
+
+async function getVeltoRecipientId(contact) {
+  const client = window.veltoSupabase;
+  if (!client || !contact) return null;
+
+  const { data: authData, error: authError } =
+    await client.auth.getUser();
+
+  if (authError) throw authError;
+
+  const user = authData.user;
+  if (!user) return null;
+
+  let targetId = contact.userId || contact.user_id || '';
+
+  if (
+    !targetId &&
+    /^[0-9a-f]{8}-[0-9a-f-]{27,}$/i.test(String(contact.id || ''))
+  ) {
+    targetId = contact.id;
+  }
+
+  if (targetId === user.id) return null;
+
+  if (targetId) {
+    const { data, error } = await client
+      .from('profiles')
+      .select('id')
+      .eq('id', targetId)
+      .maybeSingle();
+
+    if (error) throw error;
+    if (data) return data.id;
+
+    targetId = '';
+  }
+
+  const name = String(contact.name || '')
+    .replace(/^@/, '')
+    .trim();
+
+  if (!name) return null;
+
+  const { data: byUsername, error: usernameError } =
+    await client
+      .from('profiles')
+      .select('id')
+      .ilike('username', name)
+      .maybeSingle();
+
+  if (usernameError) throw usernameError;
+  if (byUsername && byUsername.id !== user.id) {
+    return byUsername.id;
+  }
+
+  const { data: byDisplayName, error: displayError } =
+    await client
+      .from('profiles')
+      .select('id')
+      .ilike('display_name', name)
+      .maybeSingle();
+
+  if (displayError) throw displayError;
+
+  return byDisplayName && byDisplayName.id !== user.id
+    ? byDisplayName.id
+    : null;
+}
+
+ async function loadVeltoPrivateMessages(contact) {
   const client = window.veltoSupabase;
 
   if (!client || !contact || contact.isGroup || contact.isChannel ||
