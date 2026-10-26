@@ -2,8 +2,7 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8" />
-  <!-- Android WebView: use full screen width including display cutouts; existing web layout and Supabase stay intact. -->
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Velto Messenger</title>
 
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -3362,68 +3361,6 @@
   background-clip: text;
   -webkit-text-fill-color: transparent;
 }
-
-
-    /* ===== АДАПТИВНОСТЬ VELTO: телефон, планшет и ПК ===== */
-    *, *::before, *::after { box-sizing: border-box; }
-    html { width: 100%; min-width: 0; -webkit-text-size-adjust: 100%; }
-    body { width: 100%; min-width: 0; overflow-x: hidden; }
-    #app-screen { min-width: 0; max-width: 100%; height: 100vh; height: 100dvh; }
-    .sidebar, .chat-area, .messages, .input-area, .chat-header { min-width: 0; }
-    .chat-area { overflow: hidden; }
-    .chat-header-actions { display: flex; align-items: center; flex: 0 0 auto; gap: clamp(2px, .5vw, 8px); }
-    .active-contact-info > div { min-width: 0; }
-    #active-contact-name { overflow-wrap: anywhere; }
-    .input-area { min-width: 0; }
-    #message-input { flex: 1 1 auto; width: 0; max-width: 100%; }
-    .chat-tools { flex: 0 0 auto; }
-    .messages { min-width: 0; overflow-x: hidden; overflow-wrap: anywhere; }
-    .message { max-width: min(78%, 720px); overflow-wrap: anywhere; word-break: break-word; }
-    img, video, canvas, iframe { max-width: 100%; }
-    input, textarea, select, button { max-width: 100%; }
-
-    /* Средние экраны: оставляем список и переписку рядом, но компактнее. */
-    @media (min-width: 601px) and (max-width: 900px) {
-      .sidebar { width: 280px; min-width: 250px; max-width: 36vw; flex: 0 0 32%; }
-      .user-profile { padding: 12px 10px; gap: 8px; }
-      .profile-actions { display: flex; flex-wrap: wrap; }
-      .chat-header { padding: 10px 12px; gap: 8px; }
-      .chat-header-actions { gap: 3px; }
-      .hdr-act { padding: 7px; }
-      .input-area { gap: 6px; padding: 8px; }
-      .chat-tools { gap: 3px; }
-      .tool-btn { padding: 7px; }
-    }
-
-    /* Телефоны: список чатов и переписка — отдельные экраны. */
-    @media (max-width: 600px) {
-      html, body { height: 100%; overflow: hidden; }
-      #app-screen { position: fixed; inset: 0; width: 100%; height: 100vh; height: 100dvh; }
-      .sidebar { width: 100%; min-width: 0; max-width: 100%; height: 100%; }
-      .chat-area { width: 100%; min-width: 0; height: 100%; }
-      .chat-header { padding-left: max(10px, env(safe-area-inset-left)); padding-right: max(10px, env(safe-area-inset-right)); }
-      .chat-header-actions { gap: 2px; }
-      .hdr-act { min-width: 34px; padding: 6px; }
-      .active-contact-info { flex: 1 1 60px; }
-      .input-area { padding-left: max(8px, env(safe-area-inset-left)); padding-right: max(8px, env(safe-area-inset-right)); }
-      .chat-tools { gap: 2px; }
-      .tool-btn { min-width: 32px; padding: 6px; }
-      .message { max-width: 88%; }
-      .reg-form, .modal-card, .settings-card { width: min(100% - 24px, 440px); max-width: 100%; }
-      .reg-input { min-width: 0; width: 100%; }
-      .avatars-grid { grid-template-columns: repeat(auto-fit, minmax(54px, 70px)); gap: 10px; }
-    }
-
-    /* Компактные телефоны: уменьшаем кнопки, не скрывая функции. */
-    @media (max-width: 380px) {
-      .chat-header { gap: 5px; padding-left: 7px; padding-right: 7px; }
-      .back-btn { padding: 7px 8px; }
-      .hdr-act { min-width: 30px; padding: 4px; font-size: 13px; }
-      .contact-avatar { width: 36px; height: 36px; }
-      .chat-tools .tool-btn { min-width: 28px; padding: 4px; font-size: 15px; }
-      .input-area { gap: 4px; }
-      #message-input { padding: 10px 9px; }
-    }
   </style>
 </head>
 <body>
@@ -4533,17 +4470,6 @@ function applyTheme(theme, persist = true) {
   let pendingAccount = null;
   function showAuthMode(mode){
     const login = mode === 'login';
-
-    // Всегда возвращаем экран авторизации на экран, когда пользователь не вошёл.
-    // Раньше стартовый обработчик скрывал все экраны, а showAuthMode менял
-    // только панели внутри register-screen — из-за этого Chrome и новые устройства
-    // могли оставаться с пустым экраном.
-    if (registerScreen) registerScreen.classList.remove('hidden');
-    if (avatarScreen) avatarScreen.classList.add('hidden');
-    if (welcomeScreen) welcomeScreen.classList.add('hidden');
-    if (usernameScreen) usernameScreen.classList.add('hidden');
-    if (appScreen) appScreen.classList.add('hidden');
-
     if (registerFormPanel) registerFormPanel.classList.toggle('hidden', login);
     if (loginFormPanel) loginFormPanel.classList.toggle('hidden', !login);
     if (showRegisterBtn) showRegisterBtn.classList.toggle('active', !login);
@@ -4557,8 +4483,8 @@ function applyTheme(theme, persist = true) {
     const error = document.getElementById('login-error');
     if (error) { error.textContent=''; error.classList.remove('show'); }
   }
-  if (showRegisterBtn) showRegisterBtn.addEventListener('click',()=>showAuthMode('register'));
-  if (showLoginBtn) showLoginBtn.addEventListener('click',()=>showAuthMode('login'));
+  showRegisterBtn.addEventListener('click',()=>showAuthMode('register'));
+  showLoginBtn.addEventListener('click',()=>showAuthMode('login'));
   // ===== ВОССТАНОВЛЕНИЕ ПАРОЛЯ VELTO =====
 document.getElementById('forgot-password-link')
   .addEventListener('click', async (event) => {
@@ -8402,6 +8328,10 @@ async function finishAvatarSelection() {
       at: Date.now()
     };
 
+    // Сохраняем личное текстовое сообщение в общей базе Supabase.
+    // WebSocket остаётся для доставки в реальном времени и офлайн-очереди.
+    void persistPrivateMessageToSupabase(target, text, msgId);
+
     // всегда через wsSend → envelope + outbox при офлайне
     const ok = wsSend(payload);
     if (!ok) {
@@ -8410,6 +8340,74 @@ async function finishAvatarSelection() {
     }
     return true;
   }
+  async function persistPrivateMessageToSupabase(target, text, clientMessageId) {
+    const client = window.veltoSupabase;
+    if (!client || !target || !String(text || '').trim()) return;
+
+    try {
+      const { data: authData, error: authError } = await client.auth.getUser();
+      if (authError) throw authError;
+      const user = authData && authData.user;
+      if (!user) return;
+
+      const isUuid = value => /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(String(value || ''));
+      let recipientId = target.userId || target.user_id || (isUuid(target.id) ? target.id : '');
+      const targetName = String(target.name || '').replace(/^@/, '').trim();
+
+      // Resolve by username first; display_name is a fallback only.
+      if (!recipientId && targetName) {
+        const { data, error } = await client.from('profiles')
+          .select('id').ilike('username', targetName).limit(2);
+        if (error) throw error;
+        if (data && data.length === 1) recipientId = data[0].id;
+      }
+      if (!recipientId && targetName) {
+        const { data, error } = await client.from('profiles')
+          .select('id').ilike('display_name', targetName).limit(2);
+        if (error) throw error;
+        // Display names are not guaranteed unique; don't guess between accounts.
+        if (data && data.length === 1) recipientId = data[0].id;
+      }
+
+      if (!isUuid(recipientId) || recipientId === user.id) {
+        console.warn('Velto sync: не удалось однозначно определить UUID получателя', {
+          contactName: targetName,
+          contactId: target.id || null
+        });
+        return;
+      }
+
+      const { data: saved, error: insertError } = await client.from('velto_messages')
+        .insert({
+          sender_id: user.id,
+          recipient_id: recipientId,
+          body: String(text),
+          message_type: 'text',
+          is_bot: false
+        })
+        .select('id,sender_id,recipient_id,body,message_type,created_at')
+        .single();
+      if (insertError) throw insertError;
+
+      // Link the saved database row to the already-rendered local bubble to avoid duplicates.
+      const chatId = target.id || activeChatId;
+      const store = chatId ? chatStore(chatId) : null;
+      if (store && saved) {
+        const sentAt = new Date(saved.created_at).getTime();
+        const local = [...store.messages].reverse().find(m =>
+          m && m.type === 'self' && String(m.text || '') === String(text) &&
+          !m.supabaseId && Math.abs((Number(m.at) || Date.now()) - sentAt) < 120000
+        );
+        if (local) local.supabaseId = saved.id;
+        saveDB(true);
+      }
+      console.log('Velto: личное сообщение сохранено в Supabase', { id: saved.id });
+    } catch (err) {
+      console.error('Velto: не удалось сохранить личное сообщение в Supabase', err);
+      try { showSystemMessage('⚠ Сообщение отправлено через соединение, но не удалось сохранить его в общей истории.'); } catch (_) {}
+    }
+  }
+
   window.veltoSendStoryReply = function(targetName, text) {
     return sendPrivateMessage({ name: targetName }, text);
   };
@@ -10960,13 +10958,27 @@ setTimeout(() => {
     let changed = false;
     for (const row of rows) {
       const localId = 'sb-' + row.id;
-      if (st.messages.some(m => m.id === localId)) continue;
+      if (st.messages.some(m => m.id === localId || String(m.supabaseId || '') === String(row.id))) continue;
+
+      const rowAt = new Date(row.created_at).getTime();
+      const rowType = row.sender_id === user.id ? 'self' : 'other';
+      // Match a recently rendered outgoing local bubble to its Supabase row.
+      // This avoids showing the same message twice after opening/reloading a chat.
+      const matchingLocal = rowType === 'self' ? [...st.messages].reverse().find(m =>
+        m && m.type === 'self' && !m.supabaseId && String(m.text || '') === String(row.body || '') &&
+        Math.abs((Number(m.at) || 0) - rowAt) < 120000
+      ) : null;
+      if (matchingLocal) {
+        matchingLocal.supabaseId = row.id;
+        changed = true;
+        continue;
+      }
 
       st.messages.push({
         id: localId,
-        type: row.sender_id === user.id ? 'self' : 'other',
+        type: rowType,
         text: row.body || '',
-        at: new Date(row.created_at).getTime(),
+        at: rowAt,
         supabaseId: row.id
       });
       changed = true;
