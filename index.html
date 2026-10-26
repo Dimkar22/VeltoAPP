@@ -10364,7 +10364,13 @@ const isFavoritesChat =
 if (isFavoritesChat) {
   return;
 }
+
 const isveltoChat = activeChatId === 'velto-official' ||
+  (activeContact && (
+    activeContact.officialBot ||
+    activeContact.id === 'velto-official' ||
+    /velto/i.test(activeContact.name || '')
+  )); = activeChatId === 'velto-official' ||
   (activeContact && (activeContact.officialBot || activeContact.id === 'velto-official' || /velto/i.test(activeContact.name || '')));
 
 if (isveltoChat) {
