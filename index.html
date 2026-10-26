@@ -10880,12 +10880,14 @@ setTimeout(() => {
 
   async function loadVeltoPrivateMessages(contact) {
   const client = window.veltoSupabase;
+
   if (!client || !contact || contact.isGroup || contact.isChannel ||
       contact.officialBot || contact.adminConsole) return;
 
   try {
     const { data: authData, error: authError } = await client.auth.getUser();
     if (authError) throw authError;
+
     const user = authData.user;
     if (!user) return;
 
@@ -10898,7 +10900,9 @@ setTimeout(() => {
 
     if (!targetId && name) {
       const byUsername = await client.from('profiles')
-        .select('id').ilike('username', name).maybeSingle();
+        .select('id')
+        .ilike('username', name)
+        .maybeSingle();
 
       if (byUsername.error) throw byUsername.error;
       if (byUsername.data) targetId = byUsername.data.id;
@@ -10906,72 +10910,51 @@ setTimeout(() => {
 
     if (!targetId && name) {
       const byName = await client.from('profiles')
-        .select('id').ilike('display_name', name).maybeSingle();
+        .select('id')
+        .ilike('display_name', name)
+        .maybeSingle();
 
       if (byName.error) throw byName.error;
       if (byName.data) targetId = byName.data.id;
     }
 
     if (!targetId || targetId === user.id) {
-  console.log('Velto sync: не определён ID собеседника', {
-    contactId: contact.id,
-    contactName: contact.name,
-    targetId
-  });
-  return;
-}
+      console.log('Velto sync: не определён ID собеседника', {
+        contactId: contact.id,
+        contactName: contact.name,
+        targetId
+      });
+      return;
+    }
 
-   const [sent, received] = await Promise.all([
-  client.from('velto_messages')
-    .select('id,sender_id,recipient_id,body,message_type,created_at')
-    .eq('sender_id', user.id)
-    .eq('recipient_id', targetId),
+    const [sent, received] = await Promise.all([
+      client.from('velto_messages')
+        .select('id,sender_id,recipient_id,body,message_type,created_at')
+        .eq('sender_id', user.id)
+        .eq('recipient_id', targetId),
 
-  client.from('velto_messages')
-    .select('id,sender_id,recipient_id,body,message_type,created_at')
-    .eq('sender_id', targetId)
-    .eq('recipient_id', user.id)
-]);
+      client.from('velto_messages')
+        .select('id,sender_id,recipient_id,body,message_type,created_at')
+        .eq('sender_id', targetId)
+        .eq('recipient_id', user.id)
+    ]);
 
-if (sent.error || received.error) {
-  alert('Ошибка загрузки: ' +
-    (sent.error?.message || received.error?.message));
-  return;
-}
+    if (sent.error) throw sent.error;
+    if (received.error) throw received.error;
 
-if (sent.error || received.error) {
-  alert(
-    'Ошибка загрузки переписки: ' +
-    (sent.error?.message || received.error?.message || 'Неизвестная ошибка')
-  );
-  return;
-}
-
-if (sent.error) throw sent.error;
-if (received.error) throw received.error;
-
-const rows = [...(sent.data || []), ...(received.data || [])]
-  .sort((a, b) =>
-    new Date(a.created_at).getTime() -
-    new Date(b.created_at).getTime()
-  );
-
-    console.log('VELTO STORY CHAT SYNC', {
-  contactId: contact.id,
-  contactName: contact.name,
-  targetId,
-  sentCount: sent.data?.length,
-  receivedCount: received.data?.length,
-  sentError: sent.error?.message,
-  receivedError: received.error?.message
-});
-    const rows = [...(sent.data || []), ...(received.data || [])]
-      .sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+    const rows = [
+      ...(sent.data || []),
+      ...(received.data || [])
+    ].sort((a, b) =>
+      new Date(a.created_at).getTime() -
+      new Date(b.created_at).getTime()
+    );
 
     const st = chatStore(contact.id);
     if (!st) return;
 
     let changed = false;
+
     for (const row of rows) {
       const localId = 'sb-' + row.id;
       if (st.messages.some(m => m.id === localId)) continue;
@@ -10983,52 +10966,65 @@ const rows = [...(sent.data || []), ...(received.data || [])]
         at: new Date(row.created_at).getTime(),
         supabaseId: row.id
       });
+
       changed = true;
     }
 
-   if (changed) {
-  saveDB(true);
+    if (changed) {
+      saveDB(true);
 
-  if (String(activeChatId) === String(contact.id)) {
-    messagesContainer.innerHTML = '';
-    loadChatMessages(contact.id);
-    messagesContainer.scrollTop = messagesContainer.scrollHeight;
-  }
-}
+      if (
+        String(activeChatId) === String(contact.id) &&
+        messagesContainer
+      ) {
+        messagesContainer.innerHTML = '';
+        loadChatMessages(contact.id);
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+      }
+    }
   } catch (err) {
     console.error('Velto message sync:', err);
   }
 }
-  function loadChatMessages(chatId) {
-    messagesContainer.innerHTML = '';
-    if (!chatId || chatId === 'admin-console') return false;
-    const st = chatStore(chatId);
-    if (!st || !st.messages.length) return false;
-    const list = st.messages;
-    const MAX_RENDER = 80;
-    const start = list.length > MAX_RENDER ? list.length - MAX_RENDER : 0;
-    const frag = document.createDocumentFragment();
-    if (start > 0) {
-      const more = document.createElement('div');
-      more.className = 'message system-message';
-      more.textContent = '↑ Показаны последние ' + MAX_RENDER + ' из ' + list.length + ' сообщений';
-      frag.appendChild(more);
-    }
-    for (let i = start; i < list.length; i++) {
-      const m = list[i];
-      if (m.type === 'system') {
-        const div = document.createElement('div');
-        div.className = 'message system-message';
-        div.textContent = m.text || '';
-        frag.appendChild(div);
-      } else {
-        frag.appendChild(buildMessageEl(m));
-      }
-    }
-    messagesContainer.appendChild(frag);
-    updatePinnedBar();
-    return true;
+
+function loadChatMessages(chatId) {
+  messagesContainer.innerHTML = '';
+
+  if (!chatId || chatId === 'admin-console') return false;
+
+  const st = chatStore(chatId);
+  if (!st || !st.messages.length) return false;
+
+  const list = st.messages;
+  const MAX_RENDER = 80;
+  const start = list.length > MAX_RENDER ? list.length - MAX_RENDER : 0;
+  const frag = document.createDocumentFragment();
+
+  if (start > 0) {
+    const more = document.createElement('div');
+    more.className = 'message system-message';
+    more.textContent =
+      '↑ Показаны последние ' + MAX_RENDER + ' из ' + list.length + ' сообщений';
+    frag.appendChild(more);
   }
+
+  for (let i = start; i < list.length; i++) {
+    const m = list[i];
+
+    if (m.type === 'system') {
+      const div = document.createElement('div');
+      div.className = 'message system-message';
+      div.textContent = m.text || '';
+      frag.appendChild(div);
+    } else {
+      frag.appendChild(buildMessageEl(m));
+    }
+  }
+
+  messagesContainer.appendChild(frag);
+  updatePinnedBar();
+  return true;
+}
 
   // attach UI
   const attachBtn = document.getElementById('attach-btn');
