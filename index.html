@@ -10921,19 +10921,40 @@ setTimeout(() => {
   return;
 }
 
-    const [sent, received] = await Promise.all([
-      client.from('velto_messages')
-        .select('id,sender_id,recipient_id,body,message_type,created_at')
-        .eq('sender_id', user.id)
-        .eq('recipient_id', targetId),
-      client.from('velto_messages')
-        .select('id,sender_id,recipient_id,body,message_type,created_at')
-        .eq('sender_id', targetId)
-        .eq('recipient_id', user.id)
-    ]);
+   const [sent, received] = await Promise.all([
+  client.from('velto_messages')
+    .select('id,sender_id,recipient_id,body,message_type,created_at')
+    .eq('sender_id', user.id)
+    .eq('recipient_id', targetId),
 
-    if (sent.error) throw sent.error;
-    if (received.error) throw received.error;
+  client.from('velto_messages')
+    .select('id,sender_id,recipient_id,body,message_type,created_at')
+    .eq('sender_id', targetId)
+    .eq('recipient_id', user.id)
+]);
+
+if (sent.error || received.error) {
+  alert('Ошибка загрузки: ' +
+    (sent.error?.message || received.error?.message));
+  return;
+}
+
+if (sent.error || received.error) {
+  alert(
+    'Ошибка загрузки переписки: ' +
+    (sent.error?.message || received.error?.message || 'Неизвестная ошибка')
+  );
+  return;
+}
+
+if (sent.error) throw sent.error;
+if (received.error) throw received.error;
+
+const rows = [...(sent.data || []), ...(received.data || [])]
+  .sort((a, b) =>
+    new Date(a.created_at).getTime() -
+    new Date(b.created_at).getTime()
+  );
 
     console.log('VELTO STORY CHAT SYNC', {
   contactId: contact.id,
