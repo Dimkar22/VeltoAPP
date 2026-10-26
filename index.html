@@ -11,57 +11,57 @@
   <!-- Подключение Supabase для Velto -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
- <script>
-  window.veltoSupabase = window.supabase.createClient(
-    'https://avfsyhsartovotduwxww.supabase.co',
-    'sb_publishable_UAhEnpOTwJC-zAu6oF0qoQ_PiaQTSyX'
-  );
+  <script>
+    window.veltoSupabase = window.supabase.createClient(
+      'https://avfsyhsartovotduwxww.supabase.co',
+      'sb_publishable_UAhEnpOTwJC-zAu6oF0qoQ_PiaQTSyX'
+    );
 
-  window.veltoSupabase.auth.onAuthStateChange((event) => {
-    if (event !== 'PASSWORD_RECOVERY') return;
+    window.veltoSupabase.auth.onAuthStateChange((event) => {
+      if (event !== 'PASSWORD_RECOVERY') return;
 
-    setTimeout(async () => {
-      const newPassword = prompt(
-        'Введи новый пароль (минимум 8 символов):'
-      );
+      setTimeout(async () => {
+        const newPassword = prompt(
+          'Введи новый пароль (минимум 8 символов):'
+        );
 
-      if (newPassword === null) return;
+        if (newPassword === null) return;
 
-      if (newPassword.length < 8) {
-        alert('Пароль должен содержать минимум 8 символов.');
-        return;
-      }
+        if (newPassword.length < 8) {
+          alert('Пароль должен содержать минимум 8 символов.');
+          return;
+        }
 
-      const repeatedPassword = prompt('Повтори новый пароль:');
+        const repeatedPassword = prompt('Повтори новый пароль:');
 
-      if (repeatedPassword === null) return;
+        if (repeatedPassword === null) return;
 
-      if (newPassword !== repeatedPassword) {
-        alert('Пароли не совпадают. Запроси новую ссылку восстановления.');
-        return;
-      }
+        if (newPassword !== repeatedPassword) {
+          alert('Пароли не совпадают. Запроси новую ссылку восстановления.');
+          return;
+        }
 
-      try {
-        const { error } =
-          await window.veltoSupabase.auth.updateUser({
-            password: newPassword
-          });
+        try {
+          const { error } =
+            await window.veltoSupabase.auth.updateUser({
+              password: newPassword
+            });
 
-        if (error) throw error;
+          if (error) throw error;
 
-        alert('Пароль успешно изменён!');
+          alert('Пароль успешно изменён!');
 
-        await window.veltoSupabase.auth.signOut();
+          await window.veltoSupabase.auth.signOut();
 
-        window.location.href =
-          'https://dimkar22.github.io/VeltoAPP/';
-      } catch (error) {
-        console.error('Ошибка смены пароля:', error);
-        alert('Не удалось изменить пароль. Запроси новую ссылку восстановления.');
-      }
-    }, 0);0
-  });
-</script>
+          window.location.href =
+            'https://dimkar22.github.io/VeltoAPP/';
+        } catch (error) {
+          console.error('Ошибка смены пароля:', error);
+          alert('Не удалось изменить пароль. Запроси новую ссылку восстановления.');
+        }
+      }, 0);
+    });
+  </script>
 
   <style>
     /* ===== ЛУННАЯ ТЕМА (по умолчанию) ===== */
@@ -3563,20 +3563,20 @@
 <div id="register-screen" class="screen">
   <div class="reg-form">
     <div class="reg-logo velto-brand-icon">
-  <svg viewBox="0 0 64 64" aria-label="Velto">
-    <defs>
-      <linearGradient id="veltoGreen" x1="0" y1="0" x2="1" y2="1">
-        <stop offset="0%" stop-color="#4ade80"/>
-        <stop offset="100%" stop-color="#16a34a"/>
-      </linearGradient>
-    </defs>
-    <path d="M12 14 Q12 9 18 9 H46 Q53 9 53 16 V37 Q53 44 46 44 H32 L19 54 V44 H18 Q12 44 12 37 Z"
-      fill="url(#veltoGreen)"/>
-    <circle cx="24" cy="27" r="3" fill="white"/>
-    <circle cx="32" cy="27" r="3" fill="white"/>
-    <circle cx="40" cy="27" r="3" fill="white"/>
-  </svg>
-</div>
+      <svg viewBox="0 0 64 64" aria-label="Velto">
+        <defs>
+          <linearGradient id="veltoGreen" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#4ade80"/>
+            <stop offset="100%" stop-color="#16a34a"/>
+          </linearGradient>
+        </defs>
+        <path d="M12 14 Q12 9 18 9 H46 Q53 9 53 16 V37 Q53 44 46 44 H32 L19 54 V44 H18 Q12 44 12 37 Z"
+              fill="url(#veltoGreen)"/>
+        <circle cx="24" cy="27" r="3" fill="white"/>
+        <circle cx="32" cy="27" r="3" fill="white"/>
+        <circle cx="40" cy="27" r="3" fill="white"/>
+      </svg>
+    </div>
     <div class="reg-title">Velto Messenger</div>
     <div class="reg-subtitle">Общайтесь с друзьями в Velto Messenger</div>
     <div class="error-msg" id="storage-warning" style="text-align:center;margin:-14px 0 14px">⚠ Браузер блокирует сохранение данных (возможно, файл открыт во встроенном просмотре). Открой файл напрямую в Chrome/Safari/Firefox, иначе аккаунт не сохранится.</div>
@@ -3613,26 +3613,26 @@
     </div>
     <div id="login-form-panel" class="hidden">
       <div class="input-group">
-  <label>Email</label>
-  <input
-    type="email"
-    id="login-email"
-    class="reg-input"
-    placeholder="Введите email"
-    autocomplete="email"
-    required
-  >
-</div>
+        <label>Email</label>
+        <input
+                type="email"
+                id="login-email"
+                class="reg-input"
+                placeholder="Введите email"
+                autocomplete="email"
+                required
+        >
+      </div>
       <div class="input-group"><label>Пароль</label><input type="password" id="login-pass" class="reg-input" placeholder="Введите пароль" autocomplete="current-password"></div>
       <div class="error-msg" id="login-error"></div>
       <button class="reg-btn" id="login-submit" type="button">Войти в аккаунт</button>
       <div style="text-align:center;margin-top:10px;">
-  <a
-    href="#"
-    id="forgot-password-link"
-    style="font-size:12px;color:#22c55e;text-decoration:none;"
-  >Забыли пароль?</a>
-</div>
+        <a
+                href="#"
+                id="forgot-password-link"
+                style="font-size:12px;color:#22c55e;text-decoration:none;"
+        >Забыли пароль?</a>
+      </div>
       <p class="modal-note" style="margin-top:12px">Аккаунты хранятся в базе этого браузера (localStorage + IndexedDB). Если аккаунт пропал, восстанови его из файла копии.</p>
       <button class="secondary-btn" id="restore-db-btn" type="button" style="width:100%;margin-top:10px">⬆ Восстановить аккаунты из файла копии</button>
       <input type="file" id="restore-db-file" accept=".json,application/json" hidden>
@@ -3685,23 +3685,21 @@
     </div>
 
     <button type="button" id="first-avatar-skip"
-        style="background:none;border:none;padding:4px 8px;color:var(--text-muted);font-size:12px;text-decoration:underline;cursor:pointer">
-  Пропустить
-</button>
+            style="background:none;border:none;padding:4px 8px;color:var(--text-muted);font-size:12px;text-decoration:underline;cursor:pointer">
+      Пропустить
+    </button>
 
     <button type="button" id="first-avatar-continue" class="primary-btn">
       Продолжить
     </button>
 
     <p class="modal-note">
-      Можно загрузить фото или выбрать цвет фона для первой буквы ника.
-    </p>
       Можно загрузить фото или пропустить этот шаг и создать аватарку с первой буквой ника.
     </p>
   </div>
 </div>
 
-  <!-- ЭКРАН СОЗДАНИЯ НИКНЕЙМА -->
+<!-- ЭКРАН СОЗДАНИЯ НИКНЕЙМА -->
 <div id="username-screen" class="screen hidden">
   <h2>Придумайте никнейм</h2>
   <div class="avatar-subtitle">
@@ -3711,15 +3709,15 @@
   <div class="input-group" style="margin-top:22px">
     <label for="velto-username">Никнейм</label>
     <input
-      type="text"
-      id="velto-username"
-      class="reg-input"
-      placeholder="Например, Velto2026"
-      minlength="3"
-      maxlength="20"
-      autocomplete="off"
-      autocapitalize="none"
-      spellcheck="false"
+            type="text"
+            id="velto-username"
+            class="reg-input"
+            placeholder="Например, Velto2026"
+            minlength="3"
+            maxlength="20"
+            autocomplete="off"
+            autocapitalize="none"
+            spellcheck="false"
     >
     <div class="error-msg" id="username-error"></div>
     <div class="modal-note">
@@ -3730,21 +3728,6 @@
   <button class="reg-btn" id="username-submit">
     Продолжить
   </button>
-</div>
-  
-  <!-- ЭКРАН ВЫБОРА АВАТАРА -->
-<div id="avatar-screen" class="screen hidden">
-  <h2>Выберите аватарку</h2>
-  <div class="avatar-subtitle">Это фото будут видеть ваши собеседники</div>
-  <div class="avatar-upload-only" style="margin-top:22px;text-align:center;display:grid;gap:14px;justify-items:center">
-    <div id="first-avatar-preview-wrap" style="width:112px;height:112px;border-radius:50%;border:2px dashed var(--primary);display:flex;align-items:center;justify-content:center;overflow:hidden;background:var(--surface);color:var(--text-muted)">
-      <span id="first-avatar-placeholder" style="font-size:34px">＋</span>
-      <img id="first-avatar-preview" alt="Предпросмотр вашей аватарки" style="width:100%;height:100%;object-fit:cover;display:none">
-    </div>
-    <label for="first-avatar-upload" class="primary-btn" style="display:inline-block;cursor:pointer">📷 Загрузить своё фото</label>
-    <input id="first-avatar-upload" type="file" accept="image/*" capture="user" style="display:none">
-    <p class="modal-note">Добавьте собственное фото из галереи или сделайте снимок. Готовые аватары недоступны.</p>
-  </div>
 </div>
 
 <!-- ЭКРАН "ДОБРО ПОЖАЛОВАТЬ" -->
@@ -3796,28 +3779,28 @@
       </div>
     </div>
     <div class="velto-sidebar-brand">
-  <div class="velto-sidebar-icon">
-    <svg viewBox="0 0 64 64" aria-label="Velto">
-      <path d="M12 14 Q12 9 18 9 H46 Q53 9 53 16 V37 Q53 44 46 44 H32 L19 54 V44 H18 Q12 44 12 37 Z"
-        fill="url(#veltoGreen)"/>
-      <circle cx="24" cy="27" r="3" fill="white"/>
-      <circle cx="32" cy="27" r="3" fill="white"/>
-      <circle cx="40" cy="27" r="3" fill="white"/>
-    </svg>
-  </div>
-  <span>Velto</span>
-</div>
-      <div class="discover-card" id="open-discover" role="button" tabindex="0" title="Узнать возможности velto">
-        <b>✨ Открыть velto</b>
-        <span>Избранное · стикеры · ежедневный бонус · зачем velto всем</span>
+      <div class="velto-sidebar-icon">
+        <svg viewBox="0 0 64 64" aria-label="Velto">
+          <path d="M12 14 Q12 9 18 9 H46 Q53 9 53 16 V37 Q53 44 46 44 H32 L19 54 V44 H18 Q12 44 12 37 Z"
+                fill="url(#veltoGreen)"/>
+          <circle cx="24" cy="27" r="3" fill="white"/>
+          <circle cx="32" cy="27" r="3" fill="white"/>
+          <circle cx="40" cy="27" r="3" fill="white"/>
+        </svg>
       </div>
-      <h3>Чаты</h3>
-      <div class="user-search-wrap"><input id="user-search-input" type="search" placeholder="Поиск по нику — чат сохранится после перезахода…" autocomplete="off" aria-label="Поиск пользователей"><button type="button" id="user-search-btn" class="primary-btn">⌕ Поиск</button></div>
-      <div id="user-search-results" class="user-search-results" aria-live="polite"></div>
-      <!-- список «сейчас в сети» скрыт: пользователи ищутся только через строку поиска -->
-      <h3 id="online-now-title" style="display:none !important">Сейчас в сети</h3>
-      <div id="online-now-list" class="user-search-results" style="display:none !important;padding-bottom:8px"></div>
-      <ul id="chat-list"></ul>
+      <span>Velto</span>
+    </div>
+    <div class="discover-card" id="open-discover" role="button" tabindex="0" title="Узнать возможности velto">
+      <b>✨ Открыть velto</b>
+      <span>Избранное · стикеры · ежедневный бонус · зачем velto всем</span>
+    </div>
+    <h3>Чаты</h3>
+    <div class="user-search-wrap"><input id="user-search-input" type="search" placeholder="Поиск по нику — чат сохранится после перезахода…" autocomplete="off" aria-label="Поиск пользователей"><button type="button" id="user-search-btn" class="primary-btn">⌕ Поиск</button></div>
+    <div id="user-search-results" class="user-search-results" aria-live="polite"></div>
+    <!-- список «сейчас в сети» скрыт: пользователи ищутся только через строку поиска -->
+    <h3 id="online-now-title" style="display:none !important">Сейчас в сети</h3>
+    <div id="online-now-list" class="user-search-results" style="display:none !important;padding-bottom:8px"></div>
+    <ul id="chat-list"></ul>
     </nav>
   </aside>
 
@@ -4148,65 +4131,75 @@
           <p class="settings-hint" style="margin-top:8px">Также: увеличенный лимит вложений (5 МБ), значок 👑 в чатах, расширенная история (400 сообщений).</p>
         </div>
       </div>
-     <div class="settings-section">
-  <div class="settings-section-title">
-    <span class="settings-section-icon">↪</span>
-    <div>
-      <h3>Аккаунт</h3>
-      <p>Управление вашим аккаунтом Velto</p>
-    </div>
-  </div>
+      <div class="settings-section">
+        <div class="settings-section-title">
+          <span class="settings-section-icon">↪</span>
+          <div>
+            <h3>Аккаунт</h3>
+            <p>Управление вашим аккаунтом Velto</p>
+          </div>
+        </div>
 
-  <button class="secondary-btn" id="logout-button" type="button"
-    style="width:100%;border-color:rgba(255,105,125,.35);color:#ff9ba9">
-    ↪ Выйти из аккаунта
-  </button>
+        <button class="secondary-btn" id="logout-button" type="button"
+                style="width:100%;border-color:rgba(255,105,125,.35);color:#ff9ba9">
+          ↪ Выйти из аккаунта
+        </button>
 
-  <div style="height:1px;background:var(--glass-border);margin:16px 0"></div>
+        <div style="height:1px;background:var(--glass-border);margin:16px 0"></div>
 
-  <div style="margin-bottom:10px">
-    <div style="font-weight:600;color:var(--text-main);font-size:14px">
-      Удаление профиля
-    </div>
-    <p class="settings-hint" style="margin-top:5px">
-      Безвозвратное удаление аккаунта и связанных с ним данных.
-    </p>
-  </div>
-       <button class="secondary-btn" id="delete-account-open" type="button"
-  style="width:100%;border-color:rgba(255,105,125,.45);color:#ff9ba9">
-  Удалить профиль
-</button>
+        <div style="margin-bottom:10px">
+          <div style="font-weight:600;color:var(--text-main);font-size:14px">
+            Удаление профиля
+          </div>
+          <p class="settings-hint" style="margin-top:5px">
+            Безвозвратное удаление аккаунта и связанных с ним данных.
+          </p>
+        </div>
+        <button class="secondary-btn" id="delete-account-open" type="button"
+                style="width:100%;border-color:rgba(255,105,125,.45);color:#ff9ba9">
+          Удалить профиль
+        </button>
 
-<div style="height:1px;background:var(--glass-border);margin:16px 0"></div>
+        <div style="height:1px;background:var(--glass-border);margin:16px 0"></div>
 
-  <!-- Окно подтверждения удаления профиля -->
-<div id="delete-account-modal" class="modal-backdrop hidden"
-     role="dialog" aria-modal="true"
-     aria-labelledby="delete-account-title">
-  <div class="modal-card" style="max-width:420px;width:calc(100% - 32px);padding:24px">
-    <h3 id="delete-account-title">Удалить аккаунт?</h3>
-    <p style="color:var(--text-muted);line-height:1.5;margin:12px 0 20px">
-      Удаление аккаунта необратимо. Перед продолжением убедись,
-      что действительно хочешь удалить свой профиль Velto.
-    </p>
+        ```html
+        <!-- Окно подтверждения удаления профиля -->
+        <div id="delete-account-modal" class="modal-backdrop hidden"
+             role="dialog" aria-modal="true"
+             aria-labelledby="delete-account-title">
+          <div class="modal-card" style="max-width:420px;width:calc(100% - 32px);padding:24px">
+            <h3 id="delete-account-title">Удалить аккаунт?</h3>
+            <p style="color:var(--text-muted);line-height:1.5;margin:12px 0 20px">
+              Удаление аккаунта необратимо. Перед продолжением убедись,
+              что действительно хочешь удалить свой профиль Velto.
+            </p>
 
-    <div style="display:flex;gap:10px">
-      <button id="delete-account-cancel" class="secondary-btn"
-              type="button" style="flex:1">
-        Отмена
-      </button>
-      <button id="delete-account-confirm" class="secondary-btn"
-              type="button"
-              style="flex:1;border-color:#ef4444;color:#ff6b6b">
-        Удалить аккаунт
-      </button>
-    </div>
-  </div>
-</div>
+            <div style="display:flex;gap:10px">
+              <button id="delete-account-cancel" class="secondary-btn"
+                      type="button" style="flex:1">
+                Отмена
+              </button>
+              <button id="delete-account-confirm" class="secondary-btn"
+                      type="button"
+                      style="flex:1;border-color:#ef4444;color:#ff6b6b">
+                Удалить аккаунт
+              </button>
+            </div>
+          </div>
+        </div>
+
+      </div>
     </section>
-    <div class="settings-footer"><p class="modal-note">Изменения сохраняются на этом устройстве.</p><button class="primary-btn" id="save-settings">Сохранить изменения <span>→</span></button></div>
+
+    <div class="settings-footer">
+      <p class="modal-note">Изменения сохраняются на этом устройстве.</p>
+      <button class="primary-btn" id="save-settings">
+        Сохранить изменения <span>→</span>
+      </button>
+    </div>
   </div>
 </div>
+```
 <div id="profile-modal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="profile-hero-name">
   <div class="profile-modal-card">
     <div class="profile-hero" id="profile-hero">
@@ -4268,38 +4261,38 @@
       </div>
       <div class="rm-field">
         <label for="report-reason">Причина</label>
-<div id="report-reason-picker">
-  <div id="report-category-step">
-    <label for="report-category">Категория жалобы</label>
-    <select id="report-category" required>
-      <option value="">Выбери категорию</option>
-      <option value="Спам и реклама">Спам и реклама</option>
-      <option value="Оскорбления и токсичность">Оскорбления и токсичность</option>
-      <option value="Мошенничество">Мошенничество</option>
-      <option value="Контент 18+">Контент 18+</option>
-      <option value="Насилие и опасность">Насилие и опасность</option>
-      <option value="Приватность">Приватность</option>
-      <option value="Нарушение правил чата">Нарушение правил чата</option>
-      <option value="Материалы и права">Материалы и права</option>
-      <option value="Имперсонация">Имперсонация</option>
-      <option value="Группы и каналы">Группы и каналы</option>
-      <option value="Прочее">Прочее</option>
-    </select>
-    <button type="button" id="report-category-next" class="secondary-btn">
-      Далее →
-    </button>
-  </div>
+        <div id="report-reason-picker">
+          <div id="report-category-step">
+            <label for="report-category">Категория жалобы</label>
+            <select id="report-category" required>
+              <option value="">Выбери категорию</option>
+              <option value="Спам и реклама">Спам и реклама</option>
+              <option value="Оскорбления и токсичность">Оскорбления и токсичность</option>
+              <option value="Мошенничество">Мошенничество</option>
+              <option value="Контент 18+">Контент 18+</option>
+              <option value="Насилие и опасность">Насилие и опасность</option>
+              <option value="Приватность">Приватность</option>
+              <option value="Нарушение правил чата">Нарушение правил чата</option>
+              <option value="Материалы и права">Материалы и права</option>
+              <option value="Имперсонация">Имперсонация</option>
+              <option value="Группы и каналы">Группы и каналы</option>
+              <option value="Прочее">Прочее</option>
+            </select>
+            <button type="button" id="report-category-next" class="secondary-btn">
+              Далее →
+            </button>
+          </div>
 
-  <div id="report-detail-step" class="hidden">
-    <button type="button" id="report-reason-back" class="secondary-btn">
-      ← Назад
-    </button>
-    <label for="report-reason">Конкретная причина</label>
-    <select id="report-reason" required>
-      <option value="">Выбери причину</option>
-    </select>
-  </div>
-</div>
+          <div id="report-detail-step" class="hidden">
+            <button type="button" id="report-reason-back" class="secondary-btn">
+              ← Назад
+            </button>
+            <label for="report-reason">Конкретная причина</label>
+            <select id="report-reason" required>
+              <option value="">Выбери причину</option>
+            </select>
+          </div>
+        </div>
       </div>
       <div class="rm-field">
         <label for="report-comment">Комментарий (необязательно)</label>
@@ -4686,7 +4679,7 @@ if (!cloudProfile?.username) {
 }
 
 const name = cloudProfile.username;
-    
+
     userName = name;
     userAvatarUrl =
       cloudProfile?.avatar_url ||
@@ -5005,10 +4998,10 @@ async function getMain() {
     if (sw) sw.classList.add('show');
   }
   try { if (navigator.storage && navigator.storage.persist) navigator.storage.persist(); } catch (_) {}
-  
+
 
   // Данные IndexedDB загружаются после входа через activateUserStorage(userId).
-  
+
   let _saveDBTimer = null;
   let _saveDBPending = false;
   let _saveDBWriting = false;
@@ -6557,7 +6550,7 @@ async function submitReport() {
       button.textContent = 'Отправить жалобу';
     }
   }
-}  
+}
   function rejectReport(reportId) {
     ensureReportsDb();
     const r = db.reports.find(x => x.id === reportId);
@@ -7269,7 +7262,7 @@ pendingAccount = {
 usernameInput.addEventListener('keydown', e => {
   if (e.key === 'Enter') usernameSubmit.click();
 });
-  
+
   // ===== ВЫБОР АВАТАРА VELTO =====
 const firstAvatarUpload = document.getElementById('first-avatar-upload');
 const firstAvatarCameraInput = document.getElementById('first-avatar-camera-input');
@@ -9006,7 +8999,7 @@ if (cometBalEl) {
     }
   });
 }
-    
+
   // ===== РЕАКЦИИ НА СООБЩЕНИЯ =====
   const REACT_EMOJIS = ['👍', '❤️', '🔥', '😂', '😮', '😢', '👏', '🌙'];
   function toggleReaction(msgId, emoji) {
