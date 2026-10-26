@@ -10383,12 +10383,6 @@ const isveltoChat = activeChatId === 'velto-official' ||
     activeContact.officialBot ||
     activeContact.id === 'velto-official' ||
     /velto/i.test(activeContact.name || '')
-  ));const isveltoChat = activeChatId === 'velto-official' ||
-  (activeContact && (
-    activeContact.officialBot ||
-    activeContact.id === 'velto-official' ||
-    /velto/i.test(activeContact.name || '')
-  ));
 
 if (isveltoChat) {
 
