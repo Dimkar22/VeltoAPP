@@ -12300,9 +12300,11 @@ async function acceptCall() {
     const supabase = window.veltoSupabase;
 
     if (!supabase) {
-      showAuthMode('login');
-      return;
-    }
+  hideScreens();
+  registerScreen.classList.remove('hidden');
+  showAuthMode('register');
+  return;
+}
 
     // Восстанавливаем сохранённую сессию
     const { data, error } = await supabase.auth.getSession();
@@ -12312,10 +12314,11 @@ async function acceptCall() {
     const authUser = data?.session?.user;
 
     if (!authUser) {
-      hideScreens();
-      showAuthMode('login');
-      return;
-    }
+  hideScreens();
+  registerScreen.classList.remove('hidden');
+  showAuthMode('register');
+  return;
+}
 
     // Загружаем данные именно текущего пользователя
     await activateUserStorage(authUser.id);
