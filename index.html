@@ -12508,15 +12508,27 @@ async function acceptCall() {
   let owners = [], currentOwner = null, currentIndex = 0, timer;
 
   async function currentUser() {
-    const {data,error} = await sb.auth.getUser();
-    if (error) throw error;
-    return data.user;
-  }
+  const { data: sessionData, error: sessionError } =
+    await sb.auth.getSession();
 
-  async function refresh() {
-    try {
-      const user = await currentUser();
-      if (!user) return;
+  if (sessionError) throw sessionError;
+
+  // Пользователь ещё не вошёл — это нормальная ситуация.
+  if (!sessionData.session) return null;
+
+  const { data, error } = await sb.auth.getUser();
+
+  if (error) throw error;
+  return data.user || null;
+}
+  const user = await currentUser();
+
+if (!user) {
+  owners = [];
+  const root = el('velto-stories');
+  if (root) root.innerHTML = '';
+  return;
+}
 
       const {data:stories,error} = await sb.from('velto_stories')
         .select('id,user_id,media_path,media_type,caption,created_at,expires_at')
