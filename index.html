@@ -9982,15 +9982,28 @@ document.getElementById('channel-create-btn').addEventListener('click', createCh
         li.appendChild(badge);
       }
       const memberCount = c.isGroup ? ((c.members && c.members.length) || 0) : 0;
-      last.textContent = unread > 0
-        ? ('🔴 ' + unread + ' нов.' + (c.isChannel ? ' · канал' : (c.isGroup ? ' · группа' : (isOnline ? ' · в сети' : ''))))
-        : (c.adminConsole ? 'Команды администратора'
-        : (c.officialBot ? 'Официальный бот velto'
-        : (c.isChannel ? ('📢 ' + (c.desc || 'Канал'))
-        : (c.isGroup ? ('👥 ' + memberCount + ' участн.')
-        : (isOnline ? '🟢 В сети · можно писать'
-        : (c.onlineUser || c.wsId ? 'был(а) недавно'
-        : (c.registeredUser ? 'Пользователь velto' : '')
+     if (unread > 0) {
+        last.textContent = '🔴 ' + unread + ' нов.' +
+          (c.isChannel ? ' · канал' :
+           c.isGroup ? ' · группа' :
+           isOnline ? ' · в сети' : '');
+      } else if (c.adminConsole) {
+        last.textContent = 'Команды администратора';
+      } else if (c.officialBot) {
+        last.textContent = 'Официальный бот velto';
+      } else if (c.isChannel) {
+        last.textContent = '📢 ' + (c.desc || 'Канал');
+      } else if (c.isGroup) {
+        last.textContent = '👥 ' + memberCount + ' участн.';
+      } else if (isOnline) {
+        last.textContent = '🟢 В сети · можно писать';
+      } else if (c.onlineUser || c.wsId) {
+        last.textContent = 'был(а) недавно';
+      } else if (c.registeredUser) {
+        last.textContent = 'Пользователь velto';
+      } else {
+        last.textContent = '';
+      }
       details.append(name, last);
       if (c.isGroup) {
         if (isCustomGroupAvatar(c.avatar)) {
