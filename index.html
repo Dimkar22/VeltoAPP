@@ -1,4 +1,4 @@
-!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ru">
 <head>
   <meta charset="UTF-8" />
@@ -10383,8 +10383,7 @@ const isveltoChat = activeChatId === 'velto-official' ||
     activeContact.officialBot ||
     activeContact.id === 'velto-official' ||
     /velto/i.test(activeContact.name || '')
-
-if (isveltoChat) {
+  ));
 
 if (isveltoChat) {
   const cmd = text.trim().toLowerCase().replace(/\s+/g, ' ');
