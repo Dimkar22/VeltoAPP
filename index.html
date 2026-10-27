@@ -2486,132 +2486,90 @@ body.theme-solar {
 }
 
 
-
-
 /* ===== VELTO GLASS NAVIGATION ===== */
-#bottom-nav.bottom-nav {
-  position: fixed !important;
-  left: 12px;
-  right: 12px;
-  bottom: calc(12px + env(safe-area-inset-bottom));
-  z-index: 9999;
-
-  display: flex !important;
-  flex-direction: row;
+.bottom-nav {
+  position: relative;
+  isolation: isolate;
+  display: flex;
   align-items: stretch;
-  justify-content: space-between;
   gap: 6px;
-
-  width: auto;
-  margin: 0;
-  padding: 8px;
-  box-sizing: border-box;
-
-  border: 1px solid rgba(190, 255, 220, 0.18);
-  border-radius: 24px;
-  background: rgba(9, 24, 17, 0.88);
-
+  padding: 9px;
+  margin: 10px 12px calc(10px + env(safe-area-inset-bottom));
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 26px;
+  background: rgba(18, 28, 26, 0.76);
   -webkit-backdrop-filter: blur(28px) saturate(160%);
   backdrop-filter: blur(28px) saturate(160%);
-
   box-shadow:
-    0 12px 38px rgba(0, 0, 0, 0.32),
-    inset 0 1px 0 rgba(255, 255, 255, 0.12);
-  isolation: isolate;
+    0 10px 35px rgba(0, 0, 0, 0.24),
+    inset 0 1px 0 rgba(255, 255, 255, 0.10);
 }
 
-#bottom-nav .bottom-nav-item {
+.bottom-nav-item {
   position: relative;
-  flex: 1 1 0;
+  isolation: isolate;
+  flex: 1;
   min-width: 0;
-  min-height: 58px;
-  padding: 7px 2px;
-  box-sizing: border-box;
-
+  min-height: 60px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 6px;
-
+  gap: 5px;
   border: 1px solid transparent;
-  border-radius: 17px;
+  border-radius: 19px;
   background: transparent;
-
-  color: rgba(235, 250, 241, 0.72);
+  color: rgba(235, 245, 240, 0.66);
   font: inherit;
   font-size: 12px;
-  line-height: 1.2;
-
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
-
   transition:
-    color 220ms ease,
-    background 220ms ease,
-    border-color 220ms ease,
-    transform 180ms ease,
-    box-shadow 220ms ease;
+    color 280ms ease,
+    background 350ms ease,
+    border-color 350ms ease,
+    transform 220ms ease,
+    box-shadow 350ms ease;
 }
 
-#bottom-nav .bottom-nav-item.active {
-  color: #a4ffd0;
+.bottom-nav-item.active {
+  color: #a0ffd0;
   background: linear-gradient(
     135deg,
-    rgba(65, 230, 155, 0.23),
-    rgba(25, 173, 112, 0.09)
+    rgba(61, 220, 145, 0.22),
+    rgba(42, 160, 111, 0.09)
   );
   border-color: rgba(103, 255, 181, 0.25);
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.12),
-    0 0 20px rgba(50, 220, 140, 0.10);
+    0 0 22px rgba(50, 220, 140, 0.10);
 }
 
-#bottom-nav .bottom-nav-icon {
+.bottom-nav-icon {
   display: block;
   font-size: 21px;
   line-height: 1;
-  transition: transform 220ms ease;
+  transform: translateY(0) scale(1);
+  transition: transform 300ms cubic-bezier(.2, .8, .2, 1);
 }
 
-#bottom-nav .bottom-nav-item.active .bottom-nav-icon {
-  transform: translateY(-1px) scale(1.08);
+.bottom-nav-item.active .bottom-nav-icon {
+  transform: translateY(-2px) scale(1.08);
 }
 
-#bottom-nav .bottom-nav-item:active {
-  transform: scale(0.96);
-}
-
-/* Оставляет место для панели внизу */
-body {
-  padding-bottom: calc(100px + env(safe-area-inset-bottom));
-}
-
-@media (max-width: 480px) {
-  #bottom-nav.bottom-nav {
-    left: 8px;
-    right: 8px;
-    bottom: calc(8px + env(safe-area-inset-bottom));
-    padding: 6px;
-    gap: 4px;
-  }
-
-  #bottom-nav .bottom-nav-item {
-    min-height: 54px;
-    font-size: 11px;
-  }
+.bottom-nav-item:active {
+  transform: scale(0.94);
 }
 
 @media (prefers-reduced-motion: reduce) {
-  #bottom-nav .bottom-nav-item,
-  #bottom-nav .bottom-nav-icon {
+  .bottom-nav-item,
+  .bottom-nav-icon {
     transition: none !important;
   }
 }
   </style>
 </head>
 <body>
-
 
 <!-- ПАРАЛЛАКС ФОН -->
 <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs>
@@ -2738,112 +2696,79 @@ body {
   <div class="planet-ring"></div>
 </div>
 
+<!-- ТЕМА-ПЕРЕКЛЮЧАТЕЛЬ -->
+<div class="theme-burst" id="theme-burst"></div>
+<button class="theme-toggle" id="theme-toggle" title="Сменить тему">
+  <span id="theme-icon">🌙</span>
+</button>
 
-<!-- ЭКРАН РЕГИСТРАЦИИ VELTO GLASS -->
+<!-- ЭКРАН РЕГИСТРАЦИИ -->
 <div id="register-screen" class="screen">
-  <div class="reg-form velto-glass-auth">
-
-    <div class="reg-logo">✦</div>
-    <div class="reg-title">Velto</div>
-    <div class="reg-subtitle">Общайтесь. Делитесь. Будьте на связи.</div>
-
-    <div class="error-msg" id="storage-warning"
-         style="text-align:center;margin:-14px 0 14px">
-      ⚠ Браузер блокирует сохранение данных. Открой Velto напрямую в браузере.
-    </div>
-
+  <div class="reg-form">
+    <div class="reg-logo">🌙</div>
+    <div class="reg-title">Velto Messenger</div>
+    <div class="reg-subtitle">Общайтесь с друзьями в Velto Messenger</div>
+    <div class="error-msg" id="storage-warning" style="text-align:center;margin:-14px 0 14px">⚠ Браузер блокирует сохранение данных (возможно, файл открыт во встроенном просмотре). Открой файл напрямую в Chrome/Safari/Firefox, иначе аккаунт не сохранится.</div>
     <div class="auth-switch" role="tablist" aria-label="Вход или регистрация">
-      <button type="button" class="auth-switch-btn active" id="show-register">
-        Регистрация
-      </button>
-      <button type="button" class="auth-switch-btn" id="show-login">
-        Войти
-      </button>
+      <button type="button" class="auth-switch-btn active" id="show-register">Зарегистрироваться</button>
+      <button type="button" class="auth-switch-btn" id="show-login">Войти</button>
     </div>
-
-    <!-- РЕГИСТРАЦИЯ -->
     <div id="register-form-panel">
 
       <div class="input-group">
-        <label for="reg-email">Электронная почта</label>
-        <input type="email" id="reg-email" class="reg-input"
-               placeholder="name@example.com" autocomplete="email">
+        <label>Email</label>
+        <input type="email" id="reg-email" class="reg-input" placeholder="example@mail.com" autocomplete="off">
         <div class="error-msg" id="email-error"></div>
       </div>
 
       <div class="input-group">
-        <label for="reg-pass">Пароль</label>
-        <input type="password" id="reg-pass" class="reg-input"
-               placeholder="Минимум 6 символов" autocomplete="new-password">
-        <div class="password-strength">
-          <div class="strength-bar" id="strength-bar"></div>
-        </div>
+        <label>Пароль</label>
+        <input type="password" id="reg-pass" class="reg-input" placeholder="Минимум 6 символов" autocomplete="off">
+        <div class="password-strength"><div class="strength-bar" id="strength-bar"></div></div>
         <div class="strength-label" id="strength-label"></div>
         <div class="error-msg" id="pass-error"></div>
       </div>
 
       <div class="input-group">
-        <label for="reg-pass2">Повторите пароль</label>
-        <input type="password" id="reg-pass2" class="reg-input"
-               placeholder="Введите пароль ещё раз" autocomplete="new-password">
+        <label>Повторите пароль</label>
+        <input type="password" id="reg-pass2" class="reg-input" placeholder="Введите пароль ещё раз" autocomplete="off">
         <div class="error-msg" id="pass2-error"></div>
       </div>
 
-      <button class="reg-btn" id="reg-submit" type="button">
-        Создать аккаунт
-      </button>
-
+      <button class="reg-btn" id="reg-submit">Создать аккаунт</button>
       <div class="reg-progress" id="reg-progress">
         <div class="reg-progress-bar" id="reg-progress-bar"></div>
       </div>
     </div>
-
-    <!-- ВХОД -->
     <div id="login-form-panel" class="hidden">
-
       <div class="input-group">
-        <label for="login-email">Электронная почта</label>
-        <input type="email" id="login-email" class="reg-input"
-               placeholder="Введите email" autocomplete="email" required>
+        <label>Email</label>
+        <input
+                type="email"
+                id="login-email"
+                class="reg-input"
+                placeholder="Введите email"
+                autocomplete="email"
+                required
+        >
       </div>
-
-      <div class="input-group">
-        <label for="login-pass">Пароль</label>
-        <input type="password" id="login-pass" class="reg-input"
-               placeholder="Введите пароль" autocomplete="current-password">
-      </div>
-
+      <div class="input-group"><label>Пароль</label><input type="password" id="login-pass" class="reg-input" placeholder="Введите пароль" autocomplete="current-password"></div>
       <div class="error-msg" id="login-error"></div>
-
-      <button class="reg-btn" id="login-submit" type="button">
-        Войти в Velto
-      </button>
-
-      <div style="text-align:center;margin-top:14px">
-        <a href="#" id="forgot-password-link"
-           style="font-size:13px;color:#75edb2;text-decoration:none">
-          Забыли пароль?
-        </a>
+      <button class="reg-btn" id="login-submit" type="button">Войти в аккаунт</button>
+      <div style="text-align:center;margin-top:10px;">
+        <a
+                href="#"
+                id="forgot-password-link"
+                style="font-size:12px;color:#22c55e;text-decoration:none;"
+        >Забыли пароль?</a>
       </div>
-
-      <p class="modal-note" style="margin-top:14px">
-        Вход выполняется через защищённую авторизацию Velto.
-      </p>
-
-      <button class="secondary-btn" id="restore-db-btn" type="button"
-              style="width:100%;margin-top:10px">
-        Восстановить данные из копии
-      </button>
-
-      <input type="file" id="restore-db-file"
-             accept=".json,application/json" hidden>
-
+      <p class="modal-note" style="margin-top:12px">Аккаунты хранятся в базе этого браузера (localStorage + IndexedDB). Если аккаунт пропал, восстанови его из файла копии.</p>
+      <button class="secondary-btn" id="restore-db-btn" type="button" style="width:100%;margin-top:10px">⬆ Восстановить аккаунты из файла копии</button>
+      <input type="file" id="restore-db-file" accept=".json,application/json" hidden>
       <p class="modal-note" id="restore-db-msg" style="margin-top:8px"></p>
     </div>
-
   </div>
 </div>
-
 
 <!-- ЭКРАН ВЫБОРА АВАТАРА -->
 <div id="avatar-screen" class="screen hidden">
@@ -3625,6 +3550,72 @@ body {
     });
   }, { passive: true });
 
+  // ===== ТЕМА-ПЕРЕКЛЮЧАТЕЛЬ =====
+  const themeToggle = document.getElementById('theme-toggle');
+  const themeBurst = document.getElementById('theme-burst');
+  const welcomeLogo = document.getElementById('welcome-logo');
+  let currentTheme = 'velto';
+
+  const THEME_ORDER = ['velto', 'solar', 'jupiter', 'andromeda', 'blackhole', 'sirius', 'earth', 'cryos'];
+  const PREMIUM_THEMES = ['earth', 'cryos'];
+  const THEME_META = {
+    velto:   { icon: '🌙', name: 'Лунная' },
+    solar:   { icon: '☀',  name: 'Солнечная' },
+    jupiter: { icon: '🪐', name: 'Юпитер' },
+    andromeda: { icon: '🌌', name: 'Андромеда' },
+    blackhole: { icon: '🕳️', name: 'Чёрная дыра' },
+    sirius:  { icon: '✦',  name: 'Сириус' },
+    earth:   { icon: '🧟', name: 'Зомби' },
+    cryos:   { icon: '❄',  name: 'Криос' }
+  };
+  const themeIcon = document.getElementById('theme-icon');
+  function normalizeTheme(t) { return THEME_META[t] ? t : 'velto'; }
+  function paintTheme(theme) {
+    currentTheme = normalizeTheme(theme);
+    document.body.classList.toggle('theme-solar', currentTheme === 'solar');
+    document.body.classList.toggle('theme-jupiter', currentTheme === 'jupiter');
+    document.body.classList.toggle('theme-andromeda', currentTheme === 'andromeda');
+    document.body.classList.toggle('theme-blackhole', currentTheme === 'blackhole');
+    document.body.classList.toggle('theme-sirius', currentTheme === 'sirius');
+    document.body.classList.toggle('theme-earth', currentTheme === 'earth');
+    document.body.classList.toggle('theme-cryos', currentTheme === 'cryos');
+    welcomeLogo.textContent = THEME_META[currentTheme].icon;
+    const regLogo = document.querySelector('.reg-logo'); if (regLogo) regLogo.textContent = THEME_META[currentTheme].icon;
+    themeIcon.textContent = THEME_META[currentTheme].icon;
+    themeToggle.title = 'Тема: ' + THEME_META[currentTheme].name + ' (нажмите, чтобы сменить)';
+  }
+function applyTheme(theme, persist = true) {
+    theme = normalizeTheme(theme);
+    if (PREMIUM_THEMES.includes(theme) && !isPremium(userName)) {
+      try { showSystemMessage('🌍 Тема «' + THEME_META[theme].name + '» доступна только с velto Premium.'); } catch (_) {}
+      theme = currentTheme && !PREMIUM_THEMES.includes(currentTheme) ? currentTheme : 'velto';
+    }
+    paintTheme(theme);
+    const themeSelect = document.getElementById('settings-theme');
+    if (themeSelect && themeSelect.value !== currentTheme) {
+      themeSelect.value = currentTheme;
+      themeSelect.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+    if (persist && typeof db !== 'undefined') {
+      db.profile = { ...(db.profile || {}), name: userName || (db.profile && db.profile.name) || '', avatar: userAvatarUrl || (db.profile && db.profile.avatar) || '', theme: currentTheme };
+      saveDB();
+    }
+  }
+
+  themeToggle.addEventListener('click', () => {
+    themeBurst.classList.remove('active');
+    void themeBurst.offsetWidth;
+    themeBurst.classList.add('active');
+    let next = (THEME_ORDER.indexOf(currentTheme) + 1) % THEME_ORDER.length;
+    for (let i = 0; i < THEME_ORDER.length; i++) {
+      const cand = THEME_ORDER[(THEME_ORDER.indexOf(currentTheme) + 1 + i) % THEME_ORDER.length];
+      if (PREMIUM_THEMES.includes(cand) && !isPremium(userName)) continue;
+      next = THEME_ORDER.indexOf(cand);
+      break;
+    }
+    applyTheme(THEME_ORDER[next]);
+  });
+
   // ===== ДАННЫЕ =====
   // Локальные SVG-аватарки животных — работают без внешних сервисов.
   const animalAvatar = (kind) => {
@@ -3754,13 +3745,8 @@ document.getElementById('forgot-password-link')
       });
 
     if (authError) {
-  console.error('Supabase sign-in:', {
-    status: authError.status,
-    code: authError.code,
-    message: authError.message
-  });
-  throw authError;
-}
+      throw authError;
+    }
 
     if (!data.user) {
       throw new Error('Пользователь не найден.');
@@ -4192,9 +4178,9 @@ async function activateUserStorage(userId) {
     if (!db.comets || typeof db.comets !== 'object') db.comets = {};
     if (!Array.isArray(db.channels)) db.channels = [];
 
-    currentTheme = 'velto';
-applyUiSettings();
-paintTheme('velto');
+    currentTheme = normalizeTheme(db.profile?.theme || 'velto');
+    applyUiSettings();
+    paintTheme(currentTheme);
   }
 
   function saveDBNow() {
