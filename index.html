@@ -11499,28 +11499,6 @@ document.getElementById('btn-audio-call')?.focus();
 }
 });
 })();
-<script>
-document.addEventListener('click', function (e) {
-  let info = document.getElementById('velto-debug');
-  if (!info) {
-    info = document.createElement('div');
-    info.id = 'velto-debug';
-    info.style.cssText =
-      'position:fixed;top:5px;left:5px;right:5px;z-index:2147483647;' +
-      'background:#00ff00;color:#000;padding:12px;font-size:14px;' +
-      'pointer-events:none;word-break:break-all;';
-    document.body.appendChild(info);
-  }
-
-  info.textContent = 'CLICK: ' + e.target.tagName +
-    ' | ID: ' + (e.target.id || 'нет') +
-    ' | CLASS: ' + (typeof e.target.className === 'string'
-      ? e.target.className : 'другое');
-}, true);
-
-document.addEventListener('DOMContentLoaded', function () {
-  alert('VELTO DEBUG: JavaScript работает');
-});
 </script>
 </body>
 </html>
