@@ -64,7 +64,6 @@
   </script>
 
 
-
   <style>
     /* ===== VELTO: DARK EMERALD REDESIGN ===== */
 
@@ -230,6 +229,107 @@
 
       .input-area {
         padding-bottom: max(8px, env(safe-area-inset-bottom));
+      }
+    }
+
+    /* ===== VELTO: ЭКРАНЫ ПЕРВОНАЧАЛЬНОЙ НАСТРОЙКИ ===== */
+
+    #avatar-screen,
+    #username-screen {
+      box-sizing: border-box;
+      width: 100%;
+      max-width: 100%;
+      min-height: 100vh;
+      padding: 24px 20px;
+      overflow-x: hidden;
+      color: var(--text-main);
+    }
+
+    #avatar-screen *,
+    #username-screen * {
+      box-sizing: border-box;
+    }
+
+    #avatar-screen h2,
+    #username-screen h2 {
+      margin: 0 0 12px;
+      color: var(--text-main);
+      font-size: clamp(24px, 6vw, 30px);
+      line-height: 1.2;
+      overflow-wrap: anywhere;
+    }
+
+    #avatar-screen .avatar-subtitle,
+    #username-screen .avatar-subtitle {
+      margin-bottom: 20px;
+      color: var(--text-muted);
+      font-size: 15px;
+      line-height: 1.5;
+      overflow-wrap: anywhere;
+    }
+
+    #avatar-screen .primary-btn,
+    #username-screen .reg-btn {
+      display: block;
+      width: 100%;
+      max-width: 320px;
+      min-height: 46px;
+      margin-right: auto;
+      margin-left: auto;
+      padding: 12px 16px;
+      border-radius: 12px;
+      font-size: 15px;
+      line-height: 1.4;
+      white-space: normal;
+    }
+
+    #avatar-screen label.primary-btn {
+      text-align: center;
+    }
+
+    #avatar-screen #first-avatar-preview-wrap {
+      width: 112px;
+      height: 112px;
+      flex-shrink: 0;
+    }
+
+    #avatar-screen .modal-note,
+    #username-screen .modal-note {
+      width: 100%;
+      margin: 8px 0 0;
+      color: var(--text-muted);
+      font-size: 12px;
+      line-height: 1.5;
+      overflow-wrap: anywhere;
+    }
+
+    #username-screen .input-group {
+      width: 100%;
+      margin-top: 22px;
+    }
+
+    #username-screen .reg-input {
+      display: block;
+      width: 100%;
+      max-width: 100%;
+      min-width: 0;
+      min-height: 46px;
+      font-size: 16px;
+    }
+
+    #username-screen #username-submit {
+      margin-top: 12px;
+    }
+
+    @media (max-width: 480px) {
+      #avatar-screen,
+      #username-screen {
+        padding: 20px 16px;
+      }
+
+      #avatar-screen h2,
+      #username-screen h2 {
+        font-size: 25px;
       }
     }
   </style>
@@ -461,8 +561,13 @@
   text-align: center;
 }
 
+
 #register-screen #storage-warning {
-  margin: 0 0 16px !important;
+  position: relative;
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  margin: 12px 0 16px !important;
   padding: 10px 12px;
   border: 1px solid rgba(255, 190, 70, 0.25);
   border-radius: 12px;
@@ -586,19 +691,30 @@
   }
 
   #register-screen .reg-form {
-    padding: 20px 16px;
-    border-radius: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+    max-width: 420px;
+    min-width: 0;
+    margin: auto;
+    padding: 22px 18px;
+    border: 1px solid rgba(49, 255, 137, 0.16);
+    border-radius: 24px;
+    background: rgba(3, 20, 12, 0.96);
+    box-shadow: 0 18px 60px rgba(0, 0, 0, 0.3);
   }
 
   #register-screen .reg-title {
-    font-size: 27px;
+    font-size: 25px;
+    line-height: 1.25;
+    overflow-wrap: anywhere;
   }
 
   #register-screen .auth-switch-btn {
     font-size: 13px;
   }
 }
-
 
   </style>
 </head>
@@ -970,14 +1086,43 @@
       <b>✨ Открыть velto</b>
       <span>Избранное · стикеры · ежедневный бонус · зачем velto всем</span>
     </div>
+
     <h3>Чаты</h3>
-    <div class="user-search-wrap"><input id="user-search-input" type="search" placeholder="Поиск по нику — чат сохранится после перезахода…" autocomplete="off" aria-label="Поиск пользователей"><button type="button" id="user-search-btn" class="primary-btn">⌕ Поиск</button></div>
+
+    <div class="chat-list-search-wrap">
+      <input
+              id="chat-list-search"
+              type="search"
+              placeholder="Поиск чатов, групп и каналов"
+              autocomplete="off"
+              aria-label="Поиск по чатам, группам и каналам"
+      >
+    </div>
+
+    <div class="user-search-wrap">
+      <input
+              id="user-search-input"
+              type="search"
+              placeholder="Поиск по нику — чат сохранится после перезахода…"
+              autocomplete="off"
+              aria-label="Поиск пользователей"
+      >
+      <button type="button" id="user-search-btn" class="primary-btn">⌕ Поиск</button>
+    </div>
+
     <div id="user-search-results" class="user-search-results" aria-live="polite"></div>
+
     <!-- список «сейчас в сети» скрыт: пользователи ищутся только через строку поиска -->
     <h3 id="online-now-title" style="display:none !important">Сейчас в сети</h3>
-    <div id="online-now-list" class="user-search-results" style="display:none !important;padding-bottom:8px"></div>
+    <div
+            id="online-now-list"
+            class="user-search-results"
+            style="display:none !important;padding-bottom:8px"
+    ></div>
+
     <ul id="chat-list"></ul>
   </aside>
+
 
 
   <main class="chat-area no-chat">
