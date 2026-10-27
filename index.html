@@ -4192,183 +4192,116 @@ async function activateUserStorage(userId) {
     if (!db.comets || typeof db.comets !== 'object') db.comets = {};
     if (!Array.isArray(db.channels)) db.channels = [];
 
-
-
-
-function normalizeTheme(theme) {
-  return 'velto';
-}
-
-function paintTheme(theme) {
-  currentTheme = 'velto';
-
-  const welcomeLogo = document.getElementById('welcome-logo');
-  if (welcomeLogo) welcomeLogo.textContent = '✦';
-
-  const regLogo = document.querySelector('.reg-logo');
-  if (regLogo) regLogo.textContent = '✦';
-}
-
-function applyTheme(theme, persist = true) {
-  currentTheme = normalizeTheme(theme);
-
-  if (typeof paintTheme === 'function') {
-    paintTheme(currentTheme);
-  }
-
-  if (typeof applyUiSettings === 'function') {
-    applyUiSettings();
-  }
-
-  if (persist && typeof saveDB === 'function') {
-    saveDB();
-  }
-}
-
-currentTheme = 'velto';
+    currentTheme = 'velto';
 applyUiSettings();
-
-
-/* ===== СОХРАНЕНИЕ ДАННЫХ VELTO ===== */
-
-function saveDBNow() {
-  if (!activeStorageUserId || activeStorageUserId === 'guest') {
-    return;
+paintTheme('velto');
   }
 
-  _saveDBPending = false;
-
-  if (_saveDBWriting) {
-    _saveDBPending = true;
-    return;
-  }
-
-  _saveDBWriting = true;
-
-  try {
-    const snap = buildDbSnapshot();
-
-    // Основное сохранение в LocalStorage
-    try {
-      localStorage.setItem(
-        scopedStorageKey(DB_KEY),
-        JSON.stringify(snap)
-      );
-    } catch (e) {
-      // Если данные слишком большие, сохраняем облегчённую копию
-      try {
-        const slim = JSON.parse(JSON.stringify(snap));
-
-        if (slim.chatData) {
-          Object.keys(slim.chatData).forEach(cid => {
-            const msgs = slim.chatData[cid]?.messages;
-
-            if (!Array.isArray(msgs)) {
-              return;
-            }
-
-            msgs.forEach((m, i) => {
-              if (
-                i < msgs.length - 30 &&
-                m.attachment?.dataUrl &&
-                String(m.attachment.dataUrl).length > 8000
-              ) {
-                m.attachment = {
-                  ...m.attachment,
-                  dataUrl: '',
-                  purged: true
-                };
-              }
-            });
-          });
-        }
-
-        localStorage.setItem(
-          scopedStorageKey(DB_KEY),
-          JSON.stringify(slim)
-        );
-      } catch (e2) {
-        console.warn('Velto localStorage save error:', e2);
-      }
+  function saveDBNow() {
+    if (!activeStorageUserId || activeStorageUserId === 'guest') {
+      return;
     }
 
-    // Сохранение основной информации и переписки в IndexedDB
-    const chatData = snap.chatData || {};
-    const chatIds = Object.keys(chatData);
+    _saveDBPending = false;
+    if (_saveDBWriting) {
+      _saveDBPending = true;
+      return;
+    }
 
-    const mainWithoutHeavy = { ...snap };
-    mainWithoutHeavy.chatData = {};
-    mainWithoutHeavy._chatIds = chatIds;
+    _saveDBWriting = true;
 
-    Promise.resolve()
-      .then(() => veltoStore.putMain(mainWithoutHeavy))
-      .then(() =>
-        Promise.all(
-          chatIds.map(id => veltoStore.putChat(id, chatData[id]))
-        )
-      )
-      .catch(err => {
-        console.warn('Velto IndexedDB save error:', err);
-      })
-      .finally(() => {
-        _saveDBWriting = false;
+    try {
+      const snap = buildDbSnapshot();
 
-        if (_saveDBPending) {
-          _saveDBPending = false;
-          saveDBNow();
+      try {
+        localStorage.setItem(scopedStorageKey(DB_KEY), JSON.stringify(snap));
+      } catch (e) {
+        try {
+          const slim = JSON.parse(JSON.stringify(snap));
+          if (slim.chatData) {
+            Object.keys(slim.chatData).forEach(cid => {
+              const msgs = slim.chatData[cid]?.messages;
+              if (!Array.isArray(msgs)) return;
+
+              msgs.forEach((m, i) => {
+                if (
+                  i < msgs.length - 30 &&
+                  m.attachment?.dataUrl &&
+                  String(m.attachment.dataUrl).length > 8000
+                ) {
+                  m.attachment = {
+                    ...m.attachment,
+                    dataUrl: '',
+                    purged: true
+                  };
+                }
+              });
+            });
+          }
+
+          localStorage.setItem(scopedStorageKey(DB_KEY), JSON.stringify(slim));
+        } catch (e2) {
+          console.warn('localStorage full', e2);
         }
-      });
+      }
 
-  } catch (e) {
-    _saveDBWriting = false;
-    console.warn('Velto saveDBNow error:', e);
+      const chatData = snap.chatData || {};
+      const chatIds = Object.keys(chatData);
+      const mainWithoutHeavy = { ...snap };
+      mainWithoutHeavy.chatData = {};
+      mainWithoutHeavy._chatIds = chatIds;
+
+      Promise.resolve()
+        .then(() => veltoStore.putMain(mainWithoutHeavy))
+        .then(() =>
+          Promise.all(chatIds.map(id => veltoStore.putChat(id, chatData[id])))
+        )
+        .catch(err => console.warn('IDB save', err))
+        .finally(() => {
+          _saveDBWriting = false;
+          if (_saveDBPending) {
+            _saveDBPending = false;
+            saveDBNow();
+          }
+        });
+    } catch (e) {
+      _saveDBWriting = false;
+      console.warn('saveDB', e);
+    }
   }
-}
 
-function saveDB(immediate) {
-  if (immediate) {
+  function saveDB(immediate) {
+    if (immediate) {
+      if (_saveDBTimer) {
+        clearTimeout(_saveDBTimer);
+        _saveDBTimer = null;
+      }
+      saveDBNow();
+      return;
+    }
+
+    _saveDBPending = true;
+    if (_saveDBTimer) return;
+
+    _saveDBTimer = setTimeout(() => {
+      _saveDBTimer = null;
+      if (_saveDBPending) saveDBNow();
+    }, 200);
+  }
+
+  function forceFlushStorage() {
     if (_saveDBTimer) {
       clearTimeout(_saveDBTimer);
       _saveDBTimer = null;
     }
-
     saveDBNow();
-    return;
   }
 
-  _saveDBPending = true;
-
-  if (_saveDBTimer) {
-    return;
-  }
-
-  _saveDBTimer = setTimeout(() => {
-    _saveDBTimer = null;
-
-    if (_saveDBPending) {
-      saveDBNow();
-    }
-  }, 200);
-}
-
-function forceFlushStorage() {
-  if (_saveDBTimer) {
-    clearTimeout(_saveDBTimer);
-    _saveDBTimer = null;
-  }
-
-  saveDBNow();
-}
-
-window.addEventListener('pagehide', forceFlushStorage);
-window.addEventListener('beforeunload', forceFlushStorage);
-
-document.addEventListener('visibilitychange', () => {
-  if (document.visibilityState === 'hidden') {
-    forceFlushStorage();
-  }
-});
-
+  window.addEventListener('pagehide', forceFlushStorage);
+  window.addEventListener('beforeunload', forceFlushStorage);
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'hidden') forceFlushStorage();
+  });
 
   // Хеш пароля (SHA-256 с солью), чтобы пароль не лежал в базе открытым текстом
   function sha256(str){
@@ -11499,6 +11432,7 @@ document.getElementById('btn-audio-call')?.focus();
 }
 });
 })();
+
 </script>
 </body>
 </html>
