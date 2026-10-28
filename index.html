@@ -1970,7 +1970,153 @@
     .settings-footer .modal-note{margin:0;max-width:220px}
     .settings-footer .primary-btn{display:flex;align-items:center;gap:12px;padding:12px 16px;border-radius:11px;white-space:nowrap;box-shadow:0 5px 18px var(--primary-glow)}
     .settings-footer .primary-btn span{font-size:17px}
-    @media(max-width:560px){.settings-card{padding:20px 17px 16px;max-height:92vh}.settings-card .modal-head h2{font-size:22px}.settings-control-row{align-items:flex-start;flex-direction:column;gap:8px}.settings-control-row select{width:100%}.settings-footer{align-items:stretch;flex-direction:column}.settings-footer .modal-note{max-width:none}.settings-footer .primary-btn{justify-content:center;width:100%}}
+
+/* ===== VELTO: отдельные страницы настроек ===== */
+.settings-card {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.settings-card > .modal-head,
+.settings-card > .settings-tabs,
+.settings-card > .settings-footer {
+  flex-shrink: 0;
+}
+
+.settings-card > .settings-page {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  padding-right: 4px;
+}
+
+.settings-page.settings-subpage {
+  animation: settingsPageEnter .22s ease both;
+}
+
+.settings-page.settings-subpage .settings-section {
+  padding-top: 8px;
+}
+
+.settings-back-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  flex: 0 0 38px;
+  border: 1px solid var(--glass-border);
+  border-radius: 12px;
+  color: var(--text-main);
+  background: rgba(255,255,255,.04);
+  cursor: pointer;
+  transition: background .2s, transform .2s;
+}
+
+.settings-back-button:hover {
+  background: rgba(34,197,94,.14);
+}
+
+.settings-back-button:active {
+  transform: scale(.94);
+}
+
+.settings-page-heading {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.settings-page-heading h3 {
+  margin: 0;
+  font-size: 18px;
+  color: var(--text-main);
+}
+
+.settings-page-heading p {
+  margin-top: 4px;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.settings-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  width: 100%;
+  padding: 14px;
+  text-align: left;
+  color: var(--text-main);
+  background: rgba(255,255,255,.025);
+  border: 1px solid var(--glass-border);
+  border-radius: 14px;
+  cursor: pointer;
+  transition: background .2s, border-color .2s, transform .2s;
+}
+
+.settings-menu-item + .settings-menu-item {
+  margin-top: 9px;
+}
+
+.settings-menu-item:hover {
+  background: rgba(34,197,94,.08);
+  border-color: rgba(34,197,94,.3);
+}
+
+.settings-menu-item:active {
+  transform: scale(.99);
+}
+
+.settings-menu-item .settings-section-icon {
+  width: 40px;
+  height: 40px;
+}
+
+.settings-menu-item > span:last-child {
+  margin-left: auto;
+  color: var(--text-muted);
+}
+
+.settings-menu-item strong {
+  display: block;
+  font-size: 13px;
+}
+
+.settings-menu-item small {
+  display: block;
+  margin-top: 4px;
+  color: var(--text-muted);
+  font-size: 11px;
+}
+
+.settings-page[hidden],
+.settings-section[hidden],
+.settings-tabs[hidden],
+.settings-footer[hidden] {
+  display: none !important;
+}
+
+@keyframes settingsPageEnter {
+  from {
+    opacity: 0;
+    transform: translateX(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .settings-page.settings-subpage {
+    animation: none;
+  }
+}
+   @media(max-width:560px){.settings-card{padding:20px 17px 16px;max-height:92vh}.settings-card .modal-head h2{font-size:22px}.settings-control-row{align-items:flex-start;flex-direction:column;gap:8px}.settings-control-row select{width:100%}.settings-footer{align-items:stretch;flex-direction:column}.settings-footer .modal-note{max-width:none}.settings-footer .primary-btn{justify-content:center;width:100%}}
 
 
     /* ===== FIX: полноэкранный чат, ввод не уезжает вниз, пустое состояние без чата ===== */
@@ -3044,7 +3190,15 @@ body.theme-solar {
     transition: none !important;
   }
 }
+/* Velto: показываем только выбранную категорию */
+.settings-section[hidden],
+.settings-home[hidden] {
+  display: none !important;
+}
 
+.settings-section[data-settings-section] {
+  animation: settingsPageEnter .22s ease both;
+}
 
   </style>
 </head>
@@ -3704,10 +3858,15 @@ body.theme-solar {
   </div>
 </div>
 
+
 <div id="settings-modal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="settings-title">
   <div class="modal-card settings-card">
     <div class="modal-head">
-      <div><p class="settings-eyebrow">VELTO MESSENGER</p><h2 id="settings-title">Настройки</h2><p class="settings-subtitle">Настройте мессенджер под себя</p></div>
+      <div>
+        <p class="settings-eyebrow">VELTO MESSENGER</p>
+        <h2 id="settings-title">Настройки</h2>
+        <p class="settings-subtitle">Настройте мессенджер под себя</p>
+      </div>
       <button
               type="button"
               class="icon-btn"
@@ -3724,8 +3883,92 @@ body.theme-solar {
 
     <section class="settings-page" data-settings-page="general">
 
-      <!-- Профиль -->
-      <div class="settings-section">
+      <!-- Главное меню настроек -->
+      <div id="settings-home" class="settings-home">
+        <button type="button" class="settings-menu-item" data-open-settings="profile">
+          <span class="settings-section-icon">♙</span>
+          <span>
+            <strong>Профиль</strong>
+            <small>Никнейм, фото и информация о себе</small>
+          </span>
+          <span>›</span>
+        </button>
+
+        <button type="button" class="settings-menu-item" data-open-settings="chats">
+          <span class="settings-section-icon">☾</span>
+          <span>
+            <strong>Настройки чатов</strong>
+            <small>Тема, сообщения и оформление</small>
+          </span>
+          <span>›</span>
+        </button>
+
+        <button type="button" class="settings-menu-item" data-open-settings="notifications">
+          <span class="settings-section-icon">♧</span>
+          <span>
+            <strong>Уведомления</strong>
+            <small>Оповещения и звуки</small>
+          </span>
+          <span>›</span>
+        </button>
+
+        <button type="button" class="settings-menu-item" data-open-settings="privacy">
+          <span class="settings-section-icon">◈</span>
+          <span>
+            <strong>Конфиденциальность</strong>
+            <small>Статус и видимость информации</small>
+          </span>
+          <span>›</span>
+        </button>
+
+        <button type="button" class="settings-menu-item" data-open-settings="database">
+          <span class="settings-section-icon">▤</span>
+          <span>
+            <strong>Данные и память</strong>
+            <small>Резервная копия и данные</small>
+          </span>
+          <span>›</span>
+        </button>
+
+        <button type="button" class="settings-menu-item" data-open-settings="premium">
+          <span class="settings-section-icon">✓</span>
+          <span>
+            <strong>Velto Premium</strong>
+            <small>Эксклюзивные возможности</small>
+          </span>
+          <span>›</span>
+        </button>
+
+        <button type="button" class="settings-menu-item" data-open-settings="devices">
+          <span class="settings-section-icon">▣</span>
+          <span>
+            <strong>Устройства</strong>
+            <small>Подключённые устройства</small>
+          </span>
+          <span>›</span>
+        </button>
+
+        <button type="button" class="settings-menu-item" data-open-settings="support">
+          <span class="settings-section-icon">♡</span>
+          <span>
+            <strong>Поддержка</strong>
+            <small>Помощь и информация о Velto</small>
+          </span>
+          <span>›</span>
+        </button>
+
+        <button type="button" class="settings-menu-item" data-open-settings="account">
+          <span class="settings-section-icon">↪</span>
+          <span>
+            <strong>Аккаунт</strong>
+            <small>Выход и удаление профиля</small>
+          </span>
+          <span>›</span>
+        </button>
+      </div>
+
+      <!-- Страница: Профиль -->
+      <div class="settings-section" data-settings-section="profile" hidden>
         <div class="settings-section-title">
           <span class="settings-section-icon">♙</span>
           <div>
@@ -3758,8 +4001,8 @@ body.theme-solar {
         </div>
       </div>
 
-      <!-- Настройки чатов -->
-      <div class="settings-section">
+      <!-- Страница: Настройки чатов -->
+      <div class="settings-section" data-settings-section="chats" hidden>
         <div class="settings-section-title">
           <span class="settings-section-icon">☾</span>
           <div>
@@ -3841,8 +4084,8 @@ body.theme-solar {
         </label>
       </div>
 
-      <!-- Уведомления -->
-      <div class="settings-section">
+      <!-- Страница: Уведомления -->
+      <div class="settings-section" data-settings-section="notifications" hidden>
         <div class="settings-section-title">
           <span class="settings-section-icon">♧</span>
           <div>
@@ -3862,8 +4105,8 @@ body.theme-solar {
         </label>
       </div>
 
-      <!-- Конфиденциальность -->
-      <div class="settings-section">
+      <!-- Страница: Конфиденциальность -->
+      <div class="settings-section" data-settings-section="privacy" hidden>
         <div class="settings-section-title">
           <span class="settings-section-icon">◈</span>
           <div>
@@ -3927,13 +4170,13 @@ body.theme-solar {
         </div>
       </div>
 
-      <!-- База данных: сохранены существующие ID -->
-      <div class="settings-section">
+      <!-- Страница: Данные и память -->
+      <div class="settings-section" data-settings-section="database" hidden>
         <div class="settings-section-title">
-          <span class="settings-section-icon">🗄</span>
+          <span class="settings-section-icon">▤</span>
           <div>
-            <h3>База данных</h3>
-            <p>Сохранение аккаунта и вход</p>
+            <h3>Данные и память</h3>
+            <p>Сохранение аккаунта и резервные копии</p>
           </div>
         </div>
 
@@ -3957,17 +4200,18 @@ body.theme-solar {
         </div>
       </div>
 
-      <!-- Premium -->
-      <div class="settings-section" id="premium-section">
+      <!-- Страница: Premium -->
+      <div class="settings-section" id="premium-section" data-settings-section="premium" hidden>
         <div class="settings-section-title">
-          <span class="settings-section-icon">👑</span>
+          <span class="settings-section-icon">♛</span>
           <div>
             <h3>Velto Premium</h3>
             <p>Эксклюзивные возможности Velto</p>
           </div>
         </div>
+
         <div class="premium-development-notice">
-          <span class="premium-development-icon">👑</span>
+          <span class="premium-development-icon">✓</span>
           <div class="premium-development-text">
             <strong>Premium — в разработке</strong>
             <p>Мы готовим новые возможности, оформление и эксклюзивные функции.</p>
@@ -3976,8 +4220,8 @@ body.theme-solar {
         </div>
       </div>
 
-      <!-- Устройства -->
-      <div class="settings-section">
+      <!-- Страница: Устройства -->
+      <div class="settings-section" data-settings-section="devices" hidden>
         <div class="settings-section-title">
           <span class="settings-section-icon">▣</span>
           <div>
@@ -3988,8 +4232,8 @@ body.theme-solar {
         <p class="settings-hint">Управление устройствами — в разработке</p>
       </div>
 
-      <!-- Поддержка -->
-      <div class="settings-section">
+      <!-- Страница: Поддержка -->
+      <div class="settings-section" data-settings-section="support" hidden>
         <div class="settings-section-title">
           <span class="settings-section-icon">♡</span>
           <div>
@@ -3997,12 +4241,13 @@ body.theme-solar {
             <p>Помощь и информация о Velto</p>
           </div>
         </div>
+
         <button class="secondary-btn" type="button" id="settings-ask-question" style="width:100%">Задать вопрос · В разработке</button>
         <button class="secondary-btn" type="button" id="settings-privacy-policy" style="width:100%;margin-top:10px">Политика конфиденциальности · В разработке</button>
       </div>
 
-      <!-- Аккаунт: существующие ID не изменены -->
-      <div class="settings-section">
+      <!-- Страница: Аккаунт -->
+      <div class="settings-section" data-settings-section="account" hidden>
         <div class="settings-section-title">
           <span class="settings-section-icon">↪</span>
           <div>
@@ -4011,8 +4256,7 @@ body.theme-solar {
           </div>
         </div>
 
-        <button class="secondary-btn" id="logout-button" type="button"
-                style="width:100%;border-color:rgba(255,105,125,.35);color:#ff9ba9">
+        <button class="secondary-btn" id="logout-button" type="button" style="width:100%;border-color:rgba(255,105,125,.35);color:#ff9ba9">
           ↪ Выйти из аккаунта
         </button>
 
@@ -4023,27 +4267,9 @@ body.theme-solar {
           <p class="settings-hint" style="margin-top:5px">Безвозвратное удаление аккаунта и связанных с ним данных.</p>
         </div>
 
-        <button class="secondary-btn" id="delete-account-open" type="button"
-                style="width:100%;border-color:rgba(255,105,125,.45);color:#ff9ba9">
+        <button class="secondary-btn" id="delete-account-open" type="button" style="width:100%;border-color:rgba(255,105,125,.45);color:#ff9ba9">
           Удалить профиль
         </button>
-
-        <div style="height:1px;background:var(--glass-border);margin:16px 0"></div>
-
-        <div id="delete-account-modal" class="modal-backdrop hidden"
-             role="dialog" aria-modal="true" aria-labelledby="delete-account-title">
-          <div class="modal-card" style="max-width:420px;width:calc(100% - 32px);padding:24px">
-            <h3 id="delete-account-title">Удалить аккаунт?</h3>
-            <p style="color:var(--text-muted);line-height:1.5;margin:12px 0 20px">
-              Удаление аккаунта необратимо. Перед продолжением убедись,
-              что действительно хочешь удалить свой профиль Velto.
-            </p>
-            <div style="display:flex;gap:10px">
-              <button id="delete-account-cancel" class="secondary-btn" type="button" style="flex:1">Отмена</button>
-              <button id="delete-account-confirm" class="secondary-btn" type="button" style="flex:1;border-color:#ef4444;color:#ff6b6b">Удалить аккаунт</button>
-            </div>
-          </div>
-        </div>
       </div>
 
     </section>
@@ -4054,9 +4280,9 @@ body.theme-solar {
         Сохранить изменения <span>→</span>
       </button>
     </div>
-
   </div>
 </div>
+
 
 
 
@@ -4248,10 +4474,6 @@ body.theme-solar {
     </div>
   </div>
 </div>
-
-
-
-
 
 <!-- Жалоба -->
 <div id="report-modal" class="modal-backdrop hidden" role="dialog" aria-modal="true">
@@ -5820,106 +6042,65 @@ if (profileSettingsBtn) {
   });
 }
 
-// Разделы профиля, для которых пока нет отдельных экранов
+
+function scrollToSettingsSection(titleText) {
+  closeMyProfile();
+  openSettings();
+
+  const sections = [
+    ...document.querySelectorAll('#settings-modal .settings-section')
+  ];
+
+  const target = sections.find(section => {
+    const title = section.querySelector('h3');
+    return title && title.textContent.trim() === titleText;
+  });
+
+  if (target) {
+    setTimeout(() => {
+      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 320);
+  }
+}
+
+// Кнопки профиля: переход к соответствующим разделам настроек.
 document.querySelectorAll('[data-profile-section]').forEach(button => {
   button.addEventListener('click', () => {
     const section = button.dataset.profileSection;
 
-    if (section === 'privacy' || section === 'notifications') {
-      closeMyProfile();
-      openSettings();
+    const sectionTitles = {
+      privacy: 'Конфиденциальность',
+      notifications: 'Уведомления',
+      premium: 'Velto Premium',
+      devices: 'Устройства'
+    };
 
-      // Показываем настройки и прокручиваем к нужному разделу
-      const headings = [...document.querySelectorAll('#settings-modal .settings-section')];
-      const target = headings.find(el => {
-        const title = el.querySelector('h3');
-        if (!title) return false;
-
-        if (section === 'privacy') {
-          return title.textContent.trim() === 'Конфиденциальность';
-        }
-
-        return title.textContent.trim() === 'Уведомления';
-      });
-
-      if (target) {
-        setTimeout(() => {
-          target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }, 320);
-      }
-
-      return;
-    }
-
-    if (section === 'premium') {
-      closeMyProfile();
-      openSettings();
-
-      const premiumSection = document.getElementById('premium-section');
-      if (premiumSection) {
-        setTimeout(() => {
-          premiumSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }, 320);
-      }
-
-      return;
-    }
-
-    if (section === 'devices') {
-      closeMyProfile();
-      openSettings();
-
-      const sections = [...document.querySelectorAll('#settings-modal .settings-section')];
-      const target = sections.find(el => {
-        const title = el.querySelector('h3');
-        return title && title.textContent.trim() === 'Устройства';
-      });
-
-      if (target) {
-        setTimeout(() => {
-          target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }, 320);
-      }
-
-      return;
-    }
-
-    if (section === 'data') {
-      closeMyProfile();
-      openSettings();
-
-      const dbSection = [...document.querySelectorAll('#settings-modal .settings-section')]
-        .find(el => {
-          const title = el.querySelector('h3');
-          return title && title.textContent.trim() === 'База данных';
-        });
-
-      if (dbSection) {
-        setTimeout(() => {
-          dbSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }, 320);
-      }
-
-      return;
-    }
-
-    if (section === 'support') {
-      closeMyProfile();
-      openSettings();
-
-      const supportButton = document.getElementById('settings-ask-question');
-      if (supportButton) {
-        setTimeout(() => {
-          supportButton.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }, 320);
-      }
-    }
+    const title = sectionTitles[section];
+    if (title) scrollToSettingsSection(title);
   });
 });
 
+// Данные и память.
+const profileDataButton = document.getElementById('profile-data-btn');
+
+if (profileDataButton) {
+  profileDataButton.addEventListener('click', () => {
+    scrollToSettingsSection('База данных');
+  });
+}
+
+// Поддержка.
+const profileSupportButton = document.getElementById('profile-support-btn');
+
+if (profileSupportButton) {
+  profileSupportButton.addEventListener('click', () => {
+    scrollToSettingsSection('Поддержка');
+  });
+}
 
 
-  const profileShareButton = document.getElementById('profile-share-btn');
+
+   const profileShareButton = document.getElementById('profile-share-btn');
 
 if (profileShareButton && !profileShareButton.dataset.shareHandlerBound) {
   profileShareButton.dataset.shareHandlerBound = 'true';
@@ -6324,8 +6505,10 @@ if (profileShareButton && !profileShareButton.dataset.shareHandlerBound) {
     });
 
     document.querySelectorAll('[data-settings-page]').forEach(p => {
-      p.classList.toggle('hidden', p.dataset.settingsPage !== 'general');
-    });
+  const isGeneral = p.dataset.settingsPage === 'general';
+  p.classList.toggle('hidden', !isGeneral);
+  p.hidden = !isGeneral;
+});
 
     const st = db.settings || {};
 
@@ -6566,11 +6749,31 @@ if (profileShareButton && !profileShareButton.dataset.shareHandlerBound) {
 
   const closeSettingsButton = document.getElementById('close-settings');
 
-  if (closeSettingsButton) {
-    closeSettingsButton.addEventListener('click', () => {
-      settingsModal.classList.add('hidden');
-    });
-  }
+if (closeSettingsButton) {
+  closeSettingsButton.addEventListener('click', () => {
+    const currentPage = document.querySelector(
+      '#settings-modal [data-settings-page]:not(.hidden)'
+    );
+
+    // Если открыта внутренняя страница — возвращаемся к общему меню.
+    if (currentPage && currentPage.dataset.settingsPage !== 'general') {
+      document.querySelectorAll('#settings-modal [data-settings-page]').forEach(page => {
+        const isGeneral = page.dataset.settingsPage === 'general';
+        page.classList.toggle('hidden', !isGeneral);
+        page.hidden = !isGeneral;
+      });
+
+      document.querySelectorAll('#settings-modal [data-settings-tab]').forEach(tab => {
+        tab.classList.toggle('active', tab.dataset.settingsTab === 'general');
+      });
+
+      return;
+    }
+
+    // Если открыто главное меню — закрываем настройки.
+    settingsModal.classList.add('hidden');
+  });
+}
 
   document.querySelectorAll('[data-settings-tab]').forEach(b => {
     b.addEventListener('click', () => {
