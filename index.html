@@ -2715,6 +2715,7 @@ body.theme-solar {
 
 
 
+
 /* ===== VELTO — ПОЛНОЭКРАННЫЙ ПРОФИЛЬ ===== */
 
 .profile-page-card {
@@ -2734,8 +2735,6 @@ body.theme-solar {
   background: #080b09;
   color: #f1fff5;
   box-sizing: border-box;
-
-  /* Скрываем полосу прокрутки, не отключая прокрутку */
   scrollbar-width: none;
   -ms-overflow-style: none;
 }
@@ -2768,6 +2767,17 @@ body.theme-solar {
   box-shadow: none;
 }
 
+/* Заголовки групп меню */
+.profile-page-card .profile-menu-section-title {
+  width: 100%;
+  padding: 18px 18px 2px;
+  color: #8b968f;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.2px;
+  line-height: 1.4;
+}
+
 /* Кнопки меню */
 .profile-page-card .profile-menu-item {
   display: flex;
@@ -2785,8 +2795,10 @@ body.theme-solar {
   font-weight: 600;
   text-align: left;
   cursor: pointer;
-  transition: background 0.2s, border-color 0.2s,
-              transform 0.2s;
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.2s ease;
   -webkit-tap-highlight-color: transparent;
 }
 
@@ -2796,7 +2808,7 @@ body.theme-solar {
 }
 
 .profile-page-card .profile-menu-item:active {
-  transform: scale(0.98);
+  transform: scale(0.985);
 }
 
 /* Иконки */
@@ -2912,6 +2924,10 @@ body.theme-solar {
     padding: 12px 14px;
   }
 
+  .profile-page-card .profile-menu-section-title {
+    padding: 16px 14px 2px;
+  }
+
   .profile-page-card .profile-menu-item {
     min-height: 60px;
     padding: 12px 14px;
@@ -2923,42 +2939,40 @@ body.theme-solar {
   }
 }
 
-/* VELTO — убираем границы модального окна профиля */
+/* Полноэкранное модальное окно профиля */
 #profile-modal {
   position: fixed;
   inset: 0;
+  z-index: 1000;
   width: 100%;
   height: 100%;
   height: 100dvh;
   max-width: none;
   margin: 0;
   padding: 0;
-
   display: flex;
   align-items: stretch;
   justify-content: stretch;
-
   background: #080b09 !important;
   border: none !important;
   border-radius: 0 !important;
   box-shadow: none !important;
-
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
-
   overflow: hidden;
+  opacity: 1;
+  transition: opacity 220ms ease;
 }
 
-/* Не показываем скрытое окно */
+/* Скрытое окно */
 #profile-modal.hidden {
   display: none !important;
 }
 
-/* Растягиваем сам профиль на весь экран */
+/* Внутренняя карточка профиля */
 #profile-modal .profile-modal-card {
   display: block;
   position: relative;
-
   flex: 1 1 auto;
   width: 100%;
   min-width: 0;
@@ -2966,27 +2980,27 @@ body.theme-solar {
   height: 100%;
   min-height: 0;
   max-height: none;
-
   margin: 0;
   padding: 0;
-
   border: none !important;
   border-radius: 0 !important;
   outline: none !important;
   box-shadow: none !important;
-
   background: #080b09 !important;
   filter: none !important;
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
-
   overflow-x: hidden;
   overflow-y: auto;
   overscroll-behavior-y: contain;
   -webkit-overflow-scrolling: touch;
-
   scrollbar-width: none;
   -ms-overflow-style: none;
+  opacity: 1;
+  transform: translateY(0);
+  transition:
+    opacity 240ms ease,
+    transform 280ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 #profile-modal .profile-modal-card::-webkit-scrollbar {
@@ -3004,12 +3018,33 @@ body.theme-solar {
   box-sizing: border-box;
 }
 
-/* Сохраняем прокрутку и отступ снизу на телефонах */
+/* Плавное закрытие */
+#profile-modal.profile-closing {
+  opacity: 0;
+  pointer-events: none;
+}
+
+#profile-modal.profile-closing .profile-modal-card {
+  opacity: 0;
+  transform: translateY(12px);
+}
+
+/* Безопасная область экрана */
 @media (max-width: 600px) {
   #profile-modal .profile-modal-card {
     padding-bottom: env(safe-area-inset-bottom);
   }
 }
+
+/* Учитываем системное отключение анимации */
+@media (prefers-reduced-motion: reduce) {
+  #profile-modal,
+  #profile-modal .profile-modal-card,
+  .profile-page-card .profile-menu-item {
+    transition: none !important;
+  }
+}
+
 
   </style>
 </head>
@@ -4057,6 +4092,8 @@ body.theme-solar {
 
       <div class="profile-menu">
 
+
+        <div class="profile-menu-section-title">АККАУНТ</div>
         <button type="button" class="profile-menu-item" id="profile-edit-btn">
   <span class="profile-menu-icon" aria-hidden="true">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
@@ -4071,6 +4108,7 @@ body.theme-solar {
           <span class="profile-menu-arrow">›</span>
         </button>
 
+        <div class="profile-menu-section-title">НАСТРОЙКИ</div>
         <button type="button" class="profile-menu-item" id="profile-settings-btn">
   <span class="profile-menu-icon" aria-hidden="true">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
@@ -4115,6 +4153,7 @@ body.theme-solar {
           <span class="profile-menu-arrow">›</span>
         </button>
 
+        <div class="profile-menu-section-title">ДАННЫЕ И ПОДПИСКА</div>
         <button type="button" class="profile-menu-item" id="profile-data-btn">
   <span class="profile-menu-icon" aria-hidden="true">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
@@ -4157,6 +4196,7 @@ body.theme-solar {
           <span class="profile-menu-arrow">›</span>
         </button>
 
+        <div class="profile-menu-section-title">ПОМОЩЬ</div>
         <button type="button" class="profile-menu-item" id="profile-support-btn">
   <span class="profile-menu-icon" aria-hidden="true">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
@@ -4186,6 +4226,7 @@ body.theme-solar {
           <span class="profile-menu-arrow">›</span>
         </button>
 
+        <div class="profile-menu-section-title">АККАУНТ И СЕАНС</div>
         <button type="button" class="profile-menu-item profile-menu-danger" id="profile-logout-btn">
   <span class="profile-menu-icon" aria-hidden="true">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
@@ -4201,11 +4242,7 @@ body.theme-solar {
           <span class="profile-menu-arrow">›</span>
         </button>
 
-      </div>
 
-      <div class="profile-email-footer">
-        <span class="profile-info-label">Email аккаунта</span>
-        <span class="profile-info-value muted" id="profile-email-text">—</span>
       </div>
 
     </div>
@@ -5595,23 +5632,37 @@ return H.map(x=>(x>>>0).toString(16).padStart(8,'0')).join('');
     try { applyPremiumChrome(); } catch (_) {}
   }
 
-  // ===== ЛИЧНЫЙ ПРОФИЛЬ (Telegram / Max style) =====
+    // ===== ЛИЧНЫЙ ПРОФИЛЬ (Telegram / Max style) =====
   const profileModal = document.getElementById('profile-modal');
+
   function openMyProfile() {
+    if (!profileModal) return;
+
     const name = db.profile?.name || userName || 'Пользователь';
     const avatar = userAvatarUrl || db.profile?.avatar || defaultAvatar(name);
     const bio = (db.profile && db.profile.bio) || '';
-    const email = (db.profile && db.profile.email) || (currentAccount() && currentAccount().email) || '—';
+    const account = typeof currentAccount === 'function' ? currentAccount() : null;
+    const email = (db.profile && db.profile.email) || (account && account.email) || '—';
     const online = !(db.settings && db.settings.online === false);
     const prem = isPremium(name);
+
     const hero = document.getElementById('profile-hero');
+    const avatarEl = document.getElementById('profile-hero-avatar');
     const avWrap = document.getElementById('profile-avatar-wrap');
     const crown = document.getElementById('profile-premium-crown');
-    document.getElementById('profile-hero-avatar').src = avatar;
-    // кастомный баннер Premium
+    const nameEl = document.getElementById('profile-hero-name');
+    const statusEl = document.getElementById('profile-hero-status');
+    const bioEl = document.getElementById('profile-bio-text');
+    const emailEl = document.getElementById('profile-email-text');
+    const nickEl = document.getElementById('profile-nick-text');
+
+    if (avatarEl) avatarEl.src = avatar;
+
+    // Баннер Premium
     if (hero) {
       let ban = hero.querySelector('.profile-banner-img');
       const bannerUrl = (db.profile && db.profile.banner) || '';
+
       if (prem && bannerUrl) {
         if (!ban) {
           ban = document.createElement('img');
@@ -5619,6 +5670,7 @@ return H.map(x=>(x>>>0).toString(16).padStart(8,'0')).join('');
           ban.alt = '';
           hero.insertBefore(ban, hero.firstChild);
         }
+
         ban.src = bannerUrl;
         ban.style.display = '';
         hero.classList.add('has-custom-banner');
@@ -5626,58 +5678,121 @@ return H.map(x=>(x>>>0).toString(16).padStart(8,'0')).join('');
         if (ban) ban.style.display = 'none';
         hero.classList.remove('has-custom-banner');
       }
+
       hero.classList.toggle('premium-banner', prem && !bannerUrl);
     }
+
     if (avWrap) {
       const wantFrame = prem && !(db.settings && db.settings.premiumFrame === false);
       avWrap.classList.toggle('premium-frame', wantFrame);
     }
-    if (crown) crown.classList.toggle('hidden', !prem);
-    const nameEl = document.getElementById('profile-hero-name');
-    nameEl.textContent = '';
-    nameEl.classList.toggle('premium-name', prem && !(db.settings && db.settings.premiumAnimName === false));
-    const nameSpan = document.createElement('span'); nameSpan.textContent = name; nameEl.appendChild(nameSpan);
-    if (prem) nameEl.insertAdjacentHTML('beforeend', '<span class="tag-premium">👑 PREMIUM</span>');
-    if (db.isOwner) nameEl.insertAdjacentHTML('beforeend', '<span class="tag-owner">OWNER</span>');
-    else if (db.isAdmin) nameEl.insertAdjacentHTML('beforeend', '<span class="tag-admin">ADMIN</span>');
-    const st = document.getElementById('profile-hero-status');
-    st.textContent = prem ? (online ? '✨ Premium · в сети' : 'Premium · не в сети') : (online ? 'в сети' : 'не в сети');
-    st.classList.toggle('offline', !online);
-    document.getElementById('profile-bio-text').textContent =
-  bio || 'Расскажи немного о себе…';
-    document.getElementById('profile-email-text').textContent = email;
-    document.getElementById('profile-nick-text').textContent = '@' + name.replace(/\s+/g, '_').toLowerCase();
-    try { renderProfileCollection(); } catch (_) {}
+
+    if (crown) {
+      crown.classList.toggle('hidden', !prem);
+    }
+
+    if (nameEl) {
+      nameEl.textContent = '';
+
+      nameEl.classList.toggle(
+        'premium-name',
+        prem && !(db.settings && db.settings.premiumAnimName === false)
+      );
+
+      const nameSpan = document.createElement('span');
+      nameSpan.textContent = name;
+      nameEl.appendChild(nameSpan);
+
+      if (prem) {
+        const premiumTag = document.createElement('span');
+        premiumTag.className = 'tag-premium';
+        premiumTag.textContent = '👑 PREMIUM';
+        nameEl.appendChild(premiumTag);
+      }
+
+      if (db.isOwner) {
+        const ownerTag = document.createElement('span');
+        ownerTag.className = 'tag-owner';
+        ownerTag.textContent = 'OWNER';
+        nameEl.appendChild(ownerTag);
+      } else if (db.isAdmin) {
+        const adminTag = document.createElement('span');
+        adminTag.className = 'tag-admin';
+        adminTag.textContent = 'ADMIN';
+        nameEl.appendChild(adminTag);
+      }
+    }
+
+    if (statusEl) {
+      statusEl.textContent = prem
+        ? (online ? '✨ Premium · в сети' : 'Premium · не в сети')
+        : (online ? 'в сети' : 'не в сети');
+
+      statusEl.classList.toggle('offline', !online);
+    }
+
+    if (bioEl) {
+      bioEl.textContent = bio || 'Расскажи немного о себе…';
+    }
+
+    if (emailEl) {
+      emailEl.textContent = email;
+    }
+
+    if (nickEl) {
+      nickEl.textContent = '@' + name.replace(/\s+/g, '_').toLowerCase();
+    }
+
+    try {
+      renderProfileCollection();
+    } catch (error) {
+      console.error('Ошибка отображения коллекции профиля:', error);
+    }
+
+    // Сбрасываем состояние закрытия перед открытием
+    profileModal.classList.remove('profile-closing');
     profileModal.classList.remove('hidden');
   }
+
   function closeMyProfile() {
-  if (profileModal) profileModal.classList.add('hidden');
+    if (!profileModal || profileModal.classList.contains('hidden')) return;
+    if (profileModal.classList.contains('profile-closing')) return;
 
-  const app = document.getElementById('app-screen');
-  const nav = document.getElementById('bottom-nav');
+    profileModal.classList.add('profile-closing');
 
-  // Возвращаем пользователя в приложение, если он авторизован
-  if (app && userName) {
-    app.classList.remove('hidden');
+    setTimeout(() => {
+      profileModal.classList.add('hidden');
+      profileModal.classList.remove('profile-closing');
 
-    const activeTab = app.dataset.activeTab || 'chats';
+      const app = document.getElementById('app-screen');
+      const nav = document.getElementById('bottom-nav');
 
-    if (nav) {
-      nav.querySelectorAll('[data-tab]').forEach(button => {
-        const active = button.dataset.tab === activeTab;
-        button.classList.toggle('active', active);
+      if (app && userName) {
+        app.classList.remove('hidden');
 
-        if (active) button.setAttribute('aria-current', 'page');
-        else button.removeAttribute('aria-current');
-      });
-    }
+        const activeTab = app.dataset.activeTab || 'chats';
 
-    if (activeTab === 'chats') {
-      document.getElementById('sidebar')?.classList.remove('hidden');
-      document.querySelector('.chat-area')?.classList.remove('hidden');
-    }
+        if (nav) {
+          nav.querySelectorAll('[data-tab]').forEach(button => {
+            const active = button.dataset.tab === activeTab;
+
+            button.classList.toggle('active', active);
+
+            if (active) {
+              button.setAttribute('aria-current', 'page');
+            } else {
+              button.removeAttribute('aria-current');
+            }
+          });
+        }
+
+        if (activeTab === 'chats') {
+          document.getElementById('sidebar')?.classList.remove('hidden');
+          document.querySelector('.chat-area')?.classList.remove('hidden');
+        }
+      }
+    }, 280);
   }
-}
   document.getElementById('open-my-profile').addEventListener('click', (e) => {
     if (e.target.closest('#open-settings') || e.target.closest('#open-create-group') || e.target.closest('#open-create-channel')) return;
     openMyProfile();
@@ -5687,153 +5802,924 @@ return H.map(x=>(x>>>0).toString(16).padStart(8,'0')).join('');
   });
   document.getElementById('close-profile').addEventListener('click', closeMyProfile);
   profileModal.addEventListener('click', e => { if (e.target === profileModal) closeMyProfile(); });
-  document.getElementById('profile-edit-btn').addEventListener('click', () => { closeMyProfile(); openSettings(); });
-  document.getElementById('profile-share-btn').addEventListener('click', () => {
-    const nick = (db.profile?.name || userName || 'user').replace(/\s+/g, '_');
-    const text = 'Мой профиль в Velto Messenger: @' + nick;
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(text).then(() => alert('Ссылка на профиль скопирована:\n' + text)).catch(() => alert(text));
-    } else alert(text);
+
+const profileEditBtn = document.getElementById('profile-edit-btn');
+if (profileEditBtn) {
+  profileEditBtn.addEventListener('click', () => {
+    closeMyProfile();
+    openSettings();
   });
+}
+
+// Кнопка «Настройки» в профиле
+const profileSettingsBtn = document.getElementById('profile-settings-btn');
+if (profileSettingsBtn) {
+  profileSettingsBtn.addEventListener('click', () => {
+    closeMyProfile();
+    openSettings();
+  });
+}
+
+// Разделы профиля, для которых пока нет отдельных экранов
+document.querySelectorAll('[data-profile-section]').forEach(button => {
+  button.addEventListener('click', () => {
+    const section = button.dataset.profileSection;
+
+    if (section === 'privacy' || section === 'notifications') {
+      closeMyProfile();
+      openSettings();
+
+      // Показываем настройки и прокручиваем к нужному разделу
+      const headings = [...document.querySelectorAll('#settings-modal .settings-section')];
+      const target = headings.find(el => {
+        const title = el.querySelector('h3');
+        if (!title) return false;
+
+        if (section === 'privacy') {
+          return title.textContent.trim() === 'Конфиденциальность';
+        }
+
+        return title.textContent.trim() === 'Уведомления';
+      });
+
+      if (target) {
+        setTimeout(() => {
+          target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 320);
+      }
+
+      return;
+    }
+
+    if (section === 'premium') {
+      closeMyProfile();
+      openSettings();
+
+      const premiumSection = document.getElementById('premium-section');
+      if (premiumSection) {
+        setTimeout(() => {
+          premiumSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 320);
+      }
+
+      return;
+    }
+
+    if (section === 'devices') {
+      closeMyProfile();
+      openSettings();
+
+      const sections = [...document.querySelectorAll('#settings-modal .settings-section')];
+      const target = sections.find(el => {
+        const title = el.querySelector('h3');
+        return title && title.textContent.trim() === 'Устройства';
+      });
+
+      if (target) {
+        setTimeout(() => {
+          target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 320);
+      }
+
+      return;
+    }
+
+    if (section === 'data') {
+      closeMyProfile();
+      openSettings();
+
+      const dbSection = [...document.querySelectorAll('#settings-modal .settings-section')]
+        .find(el => {
+          const title = el.querySelector('h3');
+          return title && title.textContent.trim() === 'База данных';
+        });
+
+      if (dbSection) {
+        setTimeout(() => {
+          dbSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 320);
+      }
+
+      return;
+    }
+
+    if (section === 'support') {
+      closeMyProfile();
+      openSettings();
+
+      const supportButton = document.getElementById('settings-ask-question');
+      if (supportButton) {
+        setTimeout(() => {
+          supportButton.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }, 320);
+      }
+    }
+  });
+});
+
+
+
+  const profileShareButton = document.getElementById('profile-share-btn');
+
+if (profileShareButton && !profileShareButton.dataset.shareHandlerBound) {
+  profileShareButton.dataset.shareHandlerBound = 'true';
+
+  profileShareButton.addEventListener('click', () => {
+    const nick = String(db.profile?.name || userName || 'user')
+      .trim()
+      .replace(/\s+/g, '_');
+
+    const profileUrl = 'https://dimkar22.github.io/VeltoAPP/';
+    const inviteText =
+      'Присоединяйся к Velto — общайся, делись моментами и оставайся на связи!';
+
+    document.getElementById('velto-share-modal')?.remove();
+
+    const modal = document.createElement('div');
+    modal.id = 'velto-share-modal';
+    Object.assign(modal.style, {
+      position: 'fixed',
+      inset: '0',
+      zIndex: '999999',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: '16px',
+      overflowY: 'auto',
+      background: 'rgba(0,0,0,0.82)'
+    });
+
+    const card = document.createElement('div');
+    Object.assign(card.style, {
+      position: 'relative',
+      width: '100%',
+      maxWidth: '350px',
+      boxSizing: 'border-box',
+      padding: '28px 20px 22px',
+      borderRadius: '26px',
+      textAlign: 'center',
+      color: '#fff',
+      fontFamily: 'Arial, sans-serif',
+      background: 'linear-gradient(145deg,#10182f,#292052,#123e3b)',
+      boxShadow: '0 20px 60px rgba(0,0,0,0.4)'
+    });
+
+    const closeButton = document.createElement('button');
+    closeButton.type = 'button';
+    closeButton.textContent = '×';
+    closeButton.setAttribute('aria-label', 'Закрыть');
+    Object.assign(closeButton.style, {
+      position: 'absolute',
+      top: '8px',
+      right: '12px',
+      border: '0',
+      background: 'transparent',
+      color: '#fff',
+      fontSize: '30px',
+      cursor: 'pointer'
+    });
+
+    closeButton.addEventListener('click', () => modal.remove());
+
+    const logo = document.createElement('div');
+    logo.textContent = 'Velto';
+    Object.assign(logo.style, {
+      fontSize: '30px',
+      fontWeight: '800',
+      marginBottom: '16px',
+      color: '#65e6a0'
+    });
+
+    const username = document.createElement('div');
+    username.textContent = '@' + nick;
+    Object.assign(username.style, {
+      fontSize: '21px',
+      fontWeight: '700',
+      margin: '12px 0'
+    });
+
+    const message = document.createElement('div');
+    message.textContent = inviteText;
+    Object.assign(message.style, {
+      fontSize: '14px',
+      lineHeight: '1.5',
+      color: '#e0e5f5',
+      marginBottom: '18px'
+    });
+
+    const qr = document.createElement('img');
+    qr.alt = 'QR-код для перехода на Velto';
+    qr.crossOrigin = 'anonymous';
+    qr.src =
+      'https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=' +
+      encodeURIComponent(profileUrl);
+
+    Object.assign(qr.style, {
+      display: 'block',
+      width: '170px',
+      height: '170px',
+      boxSizing: 'border-box',
+      padding: '7px',
+      margin: '0 auto',
+      borderRadius: '14px',
+      background: '#fff'
+    });
+
+    const link = document.createElement('div');
+    link.textContent = profileUrl;
+    Object.assign(link.style, {
+      fontSize: '11px',
+      overflowWrap: 'anywhere',
+      color: '#b9f7d6',
+      marginTop: '12px'
+    });
+
+    const status = document.createElement('div');
+    status.setAttribute('role', 'status');
+    Object.assign(status.style, {
+      fontSize: '12px',
+      color: '#b9f7d6',
+      marginTop: '10px',
+      minHeight: '16px'
+    });
+
+    const buttons = document.createElement('div');
+    Object.assign(buttons.style, {
+      display: 'grid',
+      gridTemplateColumns: '1fr 1fr',
+      gap: '9px',
+      marginTop: '16px'
+    });
+
+    function addButton(label, color, handler) {
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.textContent = label;
+
+      Object.assign(button.style, {
+        border: '0',
+        borderRadius: '12px',
+        padding: '12px 7px',
+        color: '#fff',
+        background: color,
+        fontWeight: '700',
+        cursor: 'pointer'
+      });
+
+      button.addEventListener('click', handler);
+      buttons.appendChild(button);
+    }
+
+    function makeProfilePng() {
+      return new Promise((resolve, reject) => {
+        if (!qr.complete || !qr.naturalWidth) {
+          reject(new Error('QR-код ещё не загружен'));
+          return;
+        }
+
+        const canvas = document.createElement('canvas');
+        canvas.width = 900;
+        canvas.height = 1100;
+
+        const ctx = canvas.getContext('2d');
+
+        if (!ctx) {
+          reject(new Error('Canvas недоступен'));
+          return;
+        }
+
+        const gradient = ctx.createLinearGradient(0, 0, 900, 1100);
+        gradient.addColorStop(0, '#10182f');
+        gradient.addColorStop(0.55, '#292052');
+        gradient.addColorStop(1, '#123e3b');
+
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        ctx.textAlign = 'center';
+        ctx.fillStyle = '#65e6a0';
+        ctx.font = 'bold 76px Arial';
+        ctx.fillText('Velto', 450, 120);
+
+        ctx.fillStyle = '#ffffff';
+        ctx.font = 'bold 43px Arial';
+        ctx.fillText('@' + nick, 450, 205);
+
+        ctx.fillStyle = '#e0e5f5';
+        ctx.font = '28px Arial';
+
+        const words = inviteText.split(/\s+/);
+        const lines = [];
+        let line = '';
+
+        for (const word of words) {
+          const candidate = line ? line + ' ' + word : word;
+
+          if (ctx.measureText(candidate).width > 760 && line) {
+            lines.push(line);
+            line = word;
+          } else {
+            line = candidate;
+          }
+        }
+
+        if (line) lines.push(line);
+
+        lines.forEach((text, index) => {
+          ctx.fillText(text, 450, 280 + index * 42);
+        });
+
+        const qrSize = 390;
+        const qrX = (canvas.width - qrSize) / 2;
+        const qrY = 470;
+
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(qrX - 15, qrY - 15, qrSize + 30, qrSize + 30);
+        ctx.drawImage(qr, qrX, qrY, qrSize, qrSize);
+
+        ctx.fillStyle = '#b9f7d6';
+        ctx.font = '24px Arial';
+        ctx.fillText('Открой камеру и отсканируй QR-код', 450, 950);
+
+        ctx.font = '22px Arial';
+        ctx.fillText('dimkar22.github.io/VeltoAPP/', 450, 1000);
+
+        canvas.toBlob(blob => {
+          if (blob) {
+            resolve(blob);
+          } else {
+            reject(new Error('Не удалось создать PNG'));
+          }
+        }, 'image/png');
+      });
+    }
+
+    addButton('Поделиться', '#20a86b', async () => {
+      const shareMessage = inviteText + '\n@' + nick + '\n' + profileUrl;
+
+      try {
+        status.textContent = 'Подготавливаем изображение…';
+
+        const pngBlob = await makeProfilePng();
+        const imageFile = new File(
+          [pngBlob],
+          'velto-profile.png',
+          { type: 'image/png' }
+        );
+
+        if (
+          window.VeltoAndroid &&
+          typeof window.VeltoAndroid.shareProfileImage === 'function'
+        ) {
+          const reader = new FileReader();
+
+          reader.onload = () => {
+            try {
+              window.VeltoAndroid.shareProfileImage(
+                reader.result,
+                shareMessage
+              );
+              status.textContent = '';
+            } catch (_) {
+              status.textContent = 'Не удалось открыть меню отправки.';
+            }
+          };
+
+          reader.onerror = () => {
+            status.textContent = 'Не удалось подготовить изображение.';
+          };
+
+          reader.readAsDataURL(imageFile);
+          return;
+        }
+
+        if (
+          navigator.share &&
+          navigator.canShare &&
+          navigator.canShare({ files: [imageFile] })
+        ) {
+          await navigator.share({
+            title: 'Мой профиль в Velto',
+            text: shareMessage,
+            files: [imageFile]
+          });
+
+          status.textContent = '';
+          return;
+        }
+
+        status.textContent =
+          'Отправка изображения доступна в Android-приложении Velto.';
+      } catch (error) {
+        if (error.name !== 'AbortError') {
+          status.textContent = 'Не удалось подготовить отправку.';
+          console.error('Velto share error:', error);
+        }
+      }
+    });
+
+    addButton('Скопировать ссылку', '#343b53', async () => {
+      try {
+        if (
+          window.VeltoAndroid &&
+          typeof window.VeltoAndroid.copyText === 'function'
+        ) {
+          window.VeltoAndroid.copyText(profileUrl);
+          status.textContent = 'Ссылка скопирована.';
+          return;
+        }
+
+        if (navigator.clipboard?.writeText) {
+          await navigator.clipboard.writeText(profileUrl);
+          status.textContent = 'Ссылка скопирована.';
+          return;
+        }
+
+        const textarea = document.createElement('textarea');
+        textarea.value = profileUrl;
+        textarea.setAttribute('readonly', '');
+        Object.assign(textarea.style, {
+          position: 'fixed',
+          opacity: '0',
+          pointerEvents: 'none'
+        });
+
+        document.body.appendChild(textarea);
+        textarea.select();
+
+        const copied = document.execCommand('copy');
+        textarea.remove();
+
+        status.textContent = copied
+          ? 'Ссылка скопирована.'
+          : 'Не удалось скопировать ссылку.';
+      } catch (error) {
+        status.textContent = 'Не удалось скопировать ссылку.';
+        console.error('Velto copy error:', error);
+      }
+    });
+
+    card.append(closeButton, logo, username, message, qr, link, status, buttons);
+    modal.appendChild(card);
+
+    modal.addEventListener('click', event => {
+      if (event.target === modal) modal.remove();
+    });
+
+    document.body.appendChild(modal);
+
+    qr.onerror = () => {
+      status.textContent = 'QR-код не загрузился. Проверь интернет.';
+    };
+  });
+}
+
 
   document.addEventListener('keydown', e => {
     if (e.key === 'Escape') closeMyProfile();
   });
-  function isVerified(name){return Array.isArray(db.checkmarks) && db.checkmarks.some(n=>String(n).trim().toLocaleLowerCase()===String(name).trim().toLocaleLowerCase());}
-  function appendVerifiedBadge(parent){const badge=document.createElement('span');badge.className='verified-badge';badge.textContent='✓';badge.title='Подтверждённый аккаунт';badge.setAttribute('aria-label','Подтверждённый аккаунт');parent.appendChild(badge);}
-  function renderContactName(parent,name,verified){parent.textContent='';const label=document.createElement('span');label.className='verified-name';label.textContent=name;parent.appendChild(label);if(verified)appendVerifiedBadge(parent);}
+
+  function isVerified(name) {
+    return Array.isArray(db.checkmarks) &&
+      db.checkmarks.some(n =>
+        String(n).trim().toLocaleLowerCase() ===
+        String(name).trim().toLocaleLowerCase()
+      );
+  }
+
+  function appendVerifiedBadge(parent) {
+    const badge = document.createElement('span');
+    badge.className = 'verified-badge';
+    badge.textContent = '✓';
+    badge.title = 'Подтверждённый аккаунт';
+    badge.setAttribute('aria-label', 'Подтверждённый аккаунт');
+    parent.appendChild(badge);
+  }
+
+  function renderContactName(parent, name, verified) {
+    parent.textContent = '';
+    const label = document.createElement('span');
+    label.className = 'verified-name';
+    label.textContent = name;
+    parent.appendChild(label);
+
+    if (verified) appendVerifiedBadge(parent);
+  }
+
   if (db.profile && db.profile.isAdmin === true) db.isAdmin = true;
   if (db.profile && db.profile.isOwner === true) db.isOwner = true;
-  function openSettings(){ settingsNickname.value = userName || ''; settingsTheme.value = currentTheme; pendingAvatarData=''; settingsAvatar.value=''; settingsAvatarPreview.style.display='none'; const bioEl=document.getElementById('settings-bio'); if(bioEl) bioEl.value=(db.profile&&db.profile.bio)||''; document.querySelectorAll('[data-settings-tab]').forEach(b=>b.classList.toggle('active',b.dataset.settingsTab==='general')); document.querySelectorAll('[data-settings-page]').forEach(p=>p.classList.toggle('hidden',p.dataset.settingsPage!=='general')); const st=db.settings||{}; document.getElementById('setting-notifications').checked=st.notifications===true; document.getElementById('setting-online').checked=st.online!==false; document.getElementById('setting-read-receipts').checked=st.readReceipts!==false; document.getElementById('setting-sounds').checked=st.sounds!==false; document.getElementById('setting-font-size').value=st.fontSize||'medium'; document.getElementById('setting-mic-access').checked=st.micAccess!=='denied';
-    const bs=document.getElementById('setting-bubble-style'); if(bs) bs.value=st.bubbleStyle||'rounded';
-    const sc=document.getElementById('setting-compact'); if(sc) sc.checked=!!st.compact;
-    const ma=document.getElementById('setting-msg-anim'); if(ma) ma.checked=st.msgAnim!==false;
-    const es=document.getElementById('setting-enter-send'); if(es) es.checked=st.enterSend!==false;
-    const stt=document.getElementById('setting-status-text'); if(stt) stt.value=st.statusText||'';
-    const ty=document.getElementById('setting-show-typing'); if(ty) ty.checked=st.showTyping!==false;
-    try { refreshPremiumSettingsUi(); } catch (_) {}
-    settingsModal.classList.remove('hidden'); }
-  document.getElementById('open-settings').addEventListener('click', (e)=>{ e.stopPropagation(); openSettings(); });
-  document.addEventListener('click', (e) => {
+
+  function openSettings() {
+    settingsNickname.value = userName || '';
+    settingsTheme.value = currentTheme;
+    pendingAvatarData = '';
+    settingsAvatar.value = '';
+    settingsAvatarPreview.style.display = 'none';
+
+    const bioEl = document.getElementById('settings-bio');
+    if (bioEl) bioEl.value = (db.profile && db.profile.bio) || '';
+
+    document.querySelectorAll('[data-settings-tab]').forEach(b => {
+      b.classList.toggle('active', b.dataset.settingsTab === 'general');
+    });
+
+    document.querySelectorAll('[data-settings-page]').forEach(p => {
+      p.classList.toggle('hidden', p.dataset.settingsPage !== 'general');
+    });
+
+    const st = db.settings || {};
+
+    document.getElementById('setting-notifications').checked = st.notifications === true;
+    document.getElementById('setting-online').checked = st.online !== false;
+    document.getElementById('setting-read-receipts').checked = st.readReceipts !== false;
+    document.getElementById('setting-sounds').checked = st.sounds !== false;
+    document.getElementById('setting-font-size').value = st.fontSize || 'medium';
+    document.getElementById('setting-mic-access').checked = st.micAccess !== 'denied';
+
+    const bs = document.getElementById('setting-bubble-style');
+    if (bs) bs.value = st.bubbleStyle || 'rounded';
+
+    const sc = document.getElementById('setting-compact');
+    if (sc) sc.checked = !!st.compact;
+
+    const ma = document.getElementById('setting-msg-anim');
+    if (ma) ma.checked = st.msgAnim !== false;
+
+    const es = document.getElementById('setting-enter-send');
+    if (es) es.checked = st.enterSend !== false;
+
+    const stt = document.getElementById('setting-status-text');
+    if (stt) stt.value = st.statusText || '';
+
+    const ty = document.getElementById('setting-show-typing');
+    if (ty) ty.checked = st.showTyping !== false;
+
+    try {
+      refreshPremiumSettingsUi();
+    } catch (_) {}
+
+    settingsModal.classList.remove('hidden');
+  }
+
+  const openSettingsButton = document.getElementById('open-settings');
+
+  if (openSettingsButton) {
+    openSettingsButton.addEventListener('click', e => {
+      e.stopPropagation();
+      openSettings();
+    });
+  }
+
+  document.addEventListener('click', e => {
     const btn = e.target.closest && e.target.closest('[data-premium-days]');
     if (!btn) return;
+
     e.preventDefault();
     e.stopPropagation();
+
     const days = parseInt(btn.getAttribute('data-premium-days'), 10) || 30;
     const price = parseInt(btn.getAttribute('data-premium-price'), 10) || 299;
+
     buyPremiumWithRub(days, price);
   });
+
   const premAnimEl = document.getElementById('setting-premium-anim-name');
   const premFrameEl = document.getElementById('setting-premium-frame');
-  if (premAnimEl) premAnimEl.addEventListener('change', () => {
-    db.settings = { ...(db.settings || {}), premiumAnimName: premAnimEl.checked };
-    saveDB();
-  });
-  if (premFrameEl) premFrameEl.addEventListener('change', () => {
-    db.settings = { ...(db.settings || {}), premiumFrame: premFrameEl.checked };
-    saveDB();
-  });
+
+  if (premAnimEl) {
+    premAnimEl.addEventListener('change', () => {
+      db.settings = { ...(db.settings || {}), premiumAnimName: premAnimEl.checked };
+      saveDB();
+    });
+  }
+
+  if (premFrameEl) {
+    premFrameEl.addEventListener('change', () => {
+      db.settings = { ...(db.settings || {}), premiumFrame: premFrameEl.checked };
+      saveDB();
+    });
+  }
+
   const premHideEl = document.getElementById('setting-premium-hide-online');
   const premBubblesEl = document.getElementById('setting-premium-bubbles');
   const premPriorityEl = document.getElementById('setting-premium-priority');
+
   if (premHideEl) {
     premHideEl.checked = !!(db.settings && db.settings.premiumHideOnline);
+
     premHideEl.addEventListener('change', () => {
       db.settings = { ...(db.settings || {}), premiumHideOnline: premHideEl.checked };
       saveDB();
+
       if (!premHideEl.checked) announceJoin();
     });
   }
+
   if (premBubblesEl) {
     premBubblesEl.checked = !(db.settings && db.settings.premiumBubbles === false);
+
     premBubblesEl.addEventListener('change', () => {
       db.settings = { ...(db.settings || {}), premiumBubbles: premBubblesEl.checked };
       saveDB();
       applyPremiumChrome();
     });
   }
+
   if (premPriorityEl) {
     premPriorityEl.checked = !(db.settings && db.settings.premiumPriority === false);
+
     premPriorityEl.addEventListener('change', () => {
       db.settings = { ...(db.settings || {}), premiumPriority: premPriorityEl.checked };
       saveDB();
     });
   }
+
   // Premium баннер профиля
   (function bindPremiumBanner() {
     const pick = document.getElementById('premium-banner-pick');
     const clear = document.getElementById('premium-banner-clear');
     const file = document.getElementById('setting-premium-banner');
     const hint = document.getElementById('premium-banner-hint');
+
     if (!pick || !file) return;
+
     pick.addEventListener('click', () => {
-      if (!isPremium(userName)) { alert('Баннер доступен только с velto Premium.'); return; }
+      if (!isPremium(userName)) {
+        alert('Баннер доступен только с velto Premium.');
+        return;
+      }
+
       file.click();
     });
+
     file.addEventListener('change', () => {
       const f = file.files && file.files[0];
       if (!f) return;
-      if (!f.type.startsWith('image/')) { alert('Нужен файл изображения'); file.value = ''; return; }
-      if (f.size > 2.5 * 1024 * 1024) { alert('Баннер до 2.5 МБ'); file.value = ''; return; }
+
+      if (!f.type.startsWith('image/')) {
+        alert('Нужен файл изображения');
+        file.value = '';
+        return;
+      }
+
+      if (f.size > 2.5 * 1024 * 1024) {
+        alert('Баннер до 2.5 МБ');
+        file.value = '';
+        return;
+      }
+
       const reader = new FileReader();
+
       reader.onload = () => {
         const img = new Image();
+
         img.onload = () => {
           const canvas = document.createElement('canvas');
-          const maxW = 960, maxH = 360;
-          let w = img.width, h = img.height;
+          const maxW = 960;
+          const maxH = 360;
+
+          let w = img.width;
+          let h = img.height;
+
           const scale = Math.min(1, maxW / w, maxH / h);
           w = Math.max(1, Math.round(w * scale));
           h = Math.max(1, Math.round(h * scale));
-          canvas.width = w; canvas.height = h;
-          canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-          const data = canvas.toDataURL('image/jpeg', 0.82);
-          db.profile = { ...(db.profile || {}), banner: data };
-          // sync account
+
+          canvas.width = w;
+          canvas.height = h;
+
+          const ctx = canvas.getContext('2d');
+          if (!ctx) {
+            alert('Не удалось обработать изображение.');
+            return;
+          }
+
+          ctx.drawImage(img, 0, 0, w, h);
+
+          let data;
+
           try {
-            const acc = (db.accounts || []).find(a => String(a.email || '').toLowerCase() === String(db.currentAccountEmail || '').toLowerCase());
+            data = canvas.toDataURL('image/jpeg', 0.82);
+          } catch (_) {
+            alert('Не удалось сохранить изображение.');
+            return;
+          }
+
+          db.profile = { ...(db.profile || {}), banner: data };
+
+          // Синхронизация с локальной записью аккаунта
+          try {
+            const acc = (db.accounts || []).find(a =>
+              String(a.email || '').toLowerCase() ===
+              String(db.currentAccountEmail || '').toLowerCase()
+            );
+
             if (acc) acc.banner = data;
           } catch (_) {}
+
           saveDB();
+
           if (hint) hint.textContent = 'Баннер установлен ✓';
-          try { openMyProfile(); } catch (_) {}
+
+          try {
+            openMyProfile();
+          } catch (error) {
+            console.error('Не удалось обновить профиль:', error);
+          }
         };
+
         img.onerror = () => alert('Не удалось открыть изображение');
         img.src = String(reader.result);
       };
+
+      reader.onerror = () => alert('Не удалось прочитать файл изображения');
+
       reader.readAsDataURL(f);
       file.value = '';
     });
-    if (clear) clear.addEventListener('click', () => {
-      if (db.profile) delete db.profile.banner;
-      try {
-        const acc = (db.accounts || []).find(a => String(a.email || '').toLowerCase() === String(db.currentAccountEmail || '').toLowerCase());
-        if (acc) delete acc.banner;
-      } catch (_) {}
-      saveDB();
-      if (hint) hint.textContent = 'Не задан';
-      try { openMyProfile(); } catch (_) {}
-    });
+
+    if (clear) {
+      clear.addEventListener('click', () => {
+        if (db.profile) delete db.profile.banner;
+
+        try {
+          const acc = (db.accounts || []).find(a =>
+            String(a.email || '').toLowerCase() ===
+            String(db.currentAccountEmail || '').toLowerCase()
+          );
+
+          if (acc) delete acc.banner;
+        } catch (_) {}
+
+        saveDB();
+
+        if (hint) hint.textContent = 'Не задан';
+
+        try {
+          openMyProfile();
+        } catch (error) {
+          console.error('Не удалось обновить профиль:', error);
+        }
+      });
+    }
   })();
-  document.getElementById('close-settings').addEventListener('click',()=>settingsModal.classList.add('hidden'));
-  document.querySelectorAll('[data-settings-tab]').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('[data-settings-tab]').forEach(x=>x.classList.toggle('active',x===b));document.querySelectorAll('[data-settings-page]').forEach(p=>p.classList.toggle('hidden',p.dataset.settingsPage!==b.dataset.settingsTab));}));
-  settingsModal.addEventListener('click',e=>{if(e.target===settingsModal)settingsModal.classList.add('hidden')});
-  settingsAvatar.addEventListener('change',()=>{ const f=settingsAvatar.files&&settingsAvatar.files[0]; if(!f)return; if(!f.type.startsWith('image/')){alert('Выбери файл изображения.');settingsAvatar.value='';return;} if(f.size>5*1024*1024){alert('Изображение должно быть меньше 5 МБ.');settingsAvatar.value='';return;} const reader=new FileReader(); reader.onload=()=>{pendingAvatarData=String(reader.result);settingsAvatarPreview.src=pendingAvatarData;settingsAvatarPreview.style.display='block'};reader.readAsDataURL(f); });
-  document.getElementById('setting-font-size').addEventListener('change',e=>{document.documentElement.dataset.messageSize=e.target.value;});
-  document.getElementById('save-settings').addEventListener('click',async()=>{const n=settingsNickname.value.trim();if(n.length<3||n.length>20){alert('Никнейм должен содержать от 3 до 20 символов.');return;}userName=n;userNameSpan.textContent=userName;if(pendingAvatarData){userAvatarUrl=pendingAvatarData;userAvatarImg.src=userAvatarUrl;}applyTheme(settingsTheme.value, false);const bioVal=(document.getElementById('settings-bio')||{}).value||'';const wantNotifications=document.getElementById('setting-notifications').checked; if(wantNotifications && 'Notification' in window && Notification.permission==='default'){try{await Notification.requestPermission();}catch(_){}} db.settings={...(db.settings||{}),
-      notifications:wantNotifications,
-      online:document.getElementById('setting-online').checked,
-      readReceipts:document.getElementById('setting-read-receipts').checked,
-      sounds:document.getElementById('setting-sounds').checked,
-      fontSize:document.getElementById('setting-font-size').value,
-      micAccess:document.getElementById('setting-mic-access').checked?'granted':'denied',
-      bubbleStyle:(document.getElementById('setting-bubble-style')||{}).value||'rounded',
-      compact:!!(document.getElementById('setting-compact')&&document.getElementById('setting-compact').checked),
-      msgAnim:!(document.getElementById('setting-msg-anim'))||document.getElementById('setting-msg-anim').checked,
-      enterSend:!(document.getElementById('setting-enter-send'))||document.getElementById('setting-enter-send').checked,
-      statusText:((document.getElementById('setting-status-text')||{}).value||'').trim().slice(0,40),
-      showTyping:!(document.getElementById('setting-show-typing'))||document.getElementById('setting-show-typing').checked
-    }; applyUiSettings();db.profile={...(db.profile||{}),name:userName,avatar:userAvatarUrl,theme:currentTheme,bio:bioVal.trim().slice(0,120),statusText:db.settings.statusText};if(Array.isArray(db.accounts)){const a=db.accounts.find(a=>a.email===db.currentAccountEmail);if(a){a.name=userName;a.avatar=userAvatarUrl;a.theme=currentTheme;a.bio=bioVal.trim().slice(0,120);}}saveDB();renderAdminTag();settingsModal.classList.add('hidden');});
+
+  const closeSettingsButton = document.getElementById('close-settings');
+
+  if (closeSettingsButton) {
+    closeSettingsButton.addEventListener('click', () => {
+      settingsModal.classList.add('hidden');
+    });
+  }
+
+  document.querySelectorAll('[data-settings-tab]').forEach(b => {
+    b.addEventListener('click', () => {
+      document.querySelectorAll('[data-settings-tab]').forEach(x => {
+        x.classList.toggle('active', x === b);
+      });
+
+      document.querySelectorAll('[data-settings-page]').forEach(p => {
+        p.classList.toggle('hidden', p.dataset.settingsPage !== b.dataset.settingsTab);
+      });
+    });
+  });
+
+  if (settingsModal) {
+    settingsModal.addEventListener('click', e => {
+      if (e.target === settingsModal) settingsModal.classList.add('hidden');
+    });
+  }
+
+  if (settingsAvatar) {
+    settingsAvatar.addEventListener('change', () => {
+      const f = settingsAvatar.files && settingsAvatar.files[0];
+      if (!f) return;
+
+      if (!f.type.startsWith('image/')) {
+        alert('Выбери файл изображения.');
+        settingsAvatar.value = '';
+        return;
+      }
+
+      if (f.size > 5 * 1024 * 1024) {
+        alert('Изображение должно быть меньше 5 МБ.');
+        settingsAvatar.value = '';
+        return;
+      }
+
+      const reader = new FileReader();
+
+      reader.onload = () => {
+        pendingAvatarData = String(reader.result);
+        settingsAvatarPreview.src = pendingAvatarData;
+        settingsAvatarPreview.style.display = 'block';
+      };
+
+      reader.onerror = () => alert('Не удалось прочитать изображение.');
+      reader.readAsDataURL(f);
+    });
+  }
+
+  const fontSizeSetting = document.getElementById('setting-font-size');
+
+  if (fontSizeSetting) {
+    fontSizeSetting.addEventListener('change', e => {
+      document.documentElement.dataset.messageSize = e.target.value;
+    });
+  }
+
+  const saveSettingsButton = document.getElementById('save-settings');
+
+  if (saveSettingsButton) {
+    saveSettingsButton.addEventListener('click', async () => {
+      const n = settingsNickname.value.trim();
+
+      if (n.length < 3 || n.length > 20) {
+        alert('Никнейм должен содержать от 3 до 20 символов.');
+        return;
+      }
+
+      userName = n;
+      userNameSpan.textContent = userName;
+
+      if (pendingAvatarData) {
+        userAvatarUrl = pendingAvatarData;
+        userAvatarImg.src = userAvatarUrl;
+      }
+
+      applyTheme(settingsTheme.value, false);
+
+      const bioVal = (document.getElementById('settings-bio') || {}).value || '';
+      const notificationsEl = document.getElementById('setting-notifications');
+
+      const wantNotifications = !!(notificationsEl && notificationsEl.checked);
+
+      if (
+        wantNotifications &&
+        'Notification' in window &&
+        Notification.permission === 'default'
+      ) {
+        try {
+          await Notification.requestPermission();
+        } catch (_) {}
+      }
+
+      const readValue = (id, fallback) => {
+        const el = document.getElementById(id);
+        return el ? el.checked : fallback;
+      };
+
+      const readSelect = (id, fallback) => {
+        const el = document.getElementById(id);
+        return el ? el.value : fallback;
+      };
+
+      db.settings = {
+        ...(db.settings || {}),
+        notifications: wantNotifications,
+        online: readValue('setting-online', true),
+        readReceipts: readValue('setting-read-receipts', true),
+        sounds: readValue('setting-sounds', true),
+        fontSize: readSelect('setting-font-size', 'medium'),
+        micAccess: readValue('setting-mic-access', true) ? 'granted' : 'denied',
+        bubbleStyle: readSelect('setting-bubble-style', 'rounded'),
+        compact: readValue('setting-compact', false),
+        msgAnim: readValue('setting-msg-anim', true),
+        enterSend: readValue('setting-enter-send', true),
+        statusText: ((document.getElementById('setting-status-text') || {}).value || '')
+          .trim()
+          .slice(0, 40),
+        showTyping: readValue('setting-show-typing', true)
+      };
+
+      applyUiSettings();
+
+      db.profile = {
+        ...(db.profile || {}),
+        name: userName,
+        avatar: userAvatarUrl,
+        theme: currentTheme,
+        bio: bioVal.trim().slice(0, 120),
+        statusText: db.settings.statusText
+      };
+
+      if (Array.isArray(db.accounts)) {
+        const account = db.accounts.find(a => a.email === db.currentAccountEmail);
+
+        if (account) {
+          account.name = userName;
+          account.avatar = userAvatarUrl;
+          account.theme = currentTheme;
+          account.bio = bioVal.trim().slice(0, 120);
+        }
+      }
+
+      saveDB();
+      renderAdminTag();
+      settingsModal.classList.add('hidden');
+    });
+  }
+
   // Удаление профиля Velto — окно подтверждения
   const deleteAccountModal = document.getElementById('delete-account-modal');
   const deleteAccountOpen = document.getElementById('delete-account-open');
@@ -5853,7 +6739,7 @@ return H.map(x=>(x>>>0).toString(16).padStart(8,'0')).join('');
   }
 
   if (deleteAccountModal) {
-    deleteAccountModal.addEventListener('click', (event) => {
+    deleteAccountModal.addEventListener('click', event => {
       if (event.target === deleteAccountModal) {
         deleteAccountModal.classList.add('hidden');
       }
@@ -5868,39 +6754,42 @@ return H.map(x=>(x>>>0).toString(16).padStart(8,'0')).join('');
 
   const logoutButton = document.getElementById('logout-button');
 
-if (logoutButton) {
-  logoutButton.addEventListener('click', () => {
-    if (!confirm('Выйти из аккаунта? Данные аккаунта останутся сохранены в этом браузере.')) return;
+  if (logoutButton) {
+    logoutButton.addEventListener('click', () => {
+      if (!confirm('Выйти из аккаунта? Данные аккаунта останутся сохранены в этом браузере.')) {
+        return;
+      }
 
-    if (profileModal) profileModal.classList.add('hidden');
-    if (settingsModal) settingsModal.classList.add('hidden');
+      if (profileModal) profileModal.classList.add('hidden');
+      if (settingsModal) settingsModal.classList.add('hidden');
 
-    if (appScreen) appScreen.classList.add('hidden');
-    if (welcomeScreen) welcomeScreen.classList.add('hidden');
-    if (avatarScreen) avatarScreen.classList.add('hidden');
-    if (registerScreen) registerScreen.classList.remove('hidden');
+      if (appScreen) appScreen.classList.add('hidden');
+      if (welcomeScreen) welcomeScreen.classList.add('hidden');
+      if (avatarScreen) avatarScreen.classList.add('hidden');
+      if (registerScreen) registerScreen.classList.remove('hidden');
 
-    // Не удаляем профиль и данные аккаунта
-    userName = '';
-    userAvatarUrl = '';
-    pendingAccount = null;
+      // Не удаляем профиль и данные аккаунта
+      userName = '';
+      userAvatarUrl = '';
+      pendingAccount = null;
 
-    if (regName) regName.value = '';
-    if (regEmail) regEmail.value = '';
-    if (regPass) regPass.value = '';
-    if (regPass2) regPass2.value = '';
+      if (regName) regName.value = '';
+      if (regEmail) regEmail.value = '';
+      if (regPass) regPass.value = '';
+      if (regPass2) regPass2.value = '';
 
-    const loginEmail = document.getElementById('login-email');
-    const loginPass = document.getElementById('login-pass');
+      const loginEmail = document.getElementById('login-email');
+      const loginPass = document.getElementById('login-pass');
 
-    if (loginEmail) loginEmail.value = '';
-    if (loginPass) loginPass.value = '';
+      if (loginEmail) loginEmail.value = '';
+      if (loginPass) loginPass.value = '';
 
-    if (typeof showAuthMode === 'function') {
-      showAuthMode('login');
-    }
-  });
-}
+      if (typeof showAuthMode === 'function') {
+        showAuthMode('login');
+      }
+    });
+  }
+
 
   function botUserKey(name){ return String(name == null ? '' : name).trim().toLocaleLowerCase(); }
   function formatAdminBotMessage(fromName, body){
