@@ -3776,6 +3776,7 @@ body.theme-solar {
   </div>
 </div>
 
+
 <!-- Профиль / редактирование группы и канала -->
 <div id="entity-modal" class="modal-backdrop hidden" role="dialog" aria-modal="true">
   <div class="modal-card entity-modal entity-view-mode" id="entity-modal-card">
@@ -3785,27 +3786,33 @@ body.theme-solar {
       <div class="entity-title" id="entity-title">Название</div>
       <div class="entity-sub" id="entity-sub">Группа</div>
     </div>
+
     <div class="entity-body">
       <div class="entity-row entity-view-only">
         <label>Описание</label>
         <div class="val" id="entity-desc-view">—</div>
       </div>
+
       <div class="entity-row entity-view-only">
         <label>Владелец</label>
         <div class="val" id="entity-owner-view">—</div>
       </div>
+
       <div class="entity-row entity-view-only" id="entity-members-block">
         <label>Участники</label>
         <div class="entity-members" id="entity-members-list"></div>
       </div>
-      <!-- edit fields -->
+
+      <!-- Поля редактирования -->
       <div class="entity-row entity-edit-only">
         <label for="entity-name-input">Название</label>
         <input id="entity-name-input" maxlength="40" autocomplete="off">
       </div>
+
       <div class="entity-row entity-edit-only">
         <label>Иконка</label>
         <input type="hidden" id="entity-emoji-input" value="🪐">
+
         <div class="create-emoji-row" id="entity-emoji-chips">
           <button type="button" class="create-emoji-chip active" data-emoji="🪐">🪐</button>
           <button type="button" class="create-emoji-chip" data-emoji="🚀">🚀</button>
@@ -3818,11 +3825,13 @@ body.theme-solar {
           <input class="create-emoji-custom" id="entity-emoji-custom" maxlength="4" placeholder="+" title="Свой эмодзи">
         </div>
       </div>
+
       <div class="entity-row entity-edit-only" id="entity-desc-edit-row">
         <label for="entity-desc-input">Описание</label>
         <textarea id="entity-desc-input" maxlength="120" placeholder="Описание…"></textarea>
       </div>
     </div>
+
     <div class="entity-footer">
       <button type="button" class="secondary-btn entity-view-only" id="entity-close-btn">Закрыть</button>
       <button type="button" class="primary-btn entity-view-only" id="entity-edit-btn">✎ Изменить</button>
@@ -3832,7 +3841,6 @@ body.theme-solar {
     </div>
   </div>
 </div>
-
 
 <div id="discover-modal" class="modal-backdrop hidden" role="dialog" aria-modal="true">
   <div class="modal-card discover-modal">
@@ -3844,21 +3852,66 @@ body.theme-solar {
         </div>
         <button type="button" class="icon-btn" id="close-discover" aria-label="Закрыть">✕</button>
       </div>
+
       <p class="settings-hint" style="margin-top:8px">Свой мессенджер без чужих брендов и лишней слежки. Всё важное — на месте.</p>
     </div>
+
     <div class="dm-body">
-      <div class="discover-item"><div class="di-icon">⭐</div><div><b>Избранное</b><p>Личный чат с собой: ссылки, идеи, пароли-заметки. Только у тебя на устройстве.</p><button type="button" class="secondary-btn" id="discover-open-saved" style="margin-top:8px">Открыть Избранное</button></div></div>
-      <div class="discover-item"><div class="di-icon">☄</div><div><b>Ежедневный бонус Comet</b><p>Заходи каждый день — получай Comet. Дари друзьям и ставь ☄-лайки в каналах.</p></div></div>
-      <div class="discover-item"><div class="di-icon">😊</div><div><b>Стикеры и реакции</b><p>Оригинальный набор velto под кнопкой 😊. Реакции на любом сообщении.</p></div></div>
-      <div class="discover-item"><div class="di-icon">👥</div><div><b>Группы и каналы</b><p>Создай сообщество или ленту новостей. Редактируй и удаляй, если ты владелец.</p></div></div>
-      <div class="discover-item"><div class="di-icon">🔒</div><div><b>Данные у тебя</b><p>Аккаунт в браузере, копия базы одним файлом. Без обязательной регистрации на чужом сервере.</p></div></div>
-      <div class="discover-item"><div class="di-icon">🌌</div><div><b>Темы космоса</b><p>Луна, Юпитер, Зомби-пустошь, Криос-Арктика и другие. Premium — баннер и обои.</p></div></div>
+      <div class="discover-item">
+        <div class="di-icon">⭐</div>
+        <div>
+          <b>Избранное</b>
+          <p>Личный чат с собой: ссылки, идеи, пароли-заметки. Только у тебя на устройстве.</p>
+          <button type="button" class="secondary-btn" id="discover-open-saved" style="margin-top:8px">Открыть Избранное</button>
+        </div>
+      </div>
+
+      <div class="discover-item">
+        <div class="di-icon">☄</div>
+        <div>
+          <b>Ежедневный бонус Comet</b>
+          <p>Заходи каждый день — получай Comet. Дари друзьям и ставь ☄-лайки в каналах.</p>
+        </div>
+      </div>
+
+      <div class="discover-item">
+        <div class="di-icon">😊</div>
+        <div>
+          <b>Стикеры и реакции</b>
+          <p>Оригинальный набор velto под кнопкой 😊. Реакции на любом сообщении.</p>
+        </div>
+      </div>
+
+      <div class="discover-item">
+        <div class="di-icon">👥</div>
+        <div>
+          <b>Группы и каналы</b>
+          <p>Создай сообщество или ленту новостей. Редактируй и удаляй, если ты владелец.</p>
+        </div>
+      </div>
+
+      <div class="discover-item">
+        <div class="di-icon">🔒</div>
+        <div>
+          <b>Данные у тебя</b>
+          <p>Аккаунт в браузере, копия базы одним файлом. Без обязательной регистрации на чужом сервере.</p>
+        </div>
+      </div>
+
+      <div class="discover-item">
+        <div class="di-icon">🌌</div>
+        <div>
+          <b>Темы космоса</b>
+          <p>Луна, Юпитер, Зомби-пустошь, Криос-Арктика и другие. Premium — баннер и обои.</p>
+        </div>
+      </div>
+
       <button type="button" class="primary-btn" id="discover-claim-daily" style="width:100%;margin-top:6px">☄ Забрать дневной бонус</button>
     </div>
   </div>
 </div>
 
-
+<!-- Настройки -->
 <div id="settings-modal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="settings-title">
   <div class="modal-card settings-card">
     <div class="modal-head">
@@ -3867,105 +3920,76 @@ body.theme-solar {
         <h2 id="settings-title">Настройки</h2>
         <p class="settings-subtitle">Настройте мессенджер под себя</p>
       </div>
-      <button
-              type="button"
-              class="icon-btn"
-              id="close-settings"
-              aria-label="Назад"
-      >←</button>
+
+      <button type="button" class="icon-btn" id="close-settings" aria-label="Назад">←</button>
     </div>
 
-    <div class="settings-tabs" role="tablist">
-      <button class="settings-tab active" type="button" data-settings-tab="general">
-        <span>⚙</span> Основные
+    <!-- Единственное главное меню настроек -->
+    <div class="settings-home" id="settings-home">
+      <button type="button" class="settings-menu-item" data-settings-open="profile">
+        <span class="settings-menu-icon">♙</span>
+        <span>
+          <strong>Профиль</strong>
+          <small>Никнейм, фото и информация о себе</small>
+        </span>
+        <b>›</b>
+      </button>
+
+      <button type="button" class="settings-menu-item" data-settings-open="appearance">
+        <span class="settings-menu-icon">☾</span>
+        <span>
+          <strong>Настройки чатов</strong>
+          <small>Тема и отображение сообщений</small>
+        </span>
+        <b>›</b>
+      </button>
+
+      <button type="button" class="settings-menu-item" data-settings-open="notifications">
+        <span class="settings-menu-icon">♧</span>
+        <span>
+          <strong>Уведомления</strong>
+          <small>Оповещения и звуки</small>
+        </span>
+        <b>›</b>
+      </button>
+
+      <button type="button" class="settings-menu-item" data-settings-open="privacy">
+        <span class="settings-menu-icon">◈</span>
+        <span>
+          <strong>Конфиденциальность</strong>
+          <small>Видимость активности и прочтение</small>
+        </span>
+        <b>›</b>
+      </button>
+
+      <button type="button" class="settings-menu-item" data-settings-open="data">
+        <span class="settings-menu-icon">▤</span>
+        <span>
+          <strong>Данные и память</strong>
+          <small>Пароль, резервная копия и импорт</small>
+        </span>
+        <b>›</b>
+      </button>
+
+      <button type="button" class="settings-menu-item" data-settings-open="premium">
+        <span class="settings-menu-icon">✓</span>
+        <span>
+          <strong>Velto Premium</strong>
+          <small>Подписка и дополнительные возможности</small>
+        </span>
+        <b>›</b>
+      </button>
+
+      <button type="button" class="settings-menu-item" data-settings-open="account">
+        <span class="settings-menu-icon">↪</span>
+        <span>
+          <strong>Аккаунт</strong>
+          <small>Выход и удаление профиля</small>
+        </span>
+        <b>›</b>
       </button>
     </div>
 
-    <section class="settings-page" data-settings-page="general">
-
-      <!-- Главное меню настроек -->
-      <div id="settings-home" class="settings-home">
-        <button type="button" class="settings-menu-item" data-open-settings="profile">
-          <span class="settings-section-icon">♙</span>
-          <span>
-            <strong>Профиль</strong>
-            <small>Никнейм, фото и информация о себе</small>
-          </span>
-          <span>›</span>
-        </button>
-
-        <button type="button" class="settings-menu-item" data-open-settings="chats">
-          <span class="settings-section-icon">☾</span>
-          <span>
-            <strong>Настройки чатов</strong>
-            <small>Тема, сообщения и оформление</small>
-          </span>
-          <span>›</span>
-        </button>
-
-        <button type="button" class="settings-menu-item" data-open-settings="notifications">
-          <span class="settings-section-icon">♧</span>
-          <span>
-            <strong>Уведомления</strong>
-            <small>Оповещения и звуки</small>
-          </span>
-          <span>›</span>
-        </button>
-
-        <button type="button" class="settings-menu-item" data-open-settings="privacy">
-          <span class="settings-section-icon">◈</span>
-          <span>
-            <strong>Конфиденциальность</strong>
-            <small>Статус и видимость информации</small>
-          </span>
-          <span>›</span>
-        </button>
-
-        <button type="button" class="settings-menu-item" data-open-settings="database">
-          <span class="settings-section-icon">▤</span>
-          <span>
-            <strong>Данные и память</strong>
-            <small>Резервная копия и данные</small>
-          </span>
-          <span>›</span>
-        </button>
-
-        <button type="button" class="settings-menu-item" data-open-settings="premium">
-          <span class="settings-section-icon">✓</span>
-          <span>
-            <strong>Velto Premium</strong>
-            <small>Эксклюзивные возможности</small>
-          </span>
-          <span>›</span>
-        </button>
-
-        <button type="button" class="settings-menu-item" data-open-settings="devices">
-          <span class="settings-section-icon">▣</span>
-          <span>
-            <strong>Устройства</strong>
-            <small>Подключённые устройства</small>
-          </span>
-          <span>›</span>
-        </button>
-
-        <button type="button" class="settings-menu-item" data-open-settings="support">
-          <span class="settings-section-icon">♡</span>
-          <span>
-            <strong>Поддержка</strong>
-            <small>Помощь и информация о Velto</small>
-          </span>
-          <span>›</span>
-        </button>
-
-        <button type="button" class="settings-menu-item" data-open-settings="account">
-          <span class="settings-section-icon">↪</span>
-          <span>
-            <strong>Аккаунт</strong>
-            <small>Выход и удаление профиля</small>
-          </span>
-          <span>›</span>
-        </button>
-      </div>
 
       <!-- Страница: Профиль -->
       <div class="settings-section" data-settings-section="profile" hidden>
@@ -4474,6 +4498,7 @@ body.theme-solar {
     </div>
   </div>
 </div>
+
 
 <!-- Жалоба -->
 <div id="report-modal" class="modal-backdrop hidden" role="dialog" aria-modal="true">
