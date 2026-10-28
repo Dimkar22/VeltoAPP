@@ -3336,7 +3336,14 @@ body.theme-solar {
 </button>
 
 <!-- ЭКРАН РЕГИСТРАЦИИ -->
-<div id="register-screen" class="screen">
+<div id="register-screen" class="screen hidden">
+  <div id="auth-loading-screen" class="screen">
+    <div class="reg-form" style="text-align:center;">
+      <div class="reg-logo">🌙</div>
+      <div class="reg-title">Velto Messenger</div>
+      <div class="reg-subtitle">Загрузка аккаунта...</div>
+    </div>
+  </div>
   <div class="reg-form">
     <div class="reg-logo">🌙</div>
     <div class="reg-title">Velto Messenger</div>
@@ -4770,6 +4777,15 @@ function applyTheme(theme, persist = true) {
   const showLoginBtn = document.getElementById('show-login');
   let pendingAccount = null;
   function showAuthMode(mode){
+    const loadingScreen = document.getElementById('auth-loading-screen');
+
+  if (loadingScreen) {
+    loadingScreen.classList.add('hidden');
+  }
+
+  if (registerScreen) {
+    registerScreen.classList.remove('hidden');
+  }
     const login = mode === 'login';
     if (registerFormPanel) registerFormPanel.classList.toggle('hidden', login);
     if (loginFormPanel) loginFormPanel.classList.toggle('hidden', !login);
@@ -4899,6 +4915,8 @@ if (!cloudProfile?.username) {
     email: authUser.email
   };
 
+  const loadingScreen = document.getElementById('auth-loading-screen');
+if (loadingScreen) loadingScreen.classList.add('hidden');
   registerScreen.classList.add('hidden');
   avatarScreen.classList.add('hidden');
   welcomeScreen.classList.add('hidden');
